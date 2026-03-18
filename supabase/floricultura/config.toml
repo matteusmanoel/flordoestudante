@@ -1,0 +1,32 @@
+# Configuração do projeto Supabase — Floricultura (Flor do Estudante)
+# Uso: executar comandos do Supabase CLI a partir desta pasta:
+#   cd supabase/floricultura && supabase link --project-ref <PROJECT_REF> && supabase db push
+# Para desenvolvimento local: supabase start (sobe containers locais)
+
+project_id = "floricultura"
+
+[api]
+port = 54321
+schemas = ["public", "storage"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+shadow_port = 54320
+
+[db.migrations]
+# Migrations nesta pasta são aplicadas na ordem numérica (00001_*, 00002_*, ...)
+
+[studio]
+port = 54323
+
+[storage]
+enabled = true
+
+[inbucket]
+enabled = true
+
+[auth]
+enabled = true

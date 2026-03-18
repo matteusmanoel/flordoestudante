@@ -12,5 +12,10 @@ export function getPublicSiteUrl(): string {
     return `https://${vercel.replace(/^https?:\/\//, '')}`;
   }
 
+  if (process.env.NODE_ENV === 'production') {
+    console.warn(
+      '[site-url] Produção sem NEXT_PUBLIC_SITE_URL nem VERCEL_URL — usando localhost; defina NEXT_PUBLIC_SITE_URL para Mercado Pago e links públicos.'
+    );
+  }
   return 'http://localhost:3000';
 }

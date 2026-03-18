@@ -1,7 +1,7 @@
 # Setup
 
 ## Status
-Monorepo em **FASE 3 (EXECUTE)**. **Floricultura Web** pronta para deploy controlado (ETAPA 12). Deploy: ver `docs/deploy-checklist.md` e `docs/manual-steps.md`.
+Monorepo em **FASE 3 (EXECUTE)**. **ETAPA 13 — go-live assistido:** floricultura pronta para publicação real; handoff em `docs/handoff-operacao.md`; validação em `docs/smoke-test-go-live.md`. Deploy técnico: `docs/deploy-checklist.md`.
 
 ## Stack
 Next.js, TypeScript, Tailwind, ShadCN/UI, Supabase, Vercel, Mercado Pago, React Hook Form, Zod.
@@ -42,7 +42,7 @@ Não há outras variáveis obrigatórias no código atual da floricultura (sem R
 Ordem de resolução no código:
 1. `NEXT_PUBLIC_SITE_URL`
 2. `https://VERCEL_URL` (ambiente Vercel)
-3. `http://localhost:3000` (dev local)
+3. `http://localhost:3000` (dev local). Em produção, se faltar (1) e (2), o servidor registra **aviso** em log e ainda usa localhost — evite: defina `NEXT_PUBLIC_SITE_URL` no domínio final.
 
 Para **produção com domínio próprio**, defina sempre `NEXT_PUBLIC_SITE_URL` para evitar links e callbacks apontando para `*.vercel.app`.
 
@@ -82,5 +82,7 @@ pnpm lint && pnpm typecheck && pnpm --filter floricultura-web build
 
 ## Referência
 - `docs/architecture.md`
-- `docs/deploy-checklist.md` — publicação e smoke test.
-- `docs/manual-steps.md` — passos que não são automatizáveis na IDE.
+- `docs/deploy-checklist.md` — ordem do go-live e envs.
+- `docs/handoff-operacao.md` — operação e contingência.
+- `docs/smoke-test-go-live.md` — checklist pós-publicação.
+- `docs/manual-steps.md` — referência rápida (Supabase, MP, sync).

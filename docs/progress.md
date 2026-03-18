@@ -2,10 +2,9 @@
 
 ## Status atual
 - Fase ativa: **EXECUTE** (FASE 3)
-- Milestone: **ETAPA 12 concluída** — deploy controlado da floricultura documentado e código alinhado a produção (URLs, webhook/sync, Vercel monorepo).
-- Estado: `floricultura-web` pronta para primeiro deploy; lint/typecheck/build verdes após etapa.
-- Apps: floricultura (catálogo → checkout → MP/offline → `/pedido/[codigo]` → admin pedidos); `home-decor-web` mínimo.
-- Fora do código: criar projetos Supabase/Vercel/MP, DNS, envs, webhook no painel MP (ver `docs/deploy-checklist.md`).
+- Milestone: **ETAPA 13 concluída** — go-live assistido: handoff operacional (`docs/handoff-operacao.md`), smoke test executável (`docs/smoke-test-go-live.md`), checklist/deploy consolidados, aviso em log se produção sem URL pública configurada.
+- Estado: `floricultura-web` pronta para **publicação assistida**; sem lacunas internas documentadas; ações externas seguem `docs/deploy-checklist.md`.
+- Apps: floricultura (fluxo completo MVP); `home-decor-web` mínimo.
 
 ## O que foi feito
 - **ETAPA 1:** scaffold do monorepo (workspace pnpm, configs, árvore, apps e packages placeholder).
@@ -91,6 +90,13 @@
 - **Limitações MVP:** importação XLSX não no escopo desta etapa; estoque/aprovação manual; reembolso manual no MP.
 - **Monitorar:** logs Vercel (webhook), pedidos `awaiting_approval` pós-pagamento, falhas de notificação MP.
 
+## ETAPA 13 — Go-live assistido
+- **`docs/handoff-operacao.md`:** URLs, envs obrigatórias, ordem de publicação, MVP limits, contingência (MP, webhook, admin, imagens).
+- **`docs/smoke-test-go-live.md`:** blocos A–F (público, checkout, pagamento, acompanhamento, admin, fechamento) com OK/NOK/observação.
+- **`docs/deploy-checklist.md`:** ordem única de passos manuais, links cruzados, `NEXT_PUBLIC_SITE_URL` obrigatório após domínio próprio + redploy.
+- **`docs/manual-steps.md`:** reduzido a resumo; detalhe no checklist/handoff.
+- **Código:** `getPublicSiteUrl` — `console.warn` em produção se cair em fallback localhost (sem `NEXT_PUBLIC_SITE_URL` nem `VERCEL_URL`).
+
 ## Decisões práticas (ETAPA 2)
 - **utils:** incluídos `clsx` e `tailwind-merge` para `cn`; funções puras e sem dependência de React/Next/Supabase/MP.
 - **core:** schemas de checkout com campos de contato inline no checkoutFormSchema (evitar spread de ZodEffects.shape); normalizers usam roundCurrency de utils.
@@ -130,5 +136,6 @@
 - **Cliente:** find by email ou phone; se existir, update nome/phone/email; senão insert; endereço sempre insert quando entrega (snapshot no order + linha em addresses).
 
 ## Próximos passos
-- Executar deploy na Vercel + Supabase prod + MP conforme `docs/deploy-checklist.md`.
-- Evolução: home-decor-web, importação XLSX, notificações reais (email/WhatsApp), hardening adicional conforme operação.
+- Executar go-live seguindo `docs/deploy-checklist.md` e validar com `docs/smoke-test-go-live.md`.
+- Operação: `docs/handoff-operacao.md`.
+- Evolução: home-decor, importação XLSX, notificações reais.

@@ -2,6 +2,8 @@
 
 Conta criada/atualizada via SQL no Supabase para apresentações do painel admin.
 
+Script versionado para reaplicar: `scripts/sql/demo-showcase-admin.sql` (Supabase → SQL Editor).
+
 | Campo | Valor |
 |--------|--------|
 | URL de login | `https://<seu-dominio>/admin/login` |

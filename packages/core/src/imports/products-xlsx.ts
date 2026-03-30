@@ -69,8 +69,8 @@ function normalizeRow(raw: RawRow): Partial<ProductImportRow> {
   };
 }
 
-export function parseProductsXlsx(buffer: Buffer): RawRow[] {
-  const workbook = XLSX.read(buffer, { type: 'buffer' });
+export function parseProductsXlsx(data: Uint8Array): RawRow[] {
+  const workbook = XLSX.read(data, { type: 'array' });
   const firstSheetName = workbook.SheetNames[0];
   if (!firstSheetName) {
     throw new Error('Planilha vazia ou sem abas');

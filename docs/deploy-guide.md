@@ -5,6 +5,8 @@
 
 **Pedidos avulsos (checkout do carrinho):** apenas **Mercado Pago** e **pagar na entrega/retirada**. O pagamento one-shot via Stripe para pedidos da loja está **desativado** no código (`features/checkout/actions.ts` + UI em `CheckoutFulfillmentSection`). As **assinaturas** (`/assinaturas/*`) continuam usando Stripe Checkout.
 
+**Demonstração em produção:** credenciais de utilizador showcase (admin demo) em **`docs/demo-showcase-acesso.md`**.
+
 ---
 
 ## Índice

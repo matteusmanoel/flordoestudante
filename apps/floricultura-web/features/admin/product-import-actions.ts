@@ -43,7 +43,7 @@ export async function importProductsFromXlsxAction(formData: FormData): Promise<
       return { ok: false, message: 'Arquivo muito grande. Tamanho máximo: 5 MB' };
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const bytes = new Uint8Array(await file.arrayBuffer());
     const supabase = createServerSupabaseClient();
 
     const { data: importLog, error: logError } = await supabase
@@ -68,7 +68,7 @@ export async function importProductsFromXlsxAction(formData: FormData): Promise<
 
     let rawRows;
     try {
-      rawRows = parseProductsXlsx(buffer);
+      rawRows = parseProductsXlsx(bytes);
     } catch (err) {
       await supabase
         .from('imports_log')

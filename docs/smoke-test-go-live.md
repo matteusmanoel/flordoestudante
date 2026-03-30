@@ -52,8 +52,8 @@ Preencha na **URL de produção** após DNS e envs finais. Para cada passo marqu
 |---|--------|-----------------|
 | E1 | `/admin/login` — login com usuário que está em `admins` | |
 | E2 | `/admin` — painel carrega após login | |
-| E3 | Listar/gerir pedidos (fluxo disponível no painel) | |
-| E4 | Alterar status de um pedido (ex.: aprovado) | |
+| E3 | `/admin/pedidos` — lista carrega | |
+| E4 | Abrir pedido — alterar status, prazo (texto), salvar; opcional ajustar qtd/substituir item | |
 
 ---
 

@@ -7,6 +7,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { getLocalItem, setLocalItem } from '@flordoestudante/utils';
 import type { CartItem } from './types';
 import {
@@ -40,9 +41,14 @@ export interface CartStoreValue {
   hydrated: boolean;
   subtotal: number;
   totalItemCount: number;
-  /** Mensagem exibida após adicionar item (ex.: nome do produto); some após 2s */
-  toastMessage: string | null;
-  addItem: (product: Parameters<typeof createCartItem>[0], quantity?: number) => void;
+  /** Painel lateral do carrinho (ex.: abre após “Adicionar ao carrinho”). */
+  cartSheetOpen: boolean;
+  setCartSheetOpen: (open: boolean) => void;
+  addItem: (
+    product: Parameters<typeof createCartItem>[0],
+    quantity?: number,
+    options?: { openCartSheet?: boolean }
+  ) => void;
   removeItem: (productId: string) => void;
   setQuantity: (productId: string, quantity: number) => void;
   incrementQuantity: (productId: string) => void;
@@ -52,13 +58,10 @@ export interface CartStoreValue {
 
 const CartContext = React.createContext<CartStoreValue | null>(null);
 
-const TOAST_DURATION_MS = 2500;
-
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const toastTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [cartSheetOpen, setCartSheetOpen] = useState(false);
 
   useEffect(() => {
     setItems(loadCartFromStorage());
@@ -70,22 +73,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     saveCartToStorage(items);
   }, [items, hydrated]);
 
-  useEffect(() => {
-    return () => {
-      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-    };
-  }, []);
-
   const addItem = useCallback(
-    (product: Parameters<typeof createCartItem>[0], quantity = 1) => {
+    (
+      product: Parameters<typeof createCartItem>[0],
+      quantity = 1,
+      options?: { openCartSheet?: boolean }
+    ) => {
       const newItem = createCartItem(product, quantity);
       setItems((prev) => mergeItemIntoCart(prev, newItem));
-      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-      setToastMessage(`${product.name} adicionado ao carrinho`);
-      toastTimeoutRef.current = setTimeout(() => {
-        setToastMessage(null);
-        toastTimeoutRef.current = null;
-      }, TOAST_DURATION_MS);
+      if (options?.openCartSheet !== false) {
+        setCartSheetOpen(true);
+      }
+      toast.success(`${product.name} adicionado ao carrinho`);
     },
     []
   );
@@ -125,7 +124,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       hydrated,
       subtotal,
       totalItemCount,
-      toastMessage,
+      cartSheetOpen,
+      setCartSheetOpen,
       addItem,
       removeItem,
       setQuantity,
@@ -138,7 +138,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       hydrated,
       subtotal,
       totalItemCount,
-      toastMessage,
+      cartSheetOpen,
       addItem,
       removeItem,
       setQuantity,

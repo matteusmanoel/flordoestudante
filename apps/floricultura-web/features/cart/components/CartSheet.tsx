@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@flordoestudante/ui';
 import { Button } from '@flordoestudante/ui';
 import { useCart } from '../store';
@@ -10,12 +10,20 @@ import { CartSummary } from './CartSummary';
 import { CartEmptyState } from './CartEmptyState';
 
 export function CartSheet() {
-  const [open, setOpen] = useState(false);
-  const { items, hydrated, subtotal, totalItemCount, setQuantity, removeItem } = useCart();
+  const {
+    items,
+    hydrated,
+    subtotal,
+    totalItemCount,
+    setQuantity,
+    removeItem,
+    cartSheetOpen,
+    setCartSheetOpen,
+  } = useCart();
   const isEmpty = items.length === 0;
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={cartSheetOpen} onOpenChange={setCartSheetOpen}>
       <SheetTrigger asChild>
         <button
           type="button"
@@ -44,42 +52,52 @@ export function CartSheet() {
           )}
         </button>
       </SheetTrigger>
-      <SheetContent side="right" className="flex w-full flex-col sm:max-w-md">
-        <SheetHeader>
-          <SheetTitle className="font-serif">Carrinho</SheetTitle>
-        </SheetHeader>
-        <div className="flex flex-1 flex-col overflow-hidden">
-          {isEmpty ? (
-            <CartEmptyState onClose={() => setOpen(false)} />
-          ) : (
-            <>
-              <div className="flex-1 overflow-y-auto">
-                {items.map((item) => (
-                  <CartItemRow
-                    key={item.productId}
-                    item={item}
-                    onQuantityChange={setQuantity}
-                    onRemove={removeItem}
-                  />
-                ))}
-              </div>
-              <CartSummary
-                subtotal={subtotal}
-                itemCount={totalItemCount}
-                cta={
-                  <div className="flex flex-col gap-2">
-                    <Button asChild className="w-full" onClick={() => setOpen(false)}>
-                      <Link href="/checkout">Finalizar pedido</Link>
-                    </Button>
-                    <Button asChild variant="outline" className="w-full" onClick={() => setOpen(false)}>
-                      <Link href="/carrinho">Ver carrinho</Link>
-                    </Button>
-                  </div>
-                }
-              />
-            </>
-          )}
-        </div>
+      <SheetContent
+        side="right"
+        className="flex w-full flex-col overflow-hidden p-0 sm:max-w-md sm:p-6"
+      >
+        <motion.div
+          className="flex h-full min-h-0 flex-1 flex-col gap-4 p-6"
+          initial={{ opacity: 0, x: 56 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+        >
+          <SheetHeader className="space-y-0 text-left">
+            <SheetTitle className="font-serif">Carrinho</SheetTitle>
+          </SheetHeader>
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            {isEmpty ? (
+              <CartEmptyState onClose={() => setCartSheetOpen(false)} />
+            ) : (
+              <>
+                <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+                  {items.map((item) => (
+                    <CartItemRow
+                      key={item.productId}
+                      item={item}
+                      onQuantityChange={setQuantity}
+                      onRemove={removeItem}
+                    />
+                  ))}
+                </div>
+                <CartSummary
+                  subtotal={subtotal}
+                  itemCount={totalItemCount}
+                  cta={
+                    <div className="flex flex-col gap-2">
+                      <Button asChild className="w-full" onClick={() => setCartSheetOpen(false)}>
+                        <Link href="/checkout">Finalizar pedido</Link>
+                      </Button>
+                      <Button asChild variant="outline" className="w-full" onClick={() => setCartSheetOpen(false)}>
+                        <Link href="/catalogo">Ver catálogo</Link>
+                      </Button>
+                    </div>
+                  }
+                />
+              </>
+            )}
+          </div>
+        </motion.div>
       </SheetContent>
     </Sheet>
   );

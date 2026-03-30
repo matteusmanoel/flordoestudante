@@ -1,37 +1,47 @@
 # Supabase — Floricultura (Flor do Estudante)
 
-Projeto Supabase da aplicação **floricultura-web**. Cada app do monorepo tem seu próprio projeto Supabase em produção (dados isolados).
-
 ## Estrutura
 
-- **migrations/** — Schema e alterações (enums, tabelas, RLS, storage). Ordem: `00001_*` … `00006_*`.
-- **seeds/** — Dados iniciais para desenvolvimento (`01_*`, `02_*`).
-- **config.toml** — Configuração do Supabase CLI para este projeto.
+- **`migrations/`** — fonte canônica do schema (00001…00006).
+- **`seeds/`** — fonte canônica dos dados demo.
+- **`supabase/migrations/`** — cópia consumida pelo **Supabase CLI** (gerada).
+- **`supabase/seed.sql`** — gerado a partir de `seeds/` (CLI não aceita `\i` no seed).
 
-## Comandos (executar nesta pasta)
+## Antes de `supabase db reset` (local)
+
+Na **raiz do monorepo**:
 
 ```bash
-# Vincular ao projeto remoto (pegue PROJECT_REF no dashboard do Supabase)
+pnpm db:floricultura:sync
+```
+
+Isso executa:
+
+1. `scripts/sync-floricultura-supabase.sh` — copia `migrations/*.sql` → `supabase/migrations/`.
+2. `scripts/merge-floricultura-seed.sh` — gera `supabase/seed.sql` a partir de `seeds/`.
+
+Depois:
+
+```bash
+cd supabase/floricultura
+supabase start    # primeira vez: download de imagens
+supabase db reset
+```
+
+## Projeto remoto (cloud)
+
+```bash
+cd supabase/floricultura
 supabase link --project-ref <PROJECT_REF>
-
-# Aplicar migrations
 supabase db push
-
-# Rodar seeds (após push)
-supabase db seed
-
-# Gerar tipos TypeScript a partir do schema (requer link)
-supabase gen types typescript --local > ../../packages/supabase/src/types/database-floricultura.ts
 ```
 
-Para desenvolvimento local com containers:
-
-```bash
-supabase start
-supabase db reset   # aplica migrations + seeds
-supabase stop
-```
+**Produção:** não rodar seed demo. Dados reais do cliente.
 
 ## Primeiro admin
 
-O primeiro usuário admin não é criado pelas seeds (depende do Auth). Ver `docs/manual-steps.md`: criar usuário em **Authentication** no dashboard e depois inserir/atualizar a linha em `admins` com o `auth_user_id` correspondente.
+Dashboard → Authentication → usuário → UUID → `INSERT` em `public.admins` (ver `docs/manual-steps.md`).
+
+## Postgres Docker na raiz do monorepo
+
+`docker compose up postgres` — auxiliar; não substitui esta stack para o app Next.js.

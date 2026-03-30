@@ -18,7 +18,7 @@ export async function HomeCatalogSection() {
 
   if (isEmpty) {
     return (
-      <section id="destaques" className="border-b border-border/60 py-16 sm:py-24">
+      <section id="destaques" className="border-b border-border/60 bg-gradient-to-b from-emerald-50/30 via-background to-green-50/20 py-16 sm:py-24">
         <div className="container px-4">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="font-serif text-2xl font-medium text-foreground sm:text-3xl">
@@ -39,7 +39,7 @@ export async function HomeCatalogSection() {
   }
 
   return (
-    <section id="destaques" className="border-b border-border/60 py-16 sm:py-24">
+    <section id="destaques" className="border-b border-border/60 bg-gradient-to-b from-emerald-50/30 via-background to-green-50/20 py-16 sm:py-24">
       <div className="container px-4">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-serif text-2xl font-medium text-foreground sm:text-3xl">

@@ -9,6 +9,10 @@ import {
   OrderTrackingEmptyState,
 } from '@/features/orders';
 import { PAYMENT_STATUS, ORDER_STATUS } from '@flordoestudante/core';
+import { WhatsAppCTA } from '@/components/shared/WhatsAppCTA';
+import { buildWhatsAppOrderConfirmation } from '@flordoestudante/notifications';
+import { STORE_WHATSAPP } from '@/lib/constants';
+import { getPublicSiteUrl } from '@/lib/site-url';
 
 export const metadata = {
   title: 'Acompanhar pedido — Flor do Estudante',
@@ -94,6 +98,21 @@ export default async function PedidoPublicPage({ params }: Props) {
           </div>
           <div className="space-y-4 lg:self-start">
             <OrderFinancialSummary order={order} paymentCta={paymentCta} />
+            {(order.status === ORDER_STATUS.AWAITING_APPROVAL || order.status === ORDER_STATUS.PAID) && (
+              <WhatsAppCTA
+                phone={STORE_WHATSAPP}
+                message={buildWhatsAppOrderConfirmation({
+                  customerName: '',
+                  publicCode: order.publicCode,
+                  totalAmount: order.totalAmount,
+                  items: order.items.map((i) => `${i.quantity}x ${i.name}`),
+                  siteUrl: getPublicSiteUrl(),
+                })}
+                label="Enviar pedido no WhatsApp"
+                size="lg"
+                className="w-full"
+              />
+            )}
             <div className="rounded-lg border border-border bg-muted/10 p-4 text-xs text-muted-foreground">
               <p>
                 Em caso de dúvida, fale com a Flor do Estudante informando o código do

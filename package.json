@@ -1,17 +1,31 @@
 {
-  "name": "flordoestudante",
+  "name": "flordoestudante-monorepo",
   "version": "0.1.0",
   "private": true,
-  "description": "Monorepo Flor do Estudante — floricultura-web e home-decor-web",
+  "description": "Workspace pnpm — scripts compartilhados. Cada app (apps/floricultura-web, apps/home-decor-web) tem o próprio package.json; rode npm/pnpm dev a partir da pasta do app.",
   "scripts": {
+    "seed:floricultura": "node scripts/seed-floricultura-with-admin.mjs",
     "build": "pnpm -r run build",
     "dev": "pnpm --filter floricultura-web run dev",
     "lint": "pnpm -r run lint",
     "typecheck": "pnpm -r run typecheck",
-    "clean": "pnpm -r run clean --parallel"
+    "clean": "pnpm -r run clean --parallel",
+    "docker:up": "docker compose up -d postgres",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f postgres",
+    "db:supabase:start": "cd supabase/floricultura && supabase start",
+    "db:supabase:stop": "cd supabase/floricultura && supabase stop",
+    "db:floricultura:sync": "sh scripts/sync-floricultura-supabase.sh && sh scripts/merge-floricultura-seed.sh",
+    "db:supabase:reset": "pnpm db:floricultura:sync && cd supabase/floricultura && supabase db reset"
   },
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "pnpm@9.14.2"
+  "packageManager": "pnpm@9.14.2",
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.47.10",
+    "@types/xlsx": "^0.0.36",
+    "dotenv": "^16.4.5",
+    "pg": "^8.13.0"
+  }
 }

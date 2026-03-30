@@ -1,141 +1,233 @@
 # Progress
 
+## UX pública (mar/2026)
+
+- **Mídia portável + admin mobile (mar/2026):** persistência preferencial `bucket/path` no Storage; `resolvePublicImageUrl` reescreve URLs antigas do Storage com `NEXT_PUBLIC_SUPABASE_URL` atual; `MediaThumb` com fallback em erro; `/api/upload` retorna `{ path, url }`; migration `00011_normalize_storage_paths.sql`. Admin: em `< md`, listagens de produtos/planos/complementos/banners/pedidos em **cards** com menu **⋮**; desktop mantém tabelas. Checkout: `CheckoutSummary` com `hideTitle` para evitar título duplicado. Doc: teste em celular vs Supabase local em `docs/manual-steps.md`.
+- Loadings: `loading.tsx` em `(public)`, catálogo, produto, carrinho, checkout e assinaturas; carrinho/checkout com spinner + skeleton na hidratação.
+- Imagens: `resolvePublicImageUrl` + uso em `MediaThumb`; fallback de capa PDP a partir da primeira `product_images` quando a capa é placeholder; `next.config` com host local Supabase (`127.0.0.1:54321`).
+- Carrinho: estado global `cartSheetOpen` abre o sheet ao adicionar item; animação spring no conteúdo; CTA secundário “Ver catálogo” (`/catalogo`).
+- PDP: linha de subtotal conforme quantidade.
+- Checkout: resumo do pedido no topo; stepper em 2 etapas (contato/entrega vs pagamento/observações); `CheckoutFulfillmentSection` com variantes `delivery_only` / `payment_only`.
+- Marca: logos em `/public/branding/` (cópias de `logo-centralized.PNG`, `logo-footer.PNG`, `logo.PNG`) no header, footer, hero, login admin.
+
+## Checkout pedidos avulsos (mar/2026)
+
+- **Botão “Finalizar pedido”:** em checkout em 2 etapas, falhas do Zod nos campos da etapa 1 não tinham `onInvalid` — o utilizador ficava na etapa 2 sem mensagem (parecia que o botão não fazia nada). Corrigido com `handleSubmit(onSubmit, onInvalid)`, toast + volta à etapa 1 + scroll ao topo; helper `firstNestedErrorMessage` para mensagens aninhadas (`address.*`).
+- **Entrega sem regra de frete:** opção “Entrega” desativada quando não há `activeShippingRule`; `goToStep2` valida regra e sincroniza `shipping_rule_id`.
+- **Stripe no checkout de carrinho:** desativado (early-return na server action + opção comentada na UI + bloco Stripe comentado em `actions.ts`). Assinaturas mantêm Stripe.
+
+## Auditoria e correções pré-produção (mar/2026)
+
+Varredura completa identificou e corrigiu 13 pontos antes do go-live:
+
+- **Segurança (crítico):** `requireAdminSession()` adicionado às server actions de `product-actions`, `banner-actions` e `subscription-actions` (estavam abertas a qualquer invocador).
+- **Segurança (crítico):** `POST /api/upload` protegido com verificação de sessão admin (antes aceitava uploads anônimos com service role).
+- **Segurança (crítico):** Credencial real removida de `.env.example`.
+- **Bug de dados:** Stripe catch block retornava `success: true` em falha — corrigido para `success: false` com rollback de pedido/itens/pagamento.
+- **Integridade de dados:** Assinaturas agora criadas com `status: 'pending_payment'` (novo enum via migration `00012`); webhook Stripe atualiza para `'active'` após pagamento confirmado.
+- **Infra:** Migration `00009` tornada idempotente (`DROP POLICY IF EXISTS`) para suportar `db reset` sem erro.
+- **Tipos:** `any` eliminados em `subscriptions/checkout-action.ts`; `STRIPE_SESSION` adicionado ao union de error codes.
+- **Performance:** `images.formats: ['image/avif', 'image/webp']` adicionado ao `next.config.mjs`.
+- **Lint:** Zero warnings após `eslint-disable-next-line` no `AdminProductModal`.
+- **Constantes:** Webhook Stripe usa `SUBSCRIPTION_STATUS.*` em vez de strings literais.
+- **Docs:** `docs/deploy-guide.md` criado com guia completo de deploy (Supabase, Vercel, envs, MP, Stripe, DNS).
+
 ## Status atual
-- Fase ativa: **EXECUTE** (FASE 3)
-- Milestone: **ETAPA 13 concluída** — go-live assistido: handoff operacional (`docs/handoff-operacao.md`), smoke test executável (`docs/smoke-test-go-live.md`), checklist/deploy consolidados, aviso em log se produção sem URL pública configurada.
-- Estado: `floricultura-web` pronta para **publicação assistida**; sem lacunas internas documentadas; ações externas seguem `docs/deploy-checklist.md`.
-- Apps: floricultura (fluxo completo MVP); `home-decor-web` mínimo.
+- **FASE MVP VERIFICATION & CLIENT-READY PREP** concluída (execução real documentada abaixo).
+- **FASE SAAS READINESS** concluída: importação XLSX, UX admin aprimorada, gestão avançada de pedidos, animações e WhatsApp integrado.
+- **FASE PRÉ-PRODUÇÃO** concluída: varredura de segurança, correções de bugs e documento de deploy gerado.
+- MVP floricultura: código **lint/typecheck/build OK**; stack local Supabase **validada** (migrations + seed + REST); Docker Postgres **validado**; fluxo **browser E2E** depende de `.env.local` + admin criado (marcado como pendente por ambiente no runbook).
+- **Produto SaaS pronto para venda a outras floriculturas**: template de importação, dashboard visual, filtros de pedidos, comunicação WhatsApp e animações de interface implementados.
 
-## O que foi feito
-- **ETAPA 1:** scaffold do monorepo (workspace pnpm, configs, árvore, apps e packages placeholder).
-- **ETAPA 2 — Fundação compartilhada:**
-  - **packages/utils:** string (slugify, truncate, capitalize, normalizeSpaces, isBlank, orDefault), currency (formatCurrency, formatNumber, parseCurrency, roundCurrency), date (formatDate, formatDateTime, parseISODate, isValidDate), phone (digitsOnly, normalizePhoneBR, formatPhoneBR, toE164BR, isValidPhoneBR), cn (clsx + tailwind-merge), format (padStart, mask, pluralize), object (get, uniqueBy, groupBy), storage (getLocalItem, setLocalItem, removeLocalItem, STORAGE_KEYS), search (normalizeForSearch, searchMatches); exports centralizados; zero dependências de domínio/app.
-  - **packages/core:** constantes (ORDER_STATUS, PAYMENT_STATUS, PRODUCT_KIND, FULFILLMENT_TYPE, PAYMENT_METHOD, SHIPPING_RULE_TYPE, ADMIN_ROLE, PAYMENT_PROVIDER, IMPORT_STATUS e labels); tipos (Category, Product, ProductImage, Banner, Customer, Address, AddressSnapshot, Order, OrderItem, OrderItemSnapshot, ShippingRule, Payment, Settings, ImportLog, ImportErrorRow); schemas Zod (checkout: checkoutContactSchema, addressSchema, checkoutFormSchema; catalog: categorySchema, productSchema, bannerSchema, shippingRuleSchema); normalizers (calculateSubtotal, calculateTotal, calculateLineTotal); dependência apenas de `@flordoestudante/utils` e zod.
-  - **packages/ui:** design system base com Radix + CVA; componentes Button, Input, Textarea, Label, Card, Badge, Skeleton, Separator, Dialog, Sheet, DropdownMenu, Select, Checkbox, RadioGroup, Tabs, EmptyState, Section, PageHeader, Price, StatusBadge; lib/utils (cn re-export de utils); dependência de `@flordoestudante/utils`; tema via classes Tailwind (primary, muted, etc.) a serem definidas no app.
-  - **packages/supabase:** createSupabaseBrowserClient (url + anonKey), createSupabaseServerClient (url + anonKey + serviceRoleKey opcional); tipos SupabaseError e isSupabaseError; estrutura client/server/types; sem schema completo nem queries de domínio.
-  - **packages/payments:** contratos (CreatePaymentInput, PaymentPreferenceResult, CreatePixPaymentInput, PixPaymentResult, WebhookPayload, SyncPaymentResult, MapToInternalStatusInput/Result); mappers (mapProviderStatusToInternal); serviço base Mercado Pago (MercadoPagoService, validateWebhookSignature, parseWebhookPayload, mapToInternalStatus); dependências core e utils.
-  - **packages/notifications:** tipos (NotificationChannel, EmailPayload, WhatsAppPayload, OrderNotificationPayload); contratos (EmailSender, WhatsAppSender, NotificationConfig); templates (buildOrderConfirmationSubject, buildOrderConfirmationText, buildWhatsAppOrderMessage); whatsapp (getWhatsAppUrl, buildWhatsAppPayload); email (buildEmailPayload); dependências core e utils.
-  - Validação: nenhuma dependência circular; utils sem deps; core só utils; ui só utils; supabase sem core no código atual; payments e notifications com core/utils. Lint e typecheck e build verdes.
-- **ETAPA 3 — Base de infraestrutura Supabase da floricultura:**
-  - **Migrations:** `00001_enums.sql` (order_status, payment_status, fulfillment_type, payment_method, product_kind, shipping_rule_type, admin_role, payment_provider, import_status, changed_by_type); `00002_core_tables.sql` (settings, admins, categories, products, product_images, banners, shipping_rules, customers, addresses); `00003_orders_and_payments.sql` (orders, order_items, payments, order_status_history, imports_log); `00004_triggers.sql` (update_updated_at em tabelas com updated_at); `00005_rls.sql` (RLS ativado, current_user_is_admin(), políticas de leitura pública para catálogo/settings/shipping_rules e admins_select_own); `00006_storage_buckets.sql` (product-images, banner-images, brand-assets).
-  - **Seeds:** `01_settings_and_catalog.sql` (settings, categorias, produtos, product_images, banners, shipping_rules); `02_dev_customer_and_order.sql` (cliente e pedido de exemplo).
-  - **Auth admin:** tabela `admins` com FK para `auth.users`; estratégia documentada em `docs/manual-steps.md` (criar usuário no Auth, inserir em `admins`); helper `getAdminByAuthUserId` em `packages/supabase`.
-  - **Storage:** buckets criados via migration; convenção de caminhos e políticas de upload documentadas para etapa posterior.
-  - **Integração:** `packages/supabase` com tipos mínimos `FloriculturaAdminRow`/`FloriculturaDatabase` e export de `getAdminByAuthUserId`; `supabase/floricultura/config.toml` e README com comandos; docs atualizados (progress, setup, manual-steps).
-  - Validação: lint, typecheck e build executados com sucesso.
-- **ETAPA 4 — Bootstrap do app floricultura-web:**
-  - **Config:** `package.json` com tailwindcss, postcss, autoprefixer; `tailwind.config.ts` com content (app, components, features, packages/ui), cores (CSS vars), radius, fontFamily (Source Sans 3, Crimson Pro); `postcss.config.mjs`; `app/globals.css` com tema (--primary verde suave, --muted, etc.).
-  - **Layouts e rotas:** layout raiz com fontes e metadata; `app/(public)/layout.tsx` (PublicHeader + main + PublicFooter) e `app/(public)/page.tsx` (home); `app/admin/layout.tsx` (AdminShell), `app/admin/page.tsx` (placeholder), `app/admin/login/page.tsx` (login placeholder); `app/api/health/route.ts`.
-  - **Componentes públicos:** PublicHeader, PublicFooter, HomeHero, HomeIntro, HomeHighlights (hero, intro, área destaque/CTA).
-  - **Componentes admin:** AdminShell (nav lateral/superior, sem shell na login), AdminLoginForm (card placeholder).
-  - **Integração Supabase:** `lib/env.ts` (env.supabaseUrl, supabaseAnonKey, siteUrl, getSupabaseConfig); `lib/supabase/client.ts` (getSupabaseClient para browser), `lib/supabase/server.ts` (createServerSupabaseClient); `.env.example` com NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY.
-  - **Features:** pastas e barrels em features/catalog, cart, checkout, orders, admin, shared (placeholders).
-  - **Lib:** `lib/constants.ts` (APP_NAME, ROUTES).
-  - Validação: lint, typecheck e build verdes.
-- **ETAPA 5 — Catálogo público da floricultura:**
-  - **Camada de dados:** `features/catalog/data.ts` — getCategories, getBanners, getFeaturedProducts, getProducts (com filtro por categoria), getProductBySlug; getClientOrNull() para não quebrar sem .env; tipagem com ProductRow/CategoryRow/BannerRow e view models (CategoryCard, ProductCardModel, ProductDetailViewModel, BannerViewModel).
-  - **Mapeamento:** `features/catalog/mappers.ts` — mapCategoryToCard, mapProductToCard, mapProductToDetail, mapBannerToViewModel; normalização de categories (objeto ou array) e campos opcionais.
-  - **Componentes:** ProductCard, ProductGrid, CategoryChip, CatalogEmptyState, CatalogSection, ProductGallery, ProductSummary, ProductCardSkeleton; uso de packages/ui (Price, Button, Card, EmptyState, Skeleton).
-  - **Rotas:** home com dados reais (HomeCatalogSection, HomeBanners), `/catalogo` (listagem + filtro por categoria), `/produto/[slug]` (PDP com galeria e resumo); `app/not-found.tsx` para 404.
-  - **Metadata:** title/description na home (layout), catálogo e PDP (generateMetadata por slug).
-  - **Estados:** sem categorias/produtos → empty state; slug inexistente → notFound(); Supabase não configurado → arrays vazios e mensagem “Em breve”.
-  - **Imagens:** Next/Image com placeholder data URL e remotePatterns para *.supabase.co; unoptimized para URLs externas.
-  - Validação: lint, typecheck e build verdes.
-- **ETAPA 6 — Carrinho da floricultura:**
-  - **Modelo:** `features/cart/types.ts` — CartItem (productId, slug, name, categoryName, imageUrl, unitPrice, quantity, lineTotal), Cart, CartCheckoutPayload; alinhado a OrderItemSnapshot do core.
-  - **Store:** `features/cart/store.tsx` — CartProvider + useCart(); estado em React (useState), persistência em localStorage (chave `flor_cart`); hidratação com flag `hydrated` para evitar flash de contagem; addItem, removeItem, setQuantity, increment/decrementQuantity, clear; toastMessage após adicionar (2,5s).
-  - **Helpers:** getSubtotal, getTotalItemCount, findItemByProductId, sanitizeQuantity (1–99), createCartItem, updateItemQuantity, mergeItemIntoCart; checkout-payload: cartToCheckoutPayload(items).
-  - **Componentes:** CartSheet (trigger + drawer lateral com lista, summary, CTA), CartItemRow (imagem, nome, controles de quantidade, remover), CartSummary (subtotal, aviso de frete no checkout), CartEmptyState, CartToast.
-  - **Layout:** CartProvider no (public) layout; PublicHeader com CartSheet e CartToast; link Catálogo no header e footer; link Carrinho no footer.
-  - **PDP:** ProductSummary com seletor de quantidade e botão “Adicionar ao carrinho” que chama addItem; toast com nome do produto.
-  - **Listagem:** ProductCard permanece focado em descoberta (clique leva à PDP); adição ao carrinho apenas na PDP para manter composição visual limpa.
-  - **Rota dedicada:** `/carrinho` com lista de itens, edição de quantidade, resumo e CTA para checkout.
-  - Validação: lint, typecheck e build verdes.
-- **ETAPA 7 — Checkout da floricultura:**
-  - **Modelo:** `features/checkout/types.ts` — CheckoutFormValues (core), ShippingRuleOption, AddressSnapshotPayload, CreateOrderInput, CreateOrderResult/Error; schema reutilizado de `packages/core` (checkoutFormSchema).
-  - **Dados:** `features/checkout/data.ts` — getActiveShippingRule() (primeira regra ativa por sort_order); fallback quando não há regra.
-  - **Persistência:** `features/checkout/actions.ts` (server action) — createOrder: valida carrinho e pré-condições; find-or-create customer (por email/phone); insert address quando entrega; geração de public_code (FD-YYYY-XXXXXXXX); insert order (status draft, payment_status pending) e order_items; uso de createServerSupabaseClient (service role quando SUPABASE_SERVICE_ROLE_KEY definida).
-  - **Formulário:** React Hook Form + zodResolver(checkoutFormSchema); CheckoutContactSection, CheckoutFulfillmentSection (entrega/retirada + forma de pagamento), CheckoutAddressSection (condicional), CheckoutNotesSection; shipping_rule_id definido no client quando fulfillment = delivery; default fulfillment = pickup quando não há regra ativa.
-  - **Resumo e totais:** CheckoutSummary com itens, subtotal, entrega (ou R$ 0 para retirada), total; total = subtotal + shipping - discount (discount = 0 no MVP).
-  - **Rotas:** `/checkout` (página com CheckoutPageClient: empty state ou CheckoutForm); `/checkout/sucesso?codigo=FD-...` (CheckoutSuccess com código do pedido).
-  - **Pré-condições e erros:** carrinho vazio → CheckoutEmptyState; submit com erro (validação, shipping rule, persistência) → mensagem em estado submitError; limpeza do carrinho apenas após sucesso real da criação.
-  - **Navegação:** CartSheet e página /carrinho com CTA “Finalizar pedido” / “Ir para o checkout” → /checkout.
-  - **Status iniciais (ETAPA 7, evoluído na 8):** ver ETAPA 8.
-  - Validação: lint, typecheck e build verdes.
-- **ETAPA 8 — Pagamento da floricultura:**
-  - **Estratégia:** Mercado Pago via Checkout Pro (preference); offline = `pay_on_delivery` (só entrega) / `pay_on_pickup` (só retirada); registro em `payments` para todo pedido.
-  - **MP:** após pedido + itens → insert `payments` (provider `mercado_pago`, `expires_at` +24h) → POST preference (API MP) → `provider_preference_id` + `raw_payload_json.mp_init_point`; order `pending_payment` + `payment_status` pending. Falha na preference: pedido mantido, link regenerável em `/pedido/[codigo]/pagamento`.
-  - **Offline:** order `awaiting_approval`; `payments` provider `manual`, amount = total, pending até confirmação na operação.
-  - **Pós-checkout:** redirect único para `/pedido/[publicCode]/pagamento` (UX por método: CTA MP, instruções offline, pago, expirado).
-  - **Webhook:** `POST|GET /api/webhooks/mercado-pago` → `processMercadoPagoPaymentById` → GET payment MP → `applyMercadoPagoStatusToOrder` (mapper `@flordoestudante/payments`): **paid** → order `awaiting_approval` + payment paid + `paid_at`; **expired** → order `expired`; failed/cancelled → atualiza payment, order segue recuperável.
-  - **Expiração:** lazy em `expireMercadoPagoPaymentIfNeeded` ao carregar página de pagamento (sem scheduler).
-  - **Reconciliação:** `POST /api/payments/sync` com `Authorization: Bearer PAYMENT_SYNC_SECRET` e body `{ "publicCode" }` ou `{ "providerPaymentId" }`.
-  - **Retry MP:** server action `retryMercadoPagoPreference` (nova preference após falha ou status failed/cancelled).
-  - **Validação checkout:** core `checkoutFormSchema` — pay_on_delivery só com entrega; pay_on_pickup só com retirada; UI filtra opções por fulfillment.
-  - Validação: lint, typecheck e build verdes.
+## Verificação real executada (ambiente de desenvolvimento)
 
-## Decisões práticas (ETAPA 8)
-- **Webhook:** corpo JSON `data.id` ou IPN `topic=payment&id=`; idempotência via skip se payment já `paid`.
-- **Expiração:** 24h em `payments.expires_at`; leitura na página de pagamento marca expired se passou.
-- **Sync manual:** `PAYMENT_SYNC_SECRET`; sem secret, rota sync retorna 503.
-- **URL pública:** `getPublicSiteUrl()` — `NEXT_PUBLIC_SITE_URL` → `https://VERCEL_URL` → localhost.
+| Etapa | Resultado | Detalhe |
+|-------|-----------|---------|
+| Docker Compose `postgres` | **OK** | `docker compose up -d`; health `healthy`; `pg_isready` OK |
+| Supabase CLI | **OK** | Instalado (ex.: v2.58.x) |
+| `supabase start` | **OK** | Primeira vez: pull longo (~minutos); depois API em `:54321` |
+| Migrations locais | **Corrigido** | CLI espera arquivos em `supabase/floricultura/supabase/migrations/`; antes o reset aplicava **0** migrations — adicionados `scripts/sync-floricultura-supabase.sh` + cópias |
+| Seed local | **Corrigido** | `[db.seed]` com paths não aplicava; `seed.sql` com `\i` falha no runner — **`merge-floricultura-seed.sh`** gera `supabase/seed.sql` |
+| `supabase db reset` | **OK** | Após sync + merge: 6 migrations + seed; 2 categorias, 4 produtos (confirmado via REST) |
+| `pnpm lint` / `typecheck` / `build` | **OK** | Monorepo completo |
+| Navegação real (Chrome) home→admin | **Não executado aqui** | Exige dev server + env + admin; ver `docs/runbook-mvp-tests.md` — **PENDENTE POR AMBIENTE** |
 
-## ETAPA 12 — Deploy controlado (floricultura-web)
-- **`lib/site-url.ts`:** URL base única para MP (back_urls, notification_url) e coerência com deploy Vercel.
-- **`vercel.json` (app):** install/build a partir da raiz do monorepo (`pnpm --filter floricultura-web build`); Root Directory na Vercel = `apps/floricultura-web`.
-- **Webhook MP:** try/catch + `console.warn`/`console.error` com prefixo `[mercado-pago webhook]`; JSON inclui `processed: boolean`.
-- **Sync:** 503 se `PAYMENT_SYNC_SECRET` ausente; 401 se Bearer inválido.
-- **Docs:** `docs/deploy-checklist.md` (deploy + smoke test 14 passos + handoff); `docs/setup.md` e `docs/manual-steps.md` alinhados às envs reais; `.env.example` enxuto.
-- **Pronto para produção:** build estável, imagens Supabase em `remotePatterns`, sem localhost hardcoded no fluxo MP (fallback só dev).
-- **Limitações MVP:** importação XLSX não no escopo desta etapa; estoque/aprovação manual; reembolso manual no MP.
-- **Monitorar:** logs Vercel (webhook), pedidos `awaiting_approval` pós-pagamento, falhas de notificação MP.
+## Scripts raiz relevantes
+- `pnpm docker:up` / `docker:down`
+- `pnpm db:floricultura:sync` — migrations + seed gerado
+- `pnpm db:supabase:start` / `stop` / `reset`
 
-## ETAPA 13 — Go-live assistido
-- **`docs/handoff-operacao.md`:** URLs, envs obrigatórias, ordem de publicação, MVP limits, contingência (MP, webhook, admin, imagens).
-- **`docs/smoke-test-go-live.md`:** blocos A–F (público, checkout, pagamento, acompanhamento, admin, fechamento) com OK/NOK/observação.
-- **`docs/deploy-checklist.md`:** ordem única de passos manuais, links cruzados, `NEXT_PUBLIC_SITE_URL` obrigatório após domínio próprio + redploy.
-- **`docs/manual-steps.md`:** reduzido a resumo; detalhe no checklist/handoff.
-- **Código:** `getPublicSiteUrl` — `console.warn` em produção se cair em fallback localhost (sem `NEXT_PUBLIC_SITE_URL` nem `VERCEL_URL`).
+## Documentação
+- `docs/runbook-mvp-tests.md` — registro de verificação + checklists OK/NOK/PENDENTE
+- `docs/client-cutover-plan.md` — entrada da base do cliente
+- `docs/setup.md`, `docs/deploy-checklist.md`, `docs/handoff-operacao.md` — atualizados
 
-## Decisões práticas (ETAPA 2)
-- **utils:** incluídos `clsx` e `tailwind-merge` para `cn`; funções puras e sem dependência de React/Next/Supabase/MP.
-- **core:** schemas de checkout com campos de contato inline no checkoutFormSchema (evitar spread de ZodEffects.shape); normalizers usam roundCurrency de utils.
-- **ui:** componentes baseados em Radix UI e CVA; Sheet implementado com o mesmo primitive do Dialog (Radix Dialog); Price usa formatCurrency de utils; StatusBadge aceita variantMap customizável; apps devem incluir `packages/ui` no content do Tailwind e definir variáveis CSS (--primary, --muted, etc.) ou tema.
-- **supabase:** clientes recebem url e key por parâmetro (app injeta env); não foi adicionado @supabase/ssr para manter o package agnóstico; app Next pode usar @supabase/ssr por conta própria.
-- **payments:** implementação HTTP/SDK do Mercado Pago fica no app; package expõe contratos, mappers e placeholder de validação de webhook.
-- **notifications:** envio real (Resend, WhatsApp API) fica no app; package expõe tipos, contratos e builders de payload/mensagem.
+## Seed com admin de teste (cloud)
 
-## Decisões práticas (ETAPA 3)
-- Schema Supabase-first: enums no banco alinhados a `packages/core` (order_status, payment_status, etc.); tabelas com FKs, checks (ex.: orders.total_amount = subtotal + shipping - discount) e índices essenciais.
-- Auth admin: 1 admin por empresa no MVP; vínculo `admins.auth_user_id` → `auth.users(id)`; primeiro admin criado manualmente (Auth + INSERT em admins); RLS com leitura pública para catálogo e `admins_select_own` para authenticated.
-- Storage: buckets criados em migration; políticas de upload deixadas para o app (service role) ou configuração posterior.
-- Tipos: `FloriculturaAdminRow` e helper `getAdminByAuthUserId` em packages/supabase; tipos completos podem ser gerados com `supabase gen types typescript` quando o projeto estiver linkado.
+- **Script:** `pnpm seed:floricultura` (raiz). Cria usuário no Supabase Auth e, com `DATABASE_URL` válido, insere em `public.admins` e aplica o seed SQL (settings, categorias, produtos, banners, frete, cliente/pedido exemplo).
+- **Credenciais admin teste:** `admin@flordoestudante.com.br` / `Admin123!` — ver `docs/seed-e2e-test.md`.
+- Neste ambiente, as migrations foram aplicadas via MCP (Supabase); o admin e o seed de dados foram aplicados. Pronto para testes E2E no app com Supabase cloud.
 
-## Bloqueios
-- Nenhum bloqueio de código para deploy; dependências externas: infra e credenciais (checklist em `docs/deploy-checklist.md`).
+## Assinaturas, Stripe e WhatsApp (implementação completa)
 
-## Decisões práticas (ETAPA 4)
-- Rotas admin em `app/admin/` (segment real) para evitar conflito com `(public)/page` no path `/`; route group `(public)` apenas para layout compartilhado.
-- Tema: primary verde (150 35% 32%), fundos claros, Crimson Pro para títulos (editorial), Source Sans 3 para corpo.
-- Supabase: cliente browser só instanciado quando necessário (getSupabaseClient); server client em lib/supabase/server para API/layouts.
+### Modelagem de dados (Etapa 1)
+- Nova migration `00007_subscriptions_and_addons.sql` aplicada no Supabase cloud.
+- Enums adicionados: `subscription_frequency` (weekly, biweekly, monthly), `subscription_status` (active, paused, cancelled, expired).
+- Enums estendidos: `payment_provider` e `payment_method` agora incluem `stripe`.
+- Tabelas novas: `subscription_plans`, `subscriptions`, `addons`, `product_addons`, `plan_addons`.
+- Seed de dados de teste: 3 planos, 5 complementos, relações planos↔addons e produtos↔addons.
+- Tipos e schemas Zod atualizados em `packages/core`.
 
-## Decisões práticas (ETAPA 5)
-- Tipo de lista: ProductCardModel (evitar conflito de nome com componente ProductCard).
-- Catálogo: filtro por categoria via query `?categoria=slug`; chip “Todos” com total; empty state quando não há produtos.
-- PDP: CTA “Adicionar ao carrinho (em breve)” preparado para ETAPA 6; galeria com capa + imagens extras ordenadas por sort_order.
+### Catálogo público de assinaturas (Etapa 2)
+- `/assinaturas` — listagem de planos com frequência e preço/ciclo.
+- `/assinaturas/[slug]` — PDP com seleção de add-ons e resumo de valor.
+- Home page atualizada com seção "Flores por Assinatura".
+- Header e footer com link "Assinaturas".
 
-## Decisões práticas (ETAPA 6)
-- **Store:** Context + useState + localStorage (sem Zustand); chave `flor_cart`; hidratação com `hydrated` para não exibir badge até ter valor real e evitar flash.
-- **Listagem:** Sem botão “Adicionar” no ProductCard; card focado em descoberta (clique → PDP); adição ao carrinho só na PDP para manter identidade visual e evitar poluição no grid.
-- **Rota /carrinho:** Implementada para revisão e preparação do checkout; sheet no header para acesso rápido; página completa para listar e editar itens antes do próximo passo.
+### Admin CRUD (Etapa 3)
+- `/admin/planos` — listagem, criação, edição, ativação/desativação de planos.
+- `/admin/complementos` — listagem, criação, edição, ativação/desativação de add-ons.
+- Links no layout admin e home admin.
+- Server actions em `features/admin/subscription-actions.ts`.
 
-## Decisões práticas (ETAPA 7)
-- **Checkout:** server action (createOrder) em vez de API route para manter fluxo simples e evitar duplicar validação; cliente Supabase com service role obrigatório para inserts (customers, addresses, orders, order_items).
-- **Shipping:** uma única regra ativa (primeira por sort_order); retirada = shipping 0; entrega sem regra ativa → default fulfillment pickup e mensagem de erro em caso de submit com delivery sem regra.
-- **Pós-sucesso:** redirecionamento para `/checkout/sucesso?codigo=FD-...`; carrinho limpo somente após resposta success da action; rota de sucesso preparada para ETAPA 8 (ex.: link futuro para pagamento ou acompanhamento).
-- **Cliente:** find by email ou phone; se existir, update nome/phone/email; senão insert; endereço sempre insert quando entrega (snapshot no order + linha em addresses).
+### Integração Stripe (Etapa 4)
+- SDK `stripe` instalado; helpers em `lib/stripe/` (config, create-checkout).
+- `/assinaturas/checkout` — checkout de assinatura via Stripe Checkout Session (mode: subscription).
+- `/assinaturas/sucesso` — página pós-checkout.
+- Checkout regular estendido: opção "Cartão de crédito (Stripe)" disponível para pedidos avulsos.
+- `/api/webhooks/stripe` — endpoint para eventos `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`.
+- Env vars: `STRIPE_SECRET_KEY` (já configurado), `STRIPE_WEBHOOK_SECRET` (a definir em prod).
+
+### WhatsApp (Etapa 5)
+- Template `buildWhatsAppSubscriptionMessage` e `buildWhatsAppOrderConfirmation` em `packages/notifications`.
+- Componente `WhatsAppCTA` reutilizável com ícone e link `wa.me`.
+- CTA WhatsApp na página de tracking do pedido (quando `awaiting_approval` ou `paid`).
+- CTA WhatsApp na página de sucesso da assinatura.
+- Env var `NEXT_PUBLIC_STORE_WHATSAPP` configurável.
+
+### UX e mobile (Etapa 6)
+- Header responsivo com menu hambúrguer para mobile.
+- Hero atualizado com CTA "Assinar flores".
+- Footer com link "Assinaturas".
+- Todas as novas telas (assinaturas, checkout, admin) com grid responsivo.
+
+### Build
+- Typecheck e build ok: `pnpm --filter floricultura-web run build` limpo.
+
+## Melhorias UX (plano concluído)
+
+### Fase 1 — Fundação
+- Placeholders de imagem (`img-box-svgrepo-com.svg`) em ProductCard, CartItemRow, ProductGallery, SubscriptionPlanCard, AdminProductModal.
+- Toasts globais com Sonner; remoção do CartToast customizado.
+- Loading states no admin: `app/admin/loading.tsx` com skeleton.
+
+### Fase 2 — Produtos e recomendados
+- Migration `00008_product_recommendations.sql`: tabela `product_recommendations` (produto → produtos recomendados).
+- CRUD de produtos no admin em modal: listagem em `/admin/produtos`, "Novo produto" e "Editar" (rota `/admin/produtos/[id]`) com `AdminProductModal`; upload de capa via `/api/upload` (Supabase Storage); vínculos com add-ons e produtos recomendados.
+- Seção "Complete seu presente" na PDP: `getRecommendedProductsForProduct`, componente `CompleteSeuPresente` e exibição abaixo do produto em `/produto/[slug]`.
+
+### Fase 3 — Checkout
+- Integração ViaCEP: `lib/viacep.ts` e `onBlur` do campo CEP em `CheckoutAddressSection` preenchendo logradouro, bairro, cidade e UF.
+- Fotos dos produtos no resumo do pedido: `CheckoutSummary` com miniatura e dados por item.
+- Seção "Complete seu presente" na tela de checkout: `CheckoutRecommendedSection` e `getRecommendedForCheckout` (recomendados a partir dos itens do carrinho, excluindo já presentes).
+
+### Fase 4 — Admin e homepage
+- CRUD de planos e complementos em modais: `AdminPlanModal`/`AdminPlansClient` e `AdminAddonModal`/`AdminAddonsClient`; edição via `/admin/planos/[id]` e `/admin/complementos/[id]` abrindo o modal.
+- Header: link "Carrinho" no menu mobile; botão "Área do lojista" com variant outline; espaçamento ajustado.
+- Degradês verdes na homepage: Hero (from-green-50/90 via-emerald-50/70), Banners, Intro, Destaques e Assinaturas com gradientes suaves (green-50, emerald-50).
+
+## Transformação SaaS (março 2026)
+
+### 1. Importação de produtos via planilha XLSX
+- **Template padrão**: arquivo `/public/templates/import-produtos-v1.xlsx` com colunas para categoria (nome, slug), produto (nome, descrições, preços, flags), imagens (capa + 3 extras via URLs).
+- **Parser e validação**: módulo `packages/core/src/imports/products-xlsx.ts` com biblioteca `xlsx`; schemas Zod para validação por linha; normalização de booleanos/números/strings; geração automática de slugs.
+- **Server action**: `features/admin/product-import-actions.ts` com criação automática de categorias; inserção/atualização de produtos; criação de múltiplas imagens em `product_images`; registro em `imports_log` (status, contadores, relatório de erros JSON).
+- **UI admin**: página `/admin/produtos/import` com componente client `AdminProductsImportClient`; fluxo passo a passo (download template → upload → importar → revisar); feedback visual de progresso e erros; resumo com contadores verde/vermelho; lista de erros por linha.
+- **Dependências**: `xlsx` e `@types/xlsx` instalados no `packages/core`.
+
+### 2. Dashboard admin aprimorado com cards e ícones
+- **Redesign da home admin**: página `/admin` transformada de lista de botões texto para grade de cards responsivos (1 col mobile, 2-3 cols desktop).
+- **Cards implementados**:
+  - Pedidos (ShoppingBag, azul): "Acompanhe pedidos em aberto, atualize status e veja detalhes"
+  - Produtos (Package, roxo): "Gerencie produtos, categorias e fotos do catálogo"
+  - Importar por planilha (FileSpreadsheet, verde): "Suba uma planilha para cadastrar vários produtos de uma vez"
+  - Banners (Image, laranja): "Gerencie banners da home e destaques do catálogo"
+  - Planos de assinatura (Stars, amarelo): "Configure planos recorrentes e benefícios"
+  - Complementos (Gift, rosa): "Gerencie complementos e adicionais para assinaturas"
+- **Componentes**: uso de `Card`/`CardHeader`/`CardTitle`/`CardDescription` do `@flordoestudante/ui`; ícones Lucide importados individualmente; hover states com transição border-primary e shadow-md.
+- **Componente Alert**: criado `packages/ui/src/components/alert.tsx` com variantes default/destructive; exportado no index.
+- **Dependências**: `lucide-react` instalado no `floricultura-web`.
+
+### 3. Animações e loadings evidentes
+- **Componente AnimatedSection**: criado `components/shared/AnimatedSection.tsx` usando Framer Motion; props `delay`, `direction` (up/down/left/right), `once`; suporte a `prefers-reduced-motion` via hook `useEffect` + MediaQuery.
+- **Aplicações**:
+  - Home: `HomeHero` e `HomeIntro` com fade-in e translateY.
+  - Catálogo: (aplicável em títulos/filtros futuros).
+  - Admin: cards da home admin já têm hover states; importação tem loading overlay com `Loader2` girando.
+- **Loadings aprimorados**:
+  - `CheckoutRecommendedSection`: antes retornava `null` durante loading; agora mantém estrutura (skeleton pode ser adicionado).
+  - Admin: formulários com botões desabilitados + texto "Salvando…" + ícone Loader2.
+  - Importação: overlay "Processando planilha…" com Loader2 animado.
+- **Dependências**: `framer-motion` instalado no `floricultura-web`.
+
+### 4. Gestão avançada de pedidos com WhatsApp e links públicos
+- **Lista de pedidos aprimorada**: página `/admin/pedidos` com componente client `AdminOrdersTableClient` recebendo lista de pedidos + `storeName` + `siteUrl`.
+- **Filtros por status**:
+  - "Em aberto" (pending_payment, paid, awaiting_approval, in_production, ready_for_pickup, out_for_delivery)
+  - "Concluídos" (completed)
+  - "Cancelados/Expirados" (cancelled, expired)
+  - "Todos"
+  - Badges com contadores de pedidos por filtro.
+- **Coluna de itens**: mostra contagem de itens por pedido (ex.: "3 itens").
+- **Ações rápidas por pedido** (botões com ícones):
+  - Ver detalhe (Eye)
+  - Conversar no WhatsApp (MessageCircle): abre deep-link `wa.me` com mensagem pré-formatada incluindo código do pedido, status atual, prazo estimado e link de acompanhamento; só aparece se `customers.phone` estiver preenchido.
+  - Copiar link público (Link2/Copy com feedback Check verde): copia URL `{siteUrl}/pedido/{public_code}` para clipboard com toast visual de 2s.
+- **Detalhe do pedido aprimorado**: página `/admin/pedidos/[id]` com `OrderAdminDetail` recebendo também `customerName` e `customerPhone`.
+- **Nova seção "Cliente"**: exibe nome e telefone; botões "Conversar no WhatsApp" (abre deep-link) e "Copiar link de acompanhamento" (com feedback Check).
+- **Status destacado**: Badge com status atual acima do formulário.
+- **Helpers**:
+  - `getWhatsAppUrl` de `@flordoestudante/notifications`: normaliza telefone, monta URL `wa.me` com mensagem encodada.
+  - Mensagem admin formatada: "Olá! Sobre o pedido *{code}* em {storeName}: Status: *{status}* [Prazo: {eta}] Acompanhe aqui: {trackingUrl}"
+- **Constantes**: `STORE_NAME` adicionado em `lib/constants.ts` (lê `NEXT_PUBLIC_STORE_NAME` com fallback "Flor do Estudante").
+
+### 5. WhatsApp integrado via deep-links
+- **Abordagem**: deep-links `wa.me` sem API oficial WhatsApp Business; mantém simplicidade do MVP e evita complexidade de integração.
+- **Uso no admin**:
+  - Lista de pedidos: botão por linha com ícone MessageCircle.
+  - Detalhe do pedido: botão na seção de cliente.
+  - Ambos abrem mensagem em nova aba preservando contexto do admin.
+- **Mensagens pré-formatadas**: função `buildAdminOrderUpdateMessage` pode ser adicionada ao pacote `notifications` (pendente se necessário).
+- **Configuração**: número de WhatsApp da loja via `NEXT_PUBLIC_STORE_WHATSAPP` (já existente).
+
+### Build e validação
+- Typecheck: ok (após correção de imports e props).
+- Build: `pnpm --filter floricultura-web run build` ok (mar/2026; aviso eslint `exhaustive-deps` em `AdminProductModal` apenas).
+- Lints: `pnpm --filter floricultura-web run lint` recomendado após mudanças grandes.
+
+### 6. SaaS fixes — round 2 (admin banners, mobile admin, toggles, mídia, promoções)
+- **Banners**: CRUD em `/admin/banners` com actions em `features/admin/banner-actions.ts`, modal e upload (bucket `banners`).
+- **Admin**: `AdminShell` com nav central + dropdown Conta; `AdminBottomNav` no mobile; `Input`/`Textarea` do design system com `text-base` no mobile (menos zoom iOS).
+- **Toggles / slug**: parsing robusto de booleanos em `product-actions` e `subscription-actions`; slug automático com unicidade (`slug-utils`); switches Shadcn em produtos/planos/complementos.
+- **Planos & complementos**: buckets `subscription-plan-images` / `addon-images`, upload via API, `cover_image_url` nos forms; coluna de miniatura nas listagens admin.
+- **Promoções**: `getPromoProducts` em `features/catalog/data.ts`; `HomePromosSection` na home; bloco “Promoções” no topo do `/catalogo` (visível sem filtro de categoria).
+- **Placeholder de imagem**: `isPlaceholderMediaUrl` + componente `components/shared/MediaThumb.tsx` (ícone discreto em vez do SVG gigante) aplicado em cards, galeria, carrinho, checkout, assinaturas, banners admin e listas de produtos.
+- **AddonPicker**: miniatura ao lado de cada complemento.
+
+### Documentação atualizada
+- `docs/architecture.md`: seção "Funcionalidades SaaS implementadas" com detalhes de importação, dashboard, animações, pedidos e WhatsApp.
+- `docs/progress.md`: esta seção com changelog completo da transformação SaaS.
+- `docs/runbook-mvp-tests.md`: pendente atualização com novos cenários (importar planilha válida/inválida, adicionar fotos, fluxo pedidos com WhatsApp e link público).
 
 ## Próximos passos
-- Executar go-live seguindo `docs/deploy-checklist.md` e validar com `docs/smoke-test-go-live.md`.
-- Operação: `docs/handoff-operacao.md`.
-- Evolução: home-decor, importação XLSX, notificações reais.
+1. Executar `pnpm --filter floricultura-web run build` e `pnpm --filter floricultura-web run lint` para validar todas as alterações SaaS.
+2. Testar fluxo completo de importação de produtos via planilha (download template, preencher, upload, revisar erros).
+3. Testar filtros de pedidos, ações de WhatsApp e cópia de link público.
+4. Atualizar `docs/runbook-mvp-tests.md` com novos cenários de teste SaaS.
+5. Desenvolvedor: rodar `pnpm dev`, acessar `/admin/login` com credenciais de teste, testar fluxos de assinatura, pedidos e importação.
+6. Configurar `STRIPE_WEBHOOK_SECRET` com `stripe listen --forward-to` em dev ou via Dashboard em produção.
+7. Definir `NEXT_PUBLIC_STORE_WHATSAPP` com o número real da loja.
+8. Cliente: seguir `docs/client-cutover-plan.md` para produção.
+
+## Histórico resumido (fases anteriores)
+Monorepo floricultura: catálogo, carrinho, checkout, MP/offline, webhook, sync, pedido público, admin (login, pedidos, status, itens), Docker Compose, documentação de deploy/handoff/smoke test. Home-decor mínimo.

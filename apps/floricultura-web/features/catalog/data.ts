@@ -72,6 +72,26 @@ export async function getFeaturedProducts(limit = 8): Promise<ProductCardModel[]
   return rows.map(mapProductToCard);
 }
 
+/** Produtos com preço promocional (compare_at_price > price). */
+export async function getPromoProducts(limit = 8): Promise<ProductCardModel[]> {
+  const client = getClientOrNull();
+  if (!client) return [];
+  const sample = Math.min(60, Math.max(limit * 4, limit));
+  const { data, error } = await client
+    .from('products')
+    .select('id, category_id, name, slug, short_description, description, price, compare_at_price, cover_image_url, is_active, is_featured, categories(name, slug)')
+    .eq('is_active', true)
+    .not('compare_at_price', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(sample);
+  if (error) return [];
+  const rows = (data ?? []) as ProductRow[];
+  const promos = rows.filter(
+    (r) => r.compare_at_price != null && Number(r.compare_at_price) > Number(r.price)
+  );
+  return promos.slice(0, limit).map(mapProductToCard);
+}
+
 export async function getProducts(options?: {
   categorySlug?: string;
   limit?: number;
@@ -125,4 +145,50 @@ export async function getProductCountByCategory(categoryId: string): Promise<num
     .eq('category_id', categoryId)
     .eq('is_active', true);
   return count ?? 0;
+}
+
+/** Produtos recomendados para "Complete seu presente" (por product_id). */
+export async function getRecommendedProductsForProduct(productId: string): Promise<ProductCardModel[]> {
+  const client = getClientOrNull();
+  if (!client) return [];
+  const { data: links, error: linkError } = await client
+    .from('product_recommendations')
+    .select('recommended_product_id, sort_order')
+    .eq('product_id', productId)
+    .order('sort_order', { ascending: true });
+  if (linkError || !links?.length) return [];
+  const ids = links.map((r: { recommended_product_id: string }) => r.recommended_product_id);
+  const { data: productsData, error } = await client
+    .from('products')
+    .select('id, category_id, name, slug, short_description, description, price, compare_at_price, cover_image_url, is_active, is_featured, categories(name, slug)')
+    .in('id', ids)
+    .eq('is_active', true);
+  if (error || !productsData?.length) return [];
+  const orderMap = new Map(links.map((l: { recommended_product_id: string; sort_order: number }) => [l.recommended_product_id, l.sort_order]));
+  const rows = (productsData as ProductRow[]).sort(
+    (a, b) => (orderMap.get(a.id) ?? 999) - (orderMap.get(b.id) ?? 999)
+  );
+  return rows.map(mapProductToCard);
+}
+
+/** Recomendados para exibir no checkout: produtos recomendados por qualquer item do carrinho, excluindo os já no carrinho. */
+export async function getRecommendedForCheckout(cartProductIds: string[]): Promise<ProductCardModel[]> {
+  const client = getClientOrNull();
+  if (!client || cartProductIds.length === 0) return [];
+  const seen = new Set(cartProductIds);
+  const { data: links } = await client
+    .from('product_recommendations')
+    .select('product_id, recommended_product_id, sort_order')
+    .in('product_id', cartProductIds)
+    .order('sort_order', { ascending: true });
+  if (!links?.length) return [];
+  const recommendedIds = [...new Set((links as { recommended_product_id: string }[]).map((r) => r.recommended_product_id).filter((id) => !seen.has(id)))];
+  if (recommendedIds.length === 0) return [];
+  const { data: productsData, error } = await client
+    .from('products')
+    .select('id, category_id, name, slug, short_description, description, price, compare_at_price, cover_image_url, is_active, is_featured, categories(name, slug)')
+    .in('id', recommendedIds)
+    .eq('is_active', true);
+  if (error || !productsData?.length) return [];
+  return (productsData as ProductRow[]).map(mapProductToCard);
 }

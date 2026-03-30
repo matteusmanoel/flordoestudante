@@ -20,9 +20,11 @@
   },
   "dependencies": {
     "@flordoestudante/utils": "workspace:*",
+    "xlsx": "^0.18.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/xlsx": "^0.0.36",
     "@typescript-eslint/eslint-plugin": "^8.15.0",
     "@typescript-eslint/parser": "^8.15.0",
     "eslint": "^8.57.0",

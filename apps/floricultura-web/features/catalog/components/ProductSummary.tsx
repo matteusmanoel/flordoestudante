@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Loader2 } from 'lucide-react';
 import { Price } from '@flordoestudante/ui';
 import { Button } from '@flordoestudante/ui';
+import { formatCurrency } from '@flordoestudante/utils';
 import { useCart } from '@/features/cart';
 import type { ProductDetailViewModel } from '../types';
 
@@ -15,19 +17,24 @@ type ProductSummaryProps = {
 export function ProductSummary({ product, className }: ProductSummaryProps) {
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const [adding, setAdding] = useState(false);
 
   const handleAddToCart = () => {
-    addItem(
-      {
-        id: product.id,
-        slug: product.slug,
-        name: product.name,
-        categoryName: product.categoryName,
-        coverImageUrl: product.coverImageUrl,
-        price: product.price,
-      },
-      quantity
-    );
+    setAdding(true);
+    window.setTimeout(() => {
+      addItem(
+        {
+          id: product.id,
+          slug: product.slug,
+          name: product.name,
+          categoryName: product.categoryName,
+          coverImageUrl: product.coverImageUrl,
+          price: product.price,
+        },
+        quantity
+      );
+      setAdding(false);
+    }, 0);
   };
 
   return (
@@ -44,12 +51,18 @@ export function ProductSummary({ product, className }: ProductSummaryProps) {
       {product.shortDescription && (
         <p className="mt-2 text-muted-foreground">{product.shortDescription}</p>
       )}
-      <div className="mt-4">
+      <div className="mt-4 space-y-1">
         <Price
           value={product.price}
           compareAt={product.compareAtPrice}
           size="lg"
         />
+        <p className="text-sm text-muted-foreground">
+          Subtotal ({quantity} {quantity === 1 ? 'item' : 'itens'}):{' '}
+          <span className="font-medium text-foreground">
+            {formatCurrency(product.price * quantity, { currency: 'BRL', locale: 'pt-BR' })}
+          </span>
+        </p>
       </div>
       {product.description && (
         <div className="mt-6 border-t border-border pt-6">
@@ -87,10 +100,18 @@ export function ProductSummary({ product, className }: ProductSummaryProps) {
         </div>
         <Button
           size="lg"
-          className="w-full sm:w-auto"
+          className="inline-flex w-full items-center justify-center gap-2 sm:w-auto"
+          disabled={adding}
           onClick={handleAddToCart}
         >
-          Adicionar ao carrinho
+          {adding ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+              Adicionando…
+            </>
+          ) : (
+            'Adicionar ao carrinho'
+          )}
         </Button>
         <p className="text-xs text-muted-foreground">
           Você pode revisar e finalizar no carrinho.

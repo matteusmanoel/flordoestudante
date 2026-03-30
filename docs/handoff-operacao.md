@@ -25,6 +25,8 @@ Substitua `https://SEU-DOMINIO` pela URL real (a mesma de `NEXT_PUBLIC_SITE_URL`
 | Pagamento do pedido | `https://SEU-DOMINIO/pedido/FD-.../pagamento` |
 | Admin (login) | `https://SEU-DOMINIO/admin/login` |
 | Admin (painel) | `https://SEU-DOMINIO/admin` |
+| Lista de pedidos | `https://SEU-DOMINIO/admin/pedidos` |
+| Detalhe do pedido (UUID) | `https://SEU-DOMINIO/admin/pedidos/<id>` |
 | Webhook MP (só configuração MP) | `https://SEU-DOMINIO/api/webhooks/mercado-pago` |
 | Sync manual (API, com secret) | `POST https://SEU-DOMINIO/api/payments/sync` |
 
@@ -63,6 +65,7 @@ Checklist executável com colunas OK/NOK: **`docs/smoke-test-go-live.md`**.
 ## 6. Problemas conhecidos do MVP
 
 - Sem importação XLSX automatizada nesta fase.
+- CRUD de produtos/categorias no admin **não** incluído — usar Supabase Studio ou SQL.
 - Estoque não é descontado automaticamente.
 - Um admin principal por loja (fluxo manual para mais usuários).
 - Reembolso só manual no painel Mercado Pago.
@@ -90,4 +93,6 @@ Checklist executável com colunas OK/NOK: **`docs/smoke-test-go-live.md`**.
 
 ---
 
-*Última revisão: ETAPA 13 — go-live assistido.*
+**Próximo passo com dados reais:** `docs/client-cutover-plan.md`.
+
+*Última revisão: MVP verification + client-ready prep.*

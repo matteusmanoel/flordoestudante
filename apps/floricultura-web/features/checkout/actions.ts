@@ -14,6 +14,9 @@ import {
 import { createMercadoPagoPreference } from '@/lib/mercado-pago/create-preference';
 import { getMercadoPagoAccessToken } from '@/lib/mercado-pago/config';
 import { getPublicSiteUrl } from '@/lib/site-url';
+// MVP produção: checkout one-shot apenas Mercado Pago / offline — Stripe desativado.
+// import { createOneTimeCheckout } from '@/lib/stripe/create-checkout';
+// import { getStripeSecretKey } from '@/lib/stripe/config';
 import type {
   CreateOrderInput,
   FinalizeCheckoutResponse,
@@ -95,6 +98,15 @@ export async function finalizeCheckout(input: CreateOrderInput): Promise<Finaliz
       success: false,
       code: 'MERCADO_PAGO_CONFIG',
       message: 'Pagamento online indisponível no momento. Escolha pagar na entrega ou na retirada.',
+    };
+  }
+
+  if (form.payment_method === PAYMENT_METHOD.STRIPE) {
+    return {
+      success: false,
+      code: 'STRIPE_CONFIG',
+      message:
+        'Pagamento via Stripe está desativado no momento. Use Mercado Pago ou pague na entrega/retirada.',
     };
   }
 
@@ -282,6 +294,61 @@ export async function finalizeCheckout(input: CreateOrderInput): Promise<Finaliz
       mpError,
     };
     }
+
+    /*
+     * --- Stripe (checkout one-shot) — DESATIVADO NO MVP / PRODUÇÃO ATUAL ---
+     * Reativar: descomentar imports no topo, remover o early-return STRIPE acima,
+     * e descomentar o bloco abaixo + opção na UI (CheckoutFulfillmentSection).
+     *
+    if (form.payment_method === PAYMENT_METHOD.STRIPE) {
+      const { data: payIns, error: payErr } = await supabase
+        .from('payments')
+        .insert({
+          order_id: orderId,
+          provider: 'stripe',
+          amount: totalAmount,
+          status: PAYMENT_STATUS.PENDING,
+          expires_at: expiresAt,
+        })
+        .select('id')
+        .single();
+
+      if (payErr || !payIns) {
+        await supabase.from('order_items').delete().eq('order_id', orderId);
+        await supabase.from('orders').delete().eq('id', orderId);
+        return { success: false, code: 'PERSISTENCE', message: 'Não foi possível registrar o pagamento.' };
+      }
+
+      try {
+        const result = await createOneTimeCheckout({
+          items: cart.items.map((item) => ({
+            name: item.product_name_snapshot,
+            price: item.unit_price_snapshot,
+            quantity: item.quantity,
+          })),
+          customerEmail: email ?? undefined,
+          metadata: { order_id: orderId, public_code: publicCode },
+        });
+
+        return {
+          success: true,
+          publicCode,
+          orderId,
+          paymentFlow: 'stripe',
+          stripeUrl: result.url,
+        };
+      } catch (e) {
+        await supabase.from('payments').delete().eq('order_id', orderId);
+        await supabase.from('order_items').delete().eq('order_id', orderId);
+        await supabase.from('orders').delete().eq('id', orderId);
+        return {
+          success: false,
+          code: 'STRIPE_SESSION',
+          message: e instanceof Error ? e.message : 'Erro ao criar sessão de pagamento Stripe.',
+        };
+      }
+    }
+     */
 
     const { error: payManualErr } = await supabase.from('payments').insert({
       order_id: orderId,

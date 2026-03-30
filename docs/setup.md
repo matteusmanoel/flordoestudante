@@ -1,88 +1,116 @@
 # Setup
 
 ## Status
-Monorepo em **FASE 3 (EXECUTE)**. **ETAPA 13 — go-live assistido:** floricultura pronta para publicação real; handoff em `docs/handoff-operacao.md`; validação em `docs/smoke-test-go-live.md`. Deploy técnico: `docs/deploy-checklist.md`.
+**FASE FINAL — MVP closure:** floricultura com admin operacional (pedidos, status, itens), Docker Compose (Postgres auxiliar), seeds via Supabase CLI, runbook em `docs/runbook-mvp-tests.md`. Plano de fechamento: `docs/mvp-closure-plan.md`.
 
 ## Stack
-Next.js, TypeScript, Tailwind, ShadCN/UI, Supabase, Vercel, Mercado Pago, React Hook Form, Zod.
+Next.js, TypeScript, Tailwind, ShadCN/UI, Supabase (Auth + DB + API), Vercel, Mercado Pago, React Hook Form, Zod, `@supabase/ssr` (sessão admin).
 
 ## Package manager
-**pnpm** — workspace na raiz (`pnpm-workspace.yaml`).
+**pnpm** — workspace na raiz.
 
-## Estrutura
-- `apps/floricultura-web` — MVP floricultura (catálogo, checkout, MP, admin).
-- `apps/home-decor-web` — mínimo.
-- `packages/*` — ui, core, supabase, payments, notifications, utils.
-- `supabase/floricultura` — migrations + seeds.
+---
 
-## Pré-requisitos locais
-Node.js ≥ 18, pnpm, contas Supabase + Vercel + Mercado Pago (por marca).
+## Dois modos de banco (importante)
+
+| Modo | Quando usar | Comando |
+|------|-------------|---------|
+| **Supabase (recomendado para o app)** | Desenvolvimento E2E, produção | Projeto cloud **ou** `pnpm db:supabase:start` + `pnpm db:supabase:reset` |
+| **Postgres só Docker (raiz)** | Postgres isolado para testes manuais, backups, futuras ferramentas | `pnpm docker:up` |
+
+O Next.js fala com Supabase (URL + keys), **não** com `DATABASE_URL` do Compose. O Postgres do Compose **não substitui** Supabase para login admin, RLS via API nem checkout.
+
+---
+
+## Docker Compose (Postgres 16)
+
+Na raiz do monorepo:
+
+```bash
+cp .env.docker.example .env.docker   # opcional — valores padrão funcionam
+pnpm docker:up
+```
+
+- Container: `flordoestudante-postgres-dev`
+- Porta padrão: **54332** → Postgres interno 5432
+- Healthcheck habilitado
+- Volume: `flordoestudante_pgdata`
+
+```bash
+pnpm docker:down
+pnpm docker:logs
+```
+
+---
+
+## Supabase local (schema + seed completos)
+
+Requer [Supabase CLI](https://supabase.com/docs/guides/cli).
+
+```bash
+cd supabase/floricultura
+supabase start              # sobe stack local (Postgres + API + Auth + Studio)
+supabase db reset           # migrations + seeds (01 + 02)
+```
+
+Na **primeira vez**, apontar o app para URLs locais do `supabase start` (exibidas no terminal) em `apps/floricultura-web/.env.local`.
+
+Scripts na raiz:
+
+- `pnpm db:floricultura:sync` — copia migrations para `supabase/migrations/` e regenera `supabase/seed.sql`
+- `pnpm db:supabase:start` — `supabase start`
+- `pnpm db:supabase:stop` — `supabase stop`
+- `pnpm db:supabase:reset` — **sync +** `supabase db reset` (schema + seed demo local)
+
+Seeds (`config.toml` → `db.seed`): categorias, produtos, banners, frete, cliente/pedido exemplo. **Admin:** criar no Auth + `public.admins` (ver `docs/manual-steps.md`).
+
+---
+
+## Projeto Supabase na nuvem (dev)
+
+```bash
+pnpm db:floricultura:sync
+cd supabase/floricultura
+supabase link --project-ref <REF>
+supabase db push
+```
+
+Produção: sem seed demo. `apps/floricultura-web/.env.local` com URL/keys desse projeto.
 
 ---
 
 ## Variáveis — `floricultura-web`
 
-Fonte de verdade: **`apps/floricultura-web/.env.example`**. Resumo:
-
-| Variável | Uso |
-|----------|-----|
-| `NEXT_PUBLIC_SUPABASE_URL` | Client + server. |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Client + server (anon). |
-| `SUPABASE_SERVICE_ROLE_KEY` | Só servidor: criação de pedidos, webhooks, rotas que precisam bypass RLS. |
-| `NEXT_PUBLIC_SITE_URL` | Links públicos e **Mercado Pago** (`notification_url`, `back_urls`). Em produção com domínio próprio, use `https://...` sem barra final. |
-| `MERCADO_PAGO_ACCESS_TOKEN` | Preference Checkout Pro; sem isso, checkout só “pagar na entrega/retirada”. |
-| `PAYMENT_SYNC_SECRET` | `POST /api/payments/sync` com `Authorization: Bearer ...`. Se ausente, a rota retorna **503**. |
-| `MERCADO_PAGO_WEBHOOK_SECRET` | Opcional; reservado para evolução de validação de webhook. |
-
-Não há outras variáveis obrigatórias no código atual da floricultura (sem Resend/WhatsApp no app ainda).
+Ver `apps/floricultura-web/.env.example`. Admin exige as mesmas chaves Supabase + service role.
 
 ---
 
-## URL pública (`getPublicSiteUrl`)
-Ordem de resolução no código:
-1. `NEXT_PUBLIC_SITE_URL`
-2. `https://VERCEL_URL` (ambiente Vercel)
-3. `http://localhost:3000` (dev local). Em produção, se faltar (1) e (2), o servidor registra **aviso** em log e ainda usa localhost — evite: defina `NEXT_PUBLIC_SITE_URL` no domínio final.
+## Desenvolvimento
 
-Para **produção com domínio próprio**, defina sempre `NEXT_PUBLIC_SITE_URL` para evitar links e callbacks apontando para `*.vercel.app`.
-
----
-
-## Supabase — Floricultura
-```bash
-cd supabase/floricultura
-supabase link --project-ref <PROJECT_REF>
-supabase db push
-supabase db seed
-```
-Primeiro admin: `docs/manual-steps.md`.
-
----
-
-## Desenvolvimento local
 ```bash
 pnpm install
 cp apps/floricultura-web/.env.example apps/floricultura-web/.env.local
-# Editar .env.local
-pnpm dev   # sobe floricultura-web na porta 3000
-```
-
-Validação:
-```bash
-pnpm lint && pnpm typecheck && pnpm --filter floricultura-web build
+pnpm dev
 ```
 
 ---
 
-## Vercel (floricultura-web)
-- **Root Directory:** `apps/floricultura-web`
-- O arquivo `apps/floricultura-web/vercel.json` define `installCommand` e `buildCommand` a partir da raiz do monorepo (`pnpm install` + `pnpm --filter floricultura-web build`).
+## Validação técnica
+
+```bash
+pnpm lint && pnpm typecheck && pnpm build
+```
+
+Testes funcionais: **`docs/runbook-mvp-tests.md`**.
+
+---
+
+## Vercel
+Root Directory `apps/floricultura-web`; ver `vercel.json` do app.
 
 ---
 
 ## Referência
-- `docs/architecture.md`
-- `docs/deploy-checklist.md` — ordem do go-live e envs.
-- `docs/handoff-operacao.md` — operação e contingência.
-- `docs/smoke-test-go-live.md` — checklist pós-publicação.
-- `docs/manual-steps.md` — referência rápida (Supabase, MP, sync).
+- `docs/runbook-mvp-tests.md` — QA MVP
+- `docs/mvp-closure-plan.md` — auditoria / fechamento
+- `docs/deploy-checklist.md`, `docs/handoff-operacao.md`, `docs/manual-steps.md`

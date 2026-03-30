@@ -2,6 +2,7 @@
  * Mapeamento de rows do Supabase para view models do catálogo.
  */
 
+import { isPlaceholderMediaUrl } from '@/lib/constants';
 import type { CategoryCard, ProductCardModel, ProductDetailViewModel, ProductImageViewModel, BannerViewModel } from './types';
 
 export interface CategoryRow {
@@ -92,6 +93,12 @@ export function mapProductToDetail(
     .slice()
     .sort((a, b) => a.sort_order - b.sort_order)
     .map(mapProductImageToViewModel);
+  let coverImageUrl = (product.cover_image_url ?? '').trim();
+  if (isPlaceholderMediaUrl(coverImageUrl) && viewImages.length > 0) {
+    const first = viewImages[0]!.imageUrl.trim();
+    if (!isPlaceholderMediaUrl(first)) coverImageUrl = first;
+  }
+  const imagesDeduped = viewImages.filter((img) => img.imageUrl.trim() !== coverImageUrl.trim());
   return {
     id: product.id,
     name: product.name,
@@ -100,8 +107,8 @@ export function mapProductToDetail(
     description: product.description ?? null,
     price: Number(product.price),
     compareAtPrice: product.compare_at_price != null ? Number(product.compare_at_price) : null,
-    coverImageUrl: product.cover_image_url,
-    images: viewImages,
+    coverImageUrl,
+    images: imagesDeduped,
     categoryId: product.category_id,
     categoryName: category?.name ?? '',
     categorySlug: category?.slug ?? '',

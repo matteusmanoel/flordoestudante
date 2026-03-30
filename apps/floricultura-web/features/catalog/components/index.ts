@@ -6,3 +6,5 @@ export { CatalogSection } from './CatalogSection';
 export { ProductGallery } from './ProductGallery';
 export { ProductSummary } from './ProductSummary';
 export { ProductCardSkeleton } from './ProductCardSkeleton';
+export { CompleteSeuPresente } from './CompleteSeuPresente';
+export { PromoProductsSection } from './PromoProductsSection';

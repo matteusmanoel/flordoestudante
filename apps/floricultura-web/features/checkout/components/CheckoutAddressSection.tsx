@@ -1,15 +1,41 @@
 'use client';
 
-import { UseFormRegister, FieldErrors } from 'react-hook-form';
+import { useState } from 'react';
+import { UseFormRegister, FieldErrors, UseFormSetValue } from 'react-hook-form';
 import { Input, Label } from '@flordoestudante/ui';
+import { toast } from 'sonner';
+import { fetchAddressByCep } from '@/lib/viacep';
 import type { CheckoutFormValues } from '../schema';
 
 type Props = {
   register: UseFormRegister<CheckoutFormValues>;
   errors: FieldErrors<CheckoutFormValues>;
+  setValue?: UseFormSetValue<CheckoutFormValues>;
 };
 
-export function CheckoutAddressSection({ register, errors }: Props) {
+export function CheckoutAddressSection({ register, errors, setValue }: Props) {
+  const [loadingCep, setLoadingCep] = useState(false);
+
+  async function handleCepBlur(e: React.FocusEvent<HTMLInputElement>) {
+    const cep = e.target.value?.replace(/\D/g, '');
+    if (cep.length !== 8 || !setValue) return;
+    setLoadingCep(true);
+    try {
+      const data = await fetchAddressByCep(cep);
+      if (data) {
+        setValue('address.street', data.logradouro ?? '', { shouldValidate: true });
+        setValue('address.neighborhood', data.bairro ?? '', { shouldValidate: true });
+        setValue('address.city', data.localidade ?? '', { shouldValidate: true });
+        setValue('address.state', (data.uf ?? '').toUpperCase(), { shouldValidate: true });
+        toast.success('Endereço preenchido automaticamente.');
+      }
+    } catch {
+      toast.error('Não foi possível buscar o CEP.');
+    } finally {
+      setLoadingCep(false);
+    }
+  }
+
   return (
     <div className="space-y-4">
       <h3 className="font-serif text-lg font-medium text-foreground">Endereço de entrega</h3>
@@ -45,8 +71,11 @@ export function CheckoutAddressSection({ register, errors }: Props) {
             id="address.postal_code"
             placeholder="00000-000"
             {...register('address.postal_code')}
+            onBlur={handleCepBlur}
             className={errors.address?.postal_code ? 'border-destructive' : ''}
+            disabled={loadingCep}
           />
+          {loadingCep && <p className="text-xs text-muted-foreground">Buscando endereço...</p>}
           {errors.address?.postal_code && (
             <p className="text-sm text-destructive">{errors.address.postal_code.message}</p>
           )}

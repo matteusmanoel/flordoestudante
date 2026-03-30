@@ -19,3 +19,7 @@ export function getPublicSiteUrl(): string {
   }
   return 'http://localhost:3000';
 }
+
+export function getSiteUrl(): string {
+  return getPublicSiteUrl();
+}

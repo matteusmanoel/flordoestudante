@@ -25,14 +25,22 @@ Next.js, TypeScript, Tailwind, ShadCN/UI, Supabase, Vercel, Mercado Pago, React 
 
 ## Desenvolvimento
 
-Pré-requisito: [pnpm](https://pnpm.io/) (Node >= 18).
+**Node >= 18.** Para **pnpm** global: `corepack enable && corepack prepare pnpm@9.14.2 --activate`.  
+Se aparecer `command not found: pnpm`, use **`npx pnpm@9.14.2 <comando>`** na **raiz** do repo, ou, estando em **`apps/floricultura-web`**:
+
+```bash
+npm run db:supabase:start   # Supabase local (delega à raiz via npx pnpm)
+npm run db:supabase:reset
+```
+
+Scripts `db:*` e `docker:*` estão definidos na **raiz** do monorepo; na raiz: `pnpm db:supabase:start`, etc.
 
 ```bash
 pnpm install
 pnpm dev          # sobe floricultura-web em http://localhost:3000
-pnpm build        # build de todos os workspaces
-pnpm lint         # lint em todos os workspaces
-pnpm typecheck    # typecheck em todos os workspaces
+pnpm build
+pnpm lint
+pnpm typecheck
 ```
 
 Subir home-decor-web:

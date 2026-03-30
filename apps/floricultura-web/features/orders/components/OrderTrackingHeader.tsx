@@ -37,6 +37,12 @@ export function OrderTrackingHeader({ order }: Props) {
         </div>
       </div>
       <p className="text-sm text-muted-foreground">{orderMsg.description}</p>
+      {order.estimatedText ? (
+        <p className="rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-foreground">
+          <span className="font-medium">Prazo / previsão: </span>
+          {order.estimatedText}
+        </p>
+      ) : null}
     </header>
   );
 }

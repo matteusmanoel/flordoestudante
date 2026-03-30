@@ -1,13 +1,10 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@flordoestudante/ui';
 import { formatCurrency } from '@flordoestudante/utils';
 import type { CartItem as CartItemType } from '../types';
-
-const placeholderImg =
-  'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="%23f3f4f6"%3E%3Crect width="80" height="80"/%3E%3C/svg%3E';
+import { MediaThumb } from '@/components/shared/MediaThumb';
 
 type CartItemRowProps = {
   item: CartItemType;
@@ -16,30 +13,18 @@ type CartItemRowProps = {
   imageUrl?: string;
 };
 
-function resolveImageUrl(url: string): string {
-  const t = url?.trim() || '';
-  return t && (t.startsWith('http') || t.startsWith('/')) ? t : placeholderImg;
-}
-
 export function CartItemRow({
   item,
   onQuantityChange,
   onRemove,
   imageUrl,
 }: CartItemRowProps) {
-  const imgSrc = resolveImageUrl(imageUrl ?? item.imageUrl);
+  const thumbSrc = imageUrl ?? item.imageUrl;
 
   return (
     <div className="flex gap-4 border-b border-border py-4 last:border-0">
       <Link href={`/produto/${item.slug}`} className="relative h-20 w-20 shrink-0 overflow-hidden rounded-md bg-muted">
-        <Image
-          src={imgSrc}
-          alt={item.name}
-          fill
-          className="object-cover"
-          sizes="80px"
-          unoptimized={imgSrc.startsWith('http')}
-        />
+        <MediaThumb src={thumbSrc} alt={item.name} fill sizes="80px" />
       </Link>
       <div className="min-w-0 flex-1">
         <Link href={`/produto/${item.slug}`} className="font-medium text-foreground hover:text-primary line-clamp-2">

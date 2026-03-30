@@ -2,6 +2,7 @@ export { CheckoutEmptyState } from './CheckoutEmptyState';
 export { CheckoutSummary } from './CheckoutSummary';
 export { CheckoutContactSection } from './CheckoutContactSection';
 export { CheckoutFulfillmentSection } from './CheckoutFulfillmentSection';
+export { CheckoutStepper } from './CheckoutStepper';
 export { CheckoutAddressSection } from './CheckoutAddressSection';
 export { CheckoutNotesSection } from './CheckoutNotesSection';
 export { CheckoutSubmitButton } from './CheckoutSubmitButton';

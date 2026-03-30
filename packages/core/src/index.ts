@@ -6,3 +6,4 @@ export * from './constants';
 export * from './types';
 export * from './schemas';
 export * from './normalizers';
+export * from './imports/products-xlsx';

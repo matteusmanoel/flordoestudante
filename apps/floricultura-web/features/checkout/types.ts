@@ -51,6 +51,15 @@ export interface FinalizeCheckoutOfflineSuccess {
   paymentFlow: 'offline';
 }
 
+export interface FinalizeCheckoutStripeSuccess {
+  success: true;
+  publicCode: string;
+  orderId: string;
+  paymentFlow: 'stripe';
+  stripeUrl?: string | null;
+  mpError?: string;
+}
+
 export interface CreateOrderError {
   success: false;
   code:
@@ -59,11 +68,14 @@ export interface CreateOrderError {
     | 'SHIPPING_RULE'
     | 'PERSISTENCE'
     | 'PAYMENT_METHOD'
-    | 'MERCADO_PAGO_CONFIG';
+    | 'MERCADO_PAGO_CONFIG'
+    | 'STRIPE_CONFIG'
+    | 'STRIPE_SESSION';
   message: string;
 }
 
 export type FinalizeCheckoutResponse =
   | FinalizeCheckoutMpSuccess
   | FinalizeCheckoutOfflineSuccess
+  | FinalizeCheckoutStripeSuccess
   | CreateOrderError;

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getProductBySlug } from '@/features/catalog/data';
-import { ProductGallery, ProductSummary } from '@/features/catalog/components';
+import { getProductBySlug, getRecommendedProductsForProduct } from '@/features/catalog/data';
+import { ProductGallery, ProductSummary, CompleteSeuPresente } from '@/features/catalog/components';
 import { Button } from '@flordoestudante/ui';
 
 type PageProps = {
@@ -25,6 +25,8 @@ export default async function ProductPage({ params }: PageProps) {
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
+  const recommended = await getRecommendedProductsForProduct(product.id);
+
   return (
     <div className="min-h-screen py-8 sm:py-12">
       <div className="container px-4">
@@ -38,6 +40,11 @@ export default async function ProductPage({ params }: PageProps) {
             <ProductGallery product={product} />
             <ProductSummary product={product} />
           </div>
+          {recommended.length > 0 && (
+            <div className="mt-12 pt-8 border-t border-border">
+              <CompleteSeuPresente products={recommended} />
+            </div>
+          )}
         </div>
       </div>
     </div>

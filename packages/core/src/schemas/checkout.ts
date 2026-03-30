@@ -49,6 +49,7 @@ export const checkoutFormSchema = z
       PAYMENT_METHOD.MERCADO_PAGO,
       PAYMENT_METHOD.PAY_ON_DELIVERY,
       PAYMENT_METHOD.PAY_ON_PICKUP,
+      PAYMENT_METHOD.STRIPE,
     ]),
     shipping_rule_id: z.string().uuid().optional().nullable(),
   })

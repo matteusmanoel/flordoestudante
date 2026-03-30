@@ -113,7 +113,7 @@ Construir um monorepo com dois apps independentes, compartilhando apenas fundaç
 | **core** | Contratos e regra de domínio compartilhável | Tipos, enums, schemas Zod, totalização, snapshots, contratos pedido/pagamento/importação | SDKs externos, queries Supabase, React | utils | Crescer demais; manter mappers externos separados |
 | **supabase** | Acesso padronizado a Supabase | Clientes browser/server/service, auth, storage, tipos de banco, repositórios leves | Regra de pedido/pagamento, UI | core, utils | Misturar query com domínio |
 | **payments** | Integração Mercado Pago e contratos de pagamento | createPixPayment, createCheckoutPreference, handleWebhook, syncPayment, mapProviderStatus, idempotência | Atualização final de pedido no banco sem camada definida | core, utils | Acoplamento ao schema; mitigar via contratos |
-| **notifications** | Builders e envio opcional de notificações | Builders WhatsApp/e-mail, payloads de pedido, adaptadores de provider | Decisão de quando notificar | core, utils | Incorporar regras de workflow |
+| **notifications** | Builders e envio opcional de notificações | Builders WhatsApp/e-mail, payloads de pedido, adaptadores de provider, mensagens admin-cliente | Decisão de quando notificar | core, utils | Incorporar regras de workflow |
 | **utils** | Helpers puros transversais | Formatação, imagem, busca, slug, persistência local | React pesado, SDKs, regras críticas | nenhuma | Virar utilitário genérico sem fronteira |
 
 - **db-types**, **checkout** e **importer** não são packages separados no MVP: tipos/contratos em `core`; importação em `core/imports`; fluxo de checkout compartilhado entre `core` e cada app.
@@ -123,6 +123,11 @@ Construir um monorepo com dois apps independentes, compartilhando apenas fundaç
 ### apps/floricultura-web
 - Catálogo público, PDP, carrinho, checkout (entrega/retirada), pedido, status, acompanhamento.
 - Admin: CRUD categorias, produtos, banners, pedidos, taxas; edição manual de pedido; substituição de itens; aprovação; prazo estimado; importação XLSX.
+- **Importação de produtos via XLSX**: template padrão v1 com suporte a múltiplas imagens via URLs; validação Zod por linha; criação automática de categorias; registro em `imports_log`.
+- **Dashboard admin aprimorado**: cards visuais com ícones Lucide, navegação clara para pedidos, catálogo, importação, banners, planos e complementos.
+- **Gestão de pedidos avançada**: filtros por status (em aberto, concluídos, cancelados); botões de ação rápida para WhatsApp (deep-link com mensagem pré-formatada); cópia de link público de acompanhamento.
+- **Animações e feedback visual**: componente `AnimatedSection` com suporte a `prefers-reduced-motion`; aplicação em home, catálogo e admin; loadings evidentes em formulários e importações.
+- **WhatsApp integrado**: deep-links `wa.me` com mensagens personalizadas para comunicação admin-cliente sobre pedidos; função `buildAdminOrderUpdateMessage` no pacote `notifications`.
 
 ### apps/home-decor-web
 - Catálogo público, múltiplas imagens, checkout simples, carrinho, pedido básico.
@@ -193,10 +198,43 @@ Construir um monorepo com dois apps independentes, compartilhando apenas fundaç
 7. Checkout  
 8. Pagamento  
 9. Admin  
-10. Importação XLSX  
-11. Hardening da floricultura  
-12. Adaptação para home decor  
-13. Deploy e validação final  
+10. Importação XLSX ✅  
+11. UX aprimorada do admin (cards, ícones, animações) ✅  
+12. Gestão avançada de pedidos (filtros, WhatsApp, links) ✅  
+13. Hardening da floricultura  
+14. Adaptação para home decor  
+15. Deploy e validação final  
+
+## Funcionalidades SaaS implementadas (floricultura-web)
+
+### 1. Importação de produtos via planilha XLSX
+- **Template padronizado**: `/public/templates/import-produtos-v1.xlsx` com colunas para categoria, produto, preços, imagens (capa + 3 extras via URLs) e flags (ativo, destaque).
+- **Parser e validação**: módulo `packages/core/src/imports/products-xlsx.ts` com schemas Zod; parsing via biblioteca `xlsx`; normalização de booleanos e números; geração automática de slugs.
+- **Server action**: `features/admin/product-import-actions.ts` com criação automática de categorias não existentes; inserção/atualização de produtos; criação de registros em `product_images`; log completo em `imports_log`.
+- **UI no admin**: `/admin/produtos/import` com passo a passo (download template, upload, pré-visualização, importar, revisar); feedback visual de progresso e erros; resumo com contadores de sucesso/falha.
+
+### 2. Dashboard admin aprimorado
+- **Cards visuais**: página inicial (`/admin`) com grade responsiva de cards grandes com ícones Lucide (ShoppingBag, Package, FileSpreadsheet, Image, Stars, Gift, Globe2).
+- **Navegação clara**: links diretos para Pedidos, Produtos, Importação, Banners, Planos, Complementos e Site Público.
+- **Identidade visual SaaS**: design leve, editorial, sem aparência corporativa genérica; hover states e transições suaves.
+
+### 3. Animações e feedback visual
+- **Componente reutilizável**: `AnimatedSection` com Framer Motion; suporte a direções (up/down/left/right), delay e `prefers-reduced-motion`.
+- **Aplicação**: home (hero, intro), catálogo, admin (cards), checkout (seções).
+- **Loadings evidentes**: skeletons em carregamentos; botões com ícone `Loader2` girando; estados de carregamento claros em formulários, importações e ações de pedidos.
+
+### 4. Gestão avançada de pedidos
+- **Filtros por status**: componente client `AdminOrdersTableClient` com filtros "Em aberto" (pending_payment até out_for_delivery), "Concluídos", "Cancelados/Expirados" e "Todos"; contadores de pedidos por filtro.
+- **Ações rápidas por pedido**:
+  - Botão "Conversar no WhatsApp" (deep-link `wa.me` com mensagem formatada incluindo código do pedido, status e link de acompanhamento).
+  - Botão "Copiar link" para URL pública de acompanhamento (`/pedido/{public_code}`).
+- **Detalhe do pedido aprimorado**: seção de cliente com nome e telefone; botões de WhatsApp e cópia de link; badge destacado do status atual; formulário de atualização de status, prazo estimado e nota interna.
+- **Resumo de itens**: coluna na lista com contagem de itens por pedido.
+
+### 5. WhatsApp integrado (deep-links)
+- **URL builder**: função `getWhatsAppUrl` em `packages/notifications` com normalização de telefone e encoding de mensagem.
+- **Mensagens pré-formatadas**: templates para confirmação de pedido e atualização admin-cliente; estrutura com nome da loja, código do pedido, status, prazo estimado e link de tracking.
+- **Uso no admin**: botões de ação rápida na lista e detalhe de pedidos; abertura em nova aba para manter contexto do admin.  
 
 ## Fora do MVP
 - estoque avançado; cálculo complexo de frete; multi-tenant sofisticado; marketplace; fiscal/NF-e; automação de reembolso; motor genérico de combos complexos.

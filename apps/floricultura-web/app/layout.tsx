@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Source_Sans_3, Crimson_Pro } from 'next/font/google';
+import { Toaster } from 'sonner';
 import './globals.css';
 
 const sourceSans = Source_Sans_3({
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="pt-BR" className={`${sourceSans.variable} ${crimsonPro.variable}`}>
       <body className="font-sans antialiased">
         {children}
+        <Toaster richColors position="bottom-center" closeButton />
       </body>
     </html>
   );

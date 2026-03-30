@@ -36,7 +36,7 @@ INSERT INTO products (
 )
 SELECT c.id, 'Buquê Rosas Vermelhas', 'buque-rosas-vermelhas',
   'Buquê com 12 rosas vermelhas', 'Buquê elaborado com 12 rosas vermelhas frescas.', 89.90,
-  '/placeholder-product.jpg', true, true, 'regular'
+  '/img-box-svgrepo-com.svg', true, true, 'regular'
 FROM categories c WHERE c.slug = 'buques' LIMIT 1
 ON CONFLICT (slug) DO NOTHING;
 
@@ -46,7 +46,7 @@ INSERT INTO products (
 )
 SELECT c.id, 'Buquê Misto', 'buque-misto',
   'Buquê com flores variadas', 'Buquê com flores da estação.', 69.90,
-  '/placeholder-product.jpg', true, false, 'regular'
+  '/img-box-svgrepo-com.svg', true, false, 'regular'
 FROM categories c WHERE c.slug = 'buques' LIMIT 1
 ON CONFLICT (slug) DO NOTHING;
 
@@ -56,7 +56,7 @@ INSERT INTO products (
 )
 SELECT c.id, 'Cesta de Café da Manhã', 'cesta-cafe-manha',
   'Cesta para café da manhã especial', 'Cesta com frios, pães e bebidas.', 129.90,
-  '/placeholder-product.jpg', true, true, 'regular'
+  '/img-box-svgrepo-com.svg', true, true, 'regular'
 FROM categories c WHERE c.slug = 'presentes' LIMIT 1
 ON CONFLICT (slug) DO NOTHING;
 
@@ -66,13 +66,13 @@ INSERT INTO products (
 )
 SELECT c.id, 'Vaso Orquídea', 'vaso-orquidea',
   'Orquídea em vaso decorativo', 'Orquídea phalaenopsis em vaso.', 149.90,
-  '/placeholder-product.jpg', true, false, 'regular'
+  '/img-box-svgrepo-com.svg', true, false, 'regular'
 FROM categories c WHERE c.slug = 'presentes' LIMIT 1
 ON CONFLICT (slug) DO NOTHING;
 
 -- Imagens adicionais para o primeiro produto (opcional)
 INSERT INTO product_images (product_id, image_url, alt_text, sort_order)
-SELECT p.id, '/placeholder-product-2.jpg', 'Detalhe do buquê', 1
+SELECT p.id, '/img-box-svgrepo-com.svg', 'Detalhe do buquê', 1
 FROM products p WHERE p.slug = 'buque-rosas-vermelhas' LIMIT 1;
 
 -- Banners (2)

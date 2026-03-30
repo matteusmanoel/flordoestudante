@@ -1,0 +1,26 @@
+# Postgres auxiliar para desenvolvimento (ferramentas, psql, futuras extensões).
+# O app floricultura-web exige Supabase (API + Auth). Para E2E local use: supabase start.
+# Ver docs/setup.md — Modo Docker vs Modo Supabase.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: flordoestudante-postgres-dev
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-54332}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-floricultura}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-floricultura_dev_local}
+      POSTGRES_DB: ${POSTGRES_DB:-floricultura_dev}
+    volumes:
+      - flordoestudante_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-floricultura} -d ${POSTGRES_DB:-floricultura_dev}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  flordoestudante_pgdata:

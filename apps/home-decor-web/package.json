@@ -2,6 +2,7 @@
   "name": "home-decor-web",
   "version": "0.1.0",
   "private": true,
+  "description": "App Home Decor — use npm/pnpm nesta pasta (ex.: npm run dev).",
   "scripts": {
     "dev": "next dev --port 3001",
     "build": "next build",

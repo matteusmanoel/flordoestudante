@@ -4,8 +4,11 @@
 
 | Documento | Uso |
 |-----------|-----|
+| **`docs/deploy-guide.md`** | **Guia completo** — configurações passo a passo, envs, Stripe, MP, DNS. |
 | **`docs/handoff-operacao.md`** | Operação pós-go-live, URLs, contingência, variáveis. |
 | **`docs/smoke-test-go-live.md`** | Validação pós-publicação com OK/NOK/observação. |
+| **`docs/runbook-mvp-tests.md`** | QA completo do MVP (local + bordas) antes da base do cliente. |
+| **`docs/client-cutover-plan.md`** | Entrada da base/config real do cliente. |
 | **`docs/manual-steps.md`** | Detalhes MP webhook/sync (referência técnica). |
 
 ---
@@ -26,9 +29,10 @@
 
 - [ ] Projeto Supabase de produção criado (isolado do dev).
 - [ ] `cd supabase/floricultura && supabase link --project-ref <REF_PROD> && supabase db push`
-- [ ] Seeds: `supabase db seed` (ou fluxo acordado).
-- [ ] Buckets e imagens de catálogo, se necessário.
-- [ ] Primeiro admin: **Authentication** → usuário + `INSERT` em `public.admins` (SQL em `docs/manual-steps.md`).
+- [ ] Confirmar que as **12 migrations** foram aplicadas (00001 → 00012).
+- [ ] Seeds: `supabase db seed` apenas a `01_settings_and_catalog.sql` (seeds de dev são locais).
+- [ ] Buckets visíveis no Dashboard → Storage (5 buckets públicos).
+- [ ] Primeiro admin: **Authentication** → usuário + `INSERT` em `public.admins` (SQL em `docs/deploy-guide.md` § 2.6).
 
 ---
 
@@ -43,6 +47,8 @@
 | `MERCADO_PAGO_ACCESS_TOKEN` | Se MP online | Prod ou `TEST-` sandbox. |
 | `PAYMENT_SYNC_SECRET` | Recomendado | Sem ela, `/api/payments/sync` → **503**. |
 | `MERCADO_PAGO_WEBHOOK_SECRET` | Opcional | MVP não exige. |
+| `STRIPE_SECRET_KEY` | Se assinaturas ativas | `sk_live_...` ou `sk_test_...` |
+| `STRIPE_WEBHOOK_SECRET` | Se assinaturas ativas | `whsec_...` — gerado ao registrar endpoint no Stripe |
 
 Preview: replicar envs se testar pagamento em branch.
 
@@ -61,6 +67,16 @@ Preview: replicar envs se testar pagamento em branch.
 - [ ] Token alinhado ao ambiente (sandbox vs produção).
 - [ ] Webhook: `https://<DOMÍNIO_PUBLICO>/api/webhooks/mercado-pago` (POST; GET IPN suportado).
 - [ ] Pagamento teste → logs Vercel (`[mercado-pago webhook]` se houver problema).
+
+---
+
+## 4b. Stripe (assinaturas — se ativo no MVP)
+
+- [ ] `STRIPE_SECRET_KEY` configurado na Vercel.
+- [ ] Endpoint webhook no Dashboard Stripe: `https://<DOMÍNIO>/api/webhooks/stripe`
+- [ ] Eventos: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`
+- [ ] `STRIPE_WEBHOOK_SECRET` (`whsec_...`) configurado na Vercel.
+- [ ] Testar com modo sandbox → assinatura aparece com `status = 'pending_payment'` e atualiza para `'active'` após `checkout.session.completed`.
 
 ---
 

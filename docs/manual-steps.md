@@ -38,6 +38,23 @@ Ações **fora do repositório**. **Desenvolvimento local + seeds:** `docs/setup
 ### Sync manual
 `POST /api/payments/sync` com header `Authorization: Bearer <PAYMENT_SYNC_SECRET>` e JSON `{"publicCode":"FD-..."}` ou `{"providerPaymentId":"..."}`. Sem secret configurado → **503**.
 
+### Agente WhatsApp — Endpoint + PIX
+**Variáveis de ambiente obrigatórias para o endpoint `/api/agent/prepare-payment`:**
+
+| Variável | Descrição | Exemplo |
+|---|---|---|
+| `AGENT_SHARED_SECRET` | Secret compartilhado entre n8n e Next.js (header `x-agent-secret`) | `flor-agent-xyz123` |
+| `STORE_PIX_KEY` | Chave PIX da loja | `11999999999` |
+| `STORE_PIX_KEY_TYPE` | Tipo: `cpf`, `cnpj`, `email`, `phone`, `random` | `phone` |
+| `STORE_PIX_HOLDER_NAME` | Nome do titular na mensagem PIX | `Flor do Estudante` |
+
+**No n8n (variáveis de workflow `$vars`):**
+- `AGENT_SHARED_SECRET` — mesmo valor da env do Next.js
+- `CATALOG_BASE_URL` — URL pública do app (ex: `https://flordoestudante.vercel.app`)
+
+**Migração de banco:**
+- Rodar `supabase db push` para aplicar `00026_shipping_rules_and_store_config.sql` (taxa de entrega R$20 + área de Capitão Leônidas Marques).
+
 ### Teste no celular (imagens / Storage)
 
 - Se `NEXT_PUBLIC_SUPABASE_URL` apontar para **`127.0.0.1`**, **`localhost`** ou um hostname só da sua máquina, o **navegador do telefone** não consegue baixar arquivos do Storage → miniaturas quebradas no catálogo/checkout/admin.

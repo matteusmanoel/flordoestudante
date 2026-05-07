@@ -1,5 +1,42 @@
 # Progress
 
+## Agente WhatsApp — Checkout + Entrega + PIX (mai/2026)
+
+Implementação dos milestones M1–M3 do PRD `docs/agent-checkout-and-delivery-evolution.md`:
+
+### M1 — Página de pagamento robusta + endpoint do agente
+- **`features/payments/create-payment.ts`** (novo): função compartilhada `createMpPaymentForOrder` que insere `payments` row + cria preferência Mercado Pago. Usada por `finalizeCheckout`, `retryMercadoPagoPreference` e o novo endpoint.
+- **`features/checkout/actions.ts`**: refatorado para usar `createMpPaymentForOrder`; removida duplicação de lógica de pagamento.
+- **`features/payments/retry-preference-action.ts`**: agora cria payments row + MP preference se não existir (pedidos vindos do agente não tinham row — corrigido).
+- **`features/payments/data-order.ts`**: `OrderPaymentView` enriquecida com `giftMessage`, `addressSnapshot` (street, number, complement, neighborhood, city, state, postalCode, recipientName).
+- **`app/(public)/pedido/[codigo]/pagamento/PedidoPagamentoClient.tsx`**: reescrito — mostra itens, endereço de entrega, mensagem do cartão; trata `payment === null` como "aguardando pagamento" acionando auto-retry; suporta offline, expirado, pago e status genérico.
+- **`app/api/agent/prepare-payment/route.ts`** (novo): `POST` autenticado por `x-agent-secret`; cria payments row + MP preference para pedidos do agente; retorna `checkout_url`, `mp_init_point` e dados PIX estáticos (env).
+
+### M2 — Workflow n8n: cabeamento endpoint + PIX direto
+- **`HTTP: PREPARE CHECKOUT | S6`**: URL migrada de `flor_prepare_checkout` (Supabase RPC) para `/api/agent/prepare-payment`. Body usa `public_code` em vez de `order_id`. Autenticação via `x-agent-secret` (variável `$vars.AGENT_SHARED_SECRET`).
+- **`CODE: MERGE CHECKOUT | S6`**: usa `mp_init_point` do endpoint; monta `agent_messages` com segunda mensagem PIX (chave, valor, instruções) quando `pix` estiver configurado. Dados PIX via `pix_message` que já entra no pipeline `EXPLODE MENSAGENS WHATSAPP`.
+
+### M3 — CEP, área de entrega e taxa R$20
+- **`supabase/floricultura/migrations/00026_shipping_rules_and_store_config.sql`**: upsert da regra de entrega "Capitão Leônidas Marques" com amount=20.00; metadata com allowed_cities, allowed_states, prefixo CEP 85790, endereço da loja.
+- **Prompt `CODE: PREPARA PROMPT | S6`** (workflow): regras adicionadas:
+  - REGRA DE MULTI-INTENÇÃO: responder todas as dúvidas antes de avançar para finalização.
+  - REGRA DE CHECKOUT: lista explícita de palavras-gatilho (finalizar, fechar, confirmar, pagar, gerar link, pix...).
+  - RESTRIÇÃO GEOGRÁFICA: entrega somente em Capitão Leônidas Marques (CEP 85790-xxx), taxa R$20. Se CEP fora da área, oferecer retirada.
+  - REGRA DE NÃO-REPETIÇÃO DE ENDEREÇO: uma vez confirmado, não solicitar novamente.
+  - FLAG `address_already_confirmed` no USER_CONTEXT baseada em fulfillment_type + address no contexto do pedido.
+
+### Decisões técnicas
+- Endpoint `/api/agent/prepare-payment` é idempotente: se já houver `payments` row com `mp_init_point`, retorna sem criar nova.
+- PIX configurado via env `STORE_PIX_KEY`, `STORE_PIX_KEY_TYPE`, `STORE_PIX_HOLDER_NAME` (não precisa de migration).
+- `AGENT_SHARED_SECRET` protege o endpoint contra chamadas externas.
+
+### Próximos passos (M4–M6)
+- M4: Comprovante PIX → handoff automático para humano.
+- M5: Validação de CEP via ViaCEP no workflow (nó de lookup + nó de validação de cidade).
+- M6: Testes end-to-end do fluxo agente → checkout → pagamento.
+
+---
+
 ## Reset de senha via Supabase Auth (mai/2026)
 
 - **API `POST /api/auth/reset-request`** valida e-mail com Zod e dispara `supabase.auth.resetPasswordForEmail` via cliente service role (`apps/floricultura-web/lib/supabase/server-service.ts`); resposta sempre 200 com mensagem neutra para preservar privacidade. `redirectTo` aponta para `${NEXT_PUBLIC_SITE_URL}/auth/reset?target=admin|customer`.

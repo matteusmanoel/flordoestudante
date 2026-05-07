@@ -11,9 +11,9 @@ import {
   PAYMENT_METHOD,
   PAYMENT_STATUS,
 } from '@flordoestudante/core';
-import { createMercadoPagoPreference } from '@/lib/mercado-pago/create-preference';
+
 import { getMercadoPagoAccessToken } from '@/lib/mercado-pago/config';
-import { getPublicSiteUrl } from '@/lib/site-url';
+import { createMpPaymentForOrder } from '@/features/payments/create-payment';
 // MVP produção: checkout one-shot apenas Mercado Pago / offline — Stripe desativado.
 // import { createOneTimeCheckout } from '@/lib/stripe/create-checkout';
 // import { getStripeSecretKey } from '@/lib/stripe/config';
@@ -22,8 +22,6 @@ import type {
   FinalizeCheckoutResponse,
   AddressSnapshotPayload,
 } from './types';
-
-const PAYMENT_EXPIRY_HOURS = 24;
 
 function generatePublicCode(): string {
   const year = new Date().getFullYear();
@@ -219,80 +217,23 @@ export async function finalizeCheckout(input: CreateOrderInput): Promise<Finaliz
       return { success: false, code: 'PERSISTENCE', message: 'Não foi possível registrar os itens do pedido.' };
     }
 
-    const expiresAt = new Date(Date.now() + PAYMENT_EXPIRY_HOURS * 60 * 60 * 1000).toISOString();
-
     if (form.payment_method === PAYMENT_METHOD.MERCADO_PAGO) {
-      const { data: payIns, error: payErr } = await supabase
-        .from('payments')
-        .insert({
-          order_id: orderId,
-          provider: 'mercado_pago',
-          amount: totalAmount,
-          status: PAYMENT_STATUS.PENDING,
-          expires_at: expiresAt,
-        })
-        .select('id')
-        .single();
+      const payResult = await createMpPaymentForOrder(supabase, orderId, publicCode, totalAmount, email);
 
-      if (payErr || !payIns) {
+      if (!payResult.ok) {
         await supabase.from('order_items').delete().eq('order_id', orderId);
         await supabase.from('orders').delete().eq('id', orderId);
-        return {
-          success: false,
-          code: 'PERSISTENCE',
-          message: 'Não foi possível registrar o pagamento.',
-        };
+        return { success: false, code: 'PERSISTENCE', message: payResult.error };
       }
 
-      const paymentId = (payIns as { id: string }).id;
-      const siteUrl = getPublicSiteUrl();
-      const notificationUrl = `${siteUrl}/api/webhooks/mercado-pago`;
-
-      let initPoint: string | null = null;
-      let mpError: string | undefined;
-
-      try {
-        const pref = await createMercadoPagoPreference({
-          orderId,
-          publicCode,
-          amount: totalAmount,
-          description: `Pedido ${publicCode}`,
-          payerEmail: email ?? undefined,
-          notificationUrl,
-          backUrls: {
-            success: `${siteUrl}/pedido/${encodeURIComponent(publicCode)}/pagamento?status=success`,
-            failure: `${siteUrl}/pedido/${encodeURIComponent(publicCode)}/pagamento?status=failure`,
-            pending: `${siteUrl}/pedido/${encodeURIComponent(publicCode)}/pagamento?status=pending`,
-          },
-        });
-        initPoint = pref.initPoint ?? null;
-        await supabase
-          .from('payments')
-          .update({
-            provider_preference_id: pref.preferenceId,
-            raw_payload_json: { mp_init_point: initPoint, mp_preference_id: pref.preferenceId },
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', paymentId);
-      } catch (e) {
-        mpError = e instanceof Error ? e.message : 'Falha ao criar link de pagamento.';
-        await supabase
-          .from('payments')
-          .update({
-            raw_payload_json: { mp_setup_error: mpError },
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', paymentId);
-      }
-
-    return {
-      success: true,
-      publicCode,
-      orderId,
-      paymentFlow: 'mercado_pago',
-      initPoint,
-      mpError,
-    };
+      return {
+        success: true,
+        publicCode,
+        orderId,
+        paymentFlow: 'mercado_pago',
+        initPoint: payResult.initPoint,
+        mpError: payResult.mpError,
+      };
     }
 
     /*

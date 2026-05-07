@@ -12,6 +12,18 @@ export interface OrderItemView {
   imageUrl?: string;
 }
 
+export interface AddressSnapshotView {
+  recipientName?: string | null;
+  phone?: string | null;
+  street?: string | null;
+  number?: string | null;
+  complement?: string | null;
+  neighborhood?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postalCode?: string | null;
+}
+
 export interface OrderPaymentView {
   publicCode: string;
   orderId: string;
@@ -24,7 +36,9 @@ export interface OrderPaymentView {
   discountAmount: number;
   totalAmount: number;
   customerNote: string | null;
+  giftMessage: string | null;
   estimatedText: string | null;
+  addressSnapshot: AddressSnapshotView | null;
   items: OrderItemView[];
   payment: {
     provider: string;
@@ -58,6 +72,8 @@ export async function getOrderPaymentView(publicCode: string): Promise<OrderPaym
         'discount_amount',
         'total_amount',
         'customer_note',
+        'gift_message',
+        'address_snapshot_json',
         'estimated_fulfillment_text',
       ].join(', ')
     )
@@ -78,6 +94,8 @@ export async function getOrderPaymentView(publicCode: string): Promise<OrderPaym
     discount_amount: number;
     total_amount: number;
     customer_note: string | null;
+    gift_message: string | null;
+    address_snapshot_json: Record<string, unknown> | null;
     estimated_fulfillment_text: string | null;
   };
 
@@ -157,6 +175,22 @@ export async function getOrderPaymentView(publicCode: string): Promise<OrderPaym
     if (typeof raw.mp_setup_error === 'string') mpError = raw.mp_setup_error;
   }
 
+  let addressSnapshot: AddressSnapshotView | null = null;
+  if (o.address_snapshot_json && typeof o.address_snapshot_json === 'object') {
+    const raw = o.address_snapshot_json as Record<string, unknown>;
+    addressSnapshot = {
+      recipientName: (raw.recipient_name as string | null) ?? null,
+      phone: (raw.phone as string | null) ?? null,
+      street: (raw.street as string | null) ?? null,
+      number: (raw.number as string | null) ?? null,
+      complement: (raw.complement as string | null) ?? null,
+      neighborhood: (raw.neighborhood as string | null) ?? null,
+      city: (raw.city as string | null) ?? null,
+      state: (raw.state as string | null) ?? null,
+      postalCode: (raw.postal_code as string | null) ?? null,
+    };
+  }
+
   return {
     publicCode: o.public_code,
     orderId: o.id,
@@ -169,7 +203,9 @@ export async function getOrderPaymentView(publicCode: string): Promise<OrderPaym
     discountAmount: Number(o.discount_amount),
     totalAmount: Number(o.total_amount),
     customerNote: o.customer_note,
+    giftMessage: o.gift_message,
     estimatedText: o.estimated_fulfillment_text,
+    addressSnapshot,
     items,
     payment: p
       ? {

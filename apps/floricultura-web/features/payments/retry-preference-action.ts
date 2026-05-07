@@ -5,6 +5,7 @@ import { ORDER_STATUS, PAYMENT_STATUS } from '@flordoestudante/core';
 import { createMercadoPagoPreference } from '@/lib/mercado-pago/create-preference';
 import { getMercadoPagoAccessToken } from '@/lib/mercado-pago/config';
 import { getPublicSiteUrl } from '@/lib/site-url';
+import { createMpPaymentForOrder } from './create-payment';
 
 export async function retryMercadoPagoPreference(
   publicCode: string
@@ -34,12 +35,28 @@ export async function retryMercadoPagoPreference(
     payment_method: string;
   } | null;
 
-  if (!o || o.payment_method !== 'mercado_pago') {
-    return { ok: false, message: 'Pedido não encontrado ou não é pagamento online.' };
+  if (!o) {
+    return { ok: false, message: 'Pedido não encontrado.' };
+  }
+
+  if (o.payment_method && o.payment_method !== 'mercado_pago') {
+    return { ok: false, message: 'Este pedido não utiliza pagamento online.' };
   }
 
   if (o.status !== ORDER_STATUS.PENDING_PAYMENT && o.status !== ORDER_STATUS.DRAFT) {
     return { ok: false, message: 'Este pedido não está aguardando pagamento online.' };
+  }
+
+  const { data: ordRow } = await supabase
+    .from('orders')
+    .select('customer_id')
+    .eq('id', o.id)
+    .single();
+  const cid = (ordRow as { customer_id: string } | null)?.customer_id;
+  let email: string | undefined;
+  if (cid) {
+    const { data: cust } = await supabase.from('customers').select('email').eq('id', cid).maybeSingle();
+    email = (cust as { email: string | null } | null)?.email ?? undefined;
   }
 
   const { data: pays } = await supabase
@@ -51,9 +68,34 @@ export async function retryMercadoPagoPreference(
     .limit(1);
 
   const pay = pays?.[0] as { id: string; status: string } | undefined;
+
+  // Sem payments row (pedido vindo do agente WhatsApp): criar agora.
   if (!pay) {
-    return { ok: false, message: 'Pagamento não encontrado.' };
+    if (o.status === ORDER_STATUS.DRAFT) {
+      await supabase
+        .from('orders')
+        .update({
+          status: ORDER_STATUS.PENDING_PAYMENT,
+          payment_method: 'mercado_pago',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', o.id);
+    }
+
+    const result = await createMpPaymentForOrder(
+      supabase,
+      o.id,
+      o.public_code,
+      Number(o.total_amount),
+      email,
+    );
+
+    if (!result.ok) return { ok: false, message: result.error };
+    if (!result.initPoint) return { ok: false, message: 'Mercado Pago não retornou URL de pagamento.' };
+    return { ok: true, initPoint: result.initPoint };
   }
+
+  // Payments row existe — verificar se pode regerar.
   if (
     pay.status !== PAYMENT_STATUS.PENDING &&
     pay.status !== PAYMENT_STATUS.FAILED &&
@@ -61,6 +103,7 @@ export async function retryMercadoPagoPreference(
   ) {
     return { ok: false, message: 'Não é possível gerar novo link para este pagamento.' };
   }
+
   if (pay.status !== PAYMENT_STATUS.PENDING) {
     await supabase
       .from('payments')
@@ -74,18 +117,6 @@ export async function retryMercadoPagoPreference(
         updated_at: new Date().toISOString(),
       })
       .eq('id', o.id);
-  }
-
-  const { data: ordRow } = await supabase
-    .from('orders')
-    .select('customer_id')
-    .eq('id', o.id)
-    .single();
-  const cid = (ordRow as { customer_id: string } | null)?.customer_id;
-  let email: string | undefined;
-  if (cid) {
-    const { data: cust } = await supabase.from('customers').select('email').eq('id', cid).maybeSingle();
-    email = (cust as { email: string | null } | null)?.email ?? undefined;
   }
 
   const siteUrl = getPublicSiteUrl();

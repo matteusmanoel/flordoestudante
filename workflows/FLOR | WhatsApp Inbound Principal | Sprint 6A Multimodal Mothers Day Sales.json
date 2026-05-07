@@ -10,7 +10,7 @@
       "name": "WEBHOOK EVOLUTION | FLOR",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [-14096, -1256],
+      "position": [-14096, -1272],
       "webhookId": "flor-whatsapp-inbound-s6"
     },
     {
@@ -21,7 +21,7 @@
       "name": "NORMALIZA PAYLOAD WHATSAPP | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-13872, -1256]
+      "position": [-13872, -1272]
     },
     {
       "parameters": {
@@ -29,7 +29,8 @@
           "options": {
             "caseSensitive": true,
             "leftValue": "",
-            "typeValidation": "strict"
+            "typeValidation": "strict",
+            "version": 1
           },
           "conditions": [
             {
@@ -59,7 +60,7 @@
       "name": "DEVE PROCESSAR? | S6",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [-13648, -1256]
+      "position": [-13648, -1272]
     },
     {
       "parameters": {
@@ -71,7 +72,7 @@
       "name": "REDIS: GET HUMAN LOCK | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-13200, -1160],
+      "position": [-13200, -1176],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -107,7 +108,7 @@
       "name": "HUMAN TAKEOVER ATIVO? | S6",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [-12976, -1160]
+      "position": [-12976, -1176]
     },
     {
       "parameters": {
@@ -119,7 +120,7 @@
       "name": "REDIS: GET BUFFER ATUAL | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-12752, -1160],
+      "position": [-12752, -1176],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -135,7 +136,7 @@
       "name": "CODE: ATUALIZA BUFFER | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-12528, -1160]
+      "position": [-12528, -1176]
     },
     {
       "parameters": {
@@ -149,7 +150,7 @@
       "name": "REDIS: SET BUFFER | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-12304, -1160],
+      "position": [-12304, -1176],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -169,7 +170,7 @@
       "name": "REDIS: SET LAST MSG ID | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-12080, -1160],
+      "position": [-12080, -1176],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -186,7 +187,7 @@
       "name": "WAIT 2S | S6",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1,
-      "position": [-11856, -1160],
+      "position": [-11856, -1176],
       "webhookId": "36f6329c-0792-420b-8506-e4bdfc90b7e0"
     },
     {
@@ -199,7 +200,7 @@
       "name": "REDIS: GET LAST MSG ID | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-11632, -1160],
+      "position": [-11632, -1176],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -235,7 +236,7 @@
       "name": "AINDA É O MAIS RECENTE? | S6",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [-11408, -1160]
+      "position": [-11408, -1176]
     },
     {
       "parameters": {
@@ -247,7 +248,7 @@
       "name": "REDIS: GET BUFFER FINAL | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-11184, -1160],
+      "position": [-11184, -1176],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -263,7 +264,7 @@
       "name": "CODE: MONTA CONTEXTO | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-10960, -1160]
+      "position": [-10960, -1176]
     },
     {
       "parameters": {
@@ -274,7 +275,7 @@
       "name": "REDIS: DEL BUFFER | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-10736, -1160],
+      "position": [-10736, -1176],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -310,7 +311,7 @@
       "name": "IF: HAS AUDIO? | S6",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [-10512, -1160]
+      "position": [-10512, -1176]
     },
     {
       "parameters": {
@@ -320,7 +321,7 @@
       "name": "CODE: PREP AUDIO | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-10288, -1232]
+      "position": [-10288, -1248]
     },
     {
       "parameters": {
@@ -356,7 +357,7 @@
       "name": "HTTP: EVOLUTION GET AUDIO | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-10064, -1232],
+      "position": [-10064, -1248],
       "credentials": {
         "evolutionApi": {
           "id": "hUhH7ahIVjr2lysL",
@@ -373,7 +374,7 @@
       "name": "CODE: AUDIO TO BINARY | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-9840, -1232],
+      "position": [-9840, -1248],
       "continueOnFail": true
     },
     {
@@ -384,7 +385,7 @@
       "name": "CODE: MERGE AUDIO | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-9392, -1232]
+      "position": [-9392, -1248]
     },
     {
       "parameters": {
@@ -413,7 +414,7 @@
       "name": "IF: HAS IMAGE? | S6",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [-9168, -1160]
+      "position": [-9168, -1176]
     },
     {
       "parameters": {
@@ -423,7 +424,7 @@
       "name": "CODE: PREP IMAGE | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-8944, -1232]
+      "position": [-8944, -1248]
     },
     {
       "parameters": {
@@ -467,7 +468,7 @@
       "name": "HTTP: OPENAI VISION | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-8720, -1232],
+      "position": [-8720, -1248],
       "credentials": {
         "openRouterApi": {
           "id": "4BdzzO60z91H2fqA",
@@ -485,7 +486,7 @@
       "name": "CODE: MERGE IMAGE | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-8496, -1232]
+      "position": [-8496, -1248]
     },
     {
       "parameters": {
@@ -495,7 +496,7 @@
       },
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 2.1,
-      "position": [-9616, -1232],
+      "position": [-9616, -1248],
       "id": "d8028afd-c87b-4ba9-8492-bec239564b55",
       "name": "Transcribe a recording",
       "credentials": {
@@ -537,7 +538,7 @@
       "name": "HTTP: SUPABASE GET CONTEXT | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-8272, -1160],
+      "position": [-8272, -1176],
       "credentials": {
         "supabaseApi": {
           "id": "r7bNEcAkh4eOhoad",
@@ -547,54 +548,13 @@
     },
     {
       "parameters": {
-        "jsCode": "// @ts-nocheck\nconst norm = $('CODE: MONTA CONTEXTO | S6').item.json || {};\nconst ctx = $json || {};\n\nconst customer = ctx.customer || {};\nconst conversation = ctx.conversation || {};\nconst recentMessages = Array.isArray(ctx.recent_messages) ? ctx.recent_messages : [];\nconst currentOrder = ctx.current_order || {};\nconst currentItems = Array.isArray(ctx.current_order_items) ? ctx.current_order_items : [];\n\nconst phone = norm.phone_normalized || '';\nconst customerName = customer.full_name || norm.push_name || 'cliente';\nconst isExisting = Boolean(customer.is_existing_customer || customer.id || ctx.customer_id);\nconst convStage = conversation.stage || 'new';\nconst humanLock = conversation.human_takeover || false;\nconst conversationId = ctx.conversation_id || conversation.id || null;\nconst customerId = ctx.customer_id || customer.id || null;\nconst catalogBase = String($vars.CATALOG_BASE_URL || 'https://flordoestudante-floricultura-web.vercel.app').replace(/\\/+$/, '');\n\nconst currentOrderId = currentOrder.order_id || currentOrder.id || ctx.current_order_id || null;\nconst currentOrderCode = currentOrder.public_code || currentOrder.order_public_code || ctx.current_order_public_code || null;\n\nconst historyText = recentMessages.slice(-8).map(m => {\n  const who = m.sender_type === 'agent' ? '🤖 Agente' : '👤 Cliente';\n  return `${who}: ${(m.body || '').substring(0, 200)}`;\n}).join('\\n');\n\nlet orderContext = '';\nif (currentOrderId) {\n  orderContext = `Pedido atual: ${currentOrderCode || currentOrderId} (${currentOrder.status || 'draft'})\\n`;\n  orderContext += `  Total: R$ ${currentOrder.total_amount || currentOrder.current_order_total_amount || '?'}\\n`;\n  orderContext += `  Entrega: ${currentOrder.fulfillment_type || '?'}\\n`;\n  if (currentItems.length > 0) {\n    orderContext += `  Itens: ${currentItems.map(i => `${i.product_name || i.name || i.item_name || 'item'} x${i.quantity || 1}`).join(', ')}\\n`;\n  }\n}\n\nlet enrichedInput = norm.message_text || '';\nif (norm.transcription) enrichedInput = `[Áudio transcrito]: ${norm.transcription}`;\nif (norm.visual_description) enrichedInput += (enrichedInput ? '\\n' : '') + `[Imagem analisada]: ${norm.visual_description}`;\nif (String(norm.agent_note || '').includes('PAYMENT_RECEIPT')) enrichedInput += '\\n[SISTEMA: Cliente enviou o que parece ser comprovante de pagamento]';\n\nconst SYSTEM_PROMPT = `Você é Ana, atendente virtual da Flor do Estudante 🌸 — floricultura especializada em flores, arranjos, buquês, cestas e presentes.\n\nDATA DE HOJE: ${new Date().toLocaleDateString('pt-BR')} — período de campanha do Dia das Mães 💐\n\nREGRAS COMERCIAIS:\n1. Priorize SEMPRE o Dia das Mães. Se o cliente não especificar ocasião, pergunte.\n2. Finalize vendas de forma autônoma — não transfira para humano apenas para fechar pedido/pagamento.\n3. NUNCA invente produtos ou preços. Use apenas dados do catálogo fornecido pelo workflow.\n4. Não bloqueie por disponibilidade de estoque — diga \"posso montar esse pedido para você\".\n5. Faça UMA pergunta por resposta. Seja objetivo e caloroso.\n6. Quando sugerir produto com slug, inclua o link: ${catalogBase}/produto/{slug}\n7. Para pagamento: aceite PIX, cartão ou pagamento na entrega/retirada conforme disponível.\n8. Se o cliente informar preferência clara como “flores do campo”, “rosas”, “girassol”, “cesta”, “buquê” ou orçamento, use action=search_catalog imediatamente.\n\nREGRA DE ESCOLHA / COMPRA:\nSe o cliente disser algo como \"vou querer\", \"quero esse\", \"pode ser esse\", \"vou levar\", \"fecha esse\", \"quero a cesta\", \"quero o buquê\", \"sim, esse mesmo\", \"pode montar\" ou \"pode fechar\" e houver produto claro na mensagem ou no histórico recente, a action correta é create_order_draft, não search_catalog.\n\nSe ainda precisar localizar o item no catálogo para obter item_id/preço, use search_catalog apenas como etapa técnica, mas a próxima ação do workflow deve criar o pedido rascunho automaticamente quando encontrar correspondência forte.\n\nNunca responda novamente com lista de opções quando o cliente já escolheu uma opção clara.\n\nACTIONS DISPONÍVEIS:\n- ask_info\n- search_catalog\n- create_order_draft\n- update_order_draft\n- prepare_checkout\n- parse_whatsapp_cart\n- handoff_human\n\nSTAGES PERMITIDOS:\nidentificando_necessidade, coletando_ocasiao, coletando_preferencia, coletando_orcamento, consultando_catalogo, buscando_opcoes, apresentando_opcoes, pedido_em_montagem, confirmando_pedido, coletando_entrega_ou_retirada, coletando_destinatario, coletando_mensagem_cartao, finalizando_pagamento, aguardando_pagamento, handoff, erro.\n\nQuando action=search_catalog:\n- agent_reply deve ser uma frase curta de transição, não uma pergunta.\n- Exemplo: \"Perfeito, vou separar algumas opções nesse estilo para você 🌸\"\n- A resposta final com produtos será montada após a busca no catálogo.\n\nFLUXO SUGERIDO:\n1. Entender ocasião/preferência/orçamento → buscar catálogo.\n2. Sugerir 2-3 opções com link e preço.\n3. Confirmar escolha → criar/atualizar pedido.\n4. Confirmar entrega/retirada, destinatário, endereço e mensagem no cartão.\n5. Gerar checkout → enviar link de pagamento.\n\nFORMATO DE RESPOSTA — SEMPRE JSON VÁLIDO:\n{\n  \"action\": \"search_catalog\",\n  \"agent_reply\": \"Texto da resposta para o cliente\",\n  \"agent_stage\": \"identificando_necessidade\",\n  \"search_query\": \"\",\n  \"occasion_filter\": \"dia_das_maes\",\n  \"order_id\": \"\",\n  \"order_data\": {\n    \"fulfillment_type\": \"delivery | pickup\",\n    \"recipient_name\": \"\",\n    \"gift_message\": \"\",\n    \"desired_date\": \"\",\n    \"add_items\": []\n  },\n  \"checkout_data\": {\n    \"payment_method\": \"pix | mercado_pago | pay_on_delivery | pay_on_pickup\"\n  }\n}`;\n\nconst USER_CONTEXT = `CONTEXTO DO ATENDIMENTO:\nCliente: ${customerName} | Telefone: ${phone} | ${isExisting ? 'Cliente cadastrado' : 'Novo cliente'}\nEstágio conversa: ${convStage}\n${orderContext}\nHistórico recente:\\n${historyText || '(primeira mensagem)'}\n\nMENSAGEM ATUAL DO CLIENTE:\n${enrichedInput || '(sem texto)'}`;\n\nreturn [{\n  json: {\n    ...norm,\n    system_prompt: SYSTEM_PROMPT,\n    user_context: USER_CONTEXT,\n    conversation_id: conversationId,\n    customer_id: customerId,\n    ctx_stage: convStage,\n    current_order_id: currentOrderId,\n    current_order_public_code: currentOrderCode,\n    transcription: norm.transcription || null,\n    visual_description: norm.visual_description || null,\n    human_lock: humanLock\n  }\n}];"
+        "jsCode": "// @ts-nocheck\n\n/**\n * CODE: PREPARA PROMPT | S6\n * Versão revisada — Flora Dia das Mães\n *\n * Objetivo:\n * - Preparar system_prompt + user_context para o agente Flora.\n * - Manter compatibilidade com o workflow atual.\n * - Incorporar regras fortes das versões testadas:\n *   agent_messages, escolha de produto após opções, search_catalog técnico,\n *   create_order_draft, checkout, carrinho WhatsApp e comprovante.\n */\n\nfunction clean(value) {\n  if (value === undefined || value === null) return '';\n  return String(value).trim();\n}\n\nfunction safeString(value, fallback = '') {\n  const v = clean(value);\n  return v || fallback;\n}\n\nfunction asArray(value) {\n  return Array.isArray(value) ? value : [];\n}\n\nfunction truncate(value, max = 240) {\n  const text = clean(value);\n  if (!text) return '';\n  return text.length > max ? text.slice(0, max - 1) + '…' : text;\n}\n\nfunction normalizeText(value) {\n  return clean(value)\n    .toLowerCase()\n    .normalize('NFD')\n    .replace(/[\\u0300-\\u036f]/g, '')\n    .trim();\n}\n\nfunction formatCurrencyBR(value) {\n  if (value === undefined || value === null || value === '') return '';\n  const num = Number(value);\n  if (!Number.isFinite(num)) return clean(value);\n  return num.toLocaleString('pt-BR', {\n    style: 'currency',\n    currency: 'BRL'\n  });\n}\n\nfunction safeJsonPreview(value, max = 900) {\n  try {\n    const text = JSON.stringify(value || {}, null, 2);\n    return truncate(text, max);\n  } catch (e) {\n    return '';\n  }\n}\n\nfunction getVar(name, fallback = '') {\n  try {\n    if (typeof $vars !== 'undefined' && $vars && $vars[name] !== undefined && $vars[name] !== null) {\n      return String($vars[name]);\n    }\n  } catch (e) {}\n  return fallback;\n}\n\nconst norm = $('CODE: MONTA CONTEXTO | S6').item.json || {};\nconst rawCtx = $json || {};\nconst ctx = Array.isArray(rawCtx) ? (rawCtx[0] || {}) : rawCtx;\n\nconst customer = ctx.customer || {};\nconst conversation = ctx.conversation || {};\nconst recentMessages = asArray(ctx.recent_messages);\nconst currentOrder = ctx.current_order || {};\nconst currentItems = asArray(ctx.current_order_items);\n\nconst phone = safeString(norm.phone_normalized);\nconst customerName = safeString(\n  customer.full_name || customer.name || norm.push_name,\n  'cliente'\n);\n\nconst isExisting = Boolean(\n  customer.is_existing_customer ||\n  customer.id ||\n  ctx.customer_id\n);\n\nconst convStage = safeString(\n  conversation.stage || ctx.stage,\n  'new'\n);\n\nconst humanLock = Boolean(\n  conversation.human_takeover ||\n  ctx.human_takeover ||\n  norm.human_lock\n);\n\nconst conversationId =\n  ctx.conversation_id ||\n  conversation.id ||\n  norm.conversation_id ||\n  null;\n\nconst customerId =\n  ctx.customer_id ||\n  customer.id ||\n  norm.customer_id ||\n  null;\n\nconst catalogBase = String(\n'https://flordoestudante.vercel.app')\n).replace(/\\/+$/, '');\n\nconst currentOrderId =\n  currentOrder.order_id ||\n  currentOrder.id ||\n  ctx.current_order_id ||\n  norm.current_order_id ||\n  null;\n\nconst currentOrderCode =\n  currentOrder.public_code ||\n  currentOrder.order_public_code ||\n  ctx.current_order_public_code ||\n  norm.current_order_public_code ||\n  null;\n\nconst nowBR = new Date().toLocaleString('pt-BR', {\n  timeZone: 'America/Sao_Paulo',\n  dateStyle: 'short',\n  timeStyle: 'short'\n});\n\nconst messageType = safeString(norm.message_type, 'text');\nconst messageNorm = normalizeText(norm.message_text || '');\nconst agentNote = safeString(norm.agent_note);\n\nconst hasAudio = Boolean(norm.has_audio || norm.transcription);\nconst hasImage = Boolean(norm.has_image || norm.visual_description);\nconst hasCart = Boolean(norm.has_cart || messageType === 'cart');\nconst isPaymentReceipt = Boolean(\n  norm.is_payment_receipt ||\n  /PAYMENT_RECEIPT/i.test(agentNote)\n);\n\nconst historyText = recentMessages\n  .slice(-10)\n  .map((m) => {\n    const senderType = safeString(m.sender_type || m.role || m.sender);\n    const who =\n      senderType === 'agent' || senderType === 'assistant'\n        ? '🤖 Agente'\n        : '👤 Cliente';\n\n    const body = truncate(\n      m.body ||\n      m.content ||\n      m.message ||\n      m.text ||\n      '',\n      260\n    );\n\n    if (!body) return '';\n    return `${who}: ${body}`;\n  })\n  .filter(Boolean)\n  .join('\\n');\n\nlet orderContext = '';\n\nif (currentOrderId) {\n  const status = safeString(currentOrder.status, 'draft');\n  const total =\n    currentOrder.total_amount ||\n    currentOrder.current_order_total_amount ||\n    currentOrder.amount_total ||\n    '';\n\n  const fulfillment =\n    currentOrder.fulfillment_type ||\n    currentOrder.delivery_type ||\n    currentOrder.shipping_method ||\n    '';\n\n  orderContext += `Pedido atual: ${currentOrderCode || currentOrderId} (${status})\\n`;\n\n  if (total !== '') {\n    orderContext += `Total atual: ${formatCurrencyBR(total)}\\n`;\n  }\n\n  if (fulfillment) {\n    orderContext += `Entrega/retirada: ${fulfillment}\\n`;\n  }\n\n  const desiredDate =\n    currentOrder.desired_fulfillment_date ||\n    currentOrder.desired_date ||\n    currentOrder.delivery_date ||\n    '';\n\n  const desiredPeriod =\n    currentOrder.desired_fulfillment_period ||\n    currentOrder.delivery_period ||\n    '';\n\n  if (desiredDate || desiredPeriod) {\n    orderContext += `Data/período desejado: ${[desiredDate, desiredPeriod].filter(Boolean).join(' — ')}\\n`;\n  }\n\n  const recipientName =\n    currentOrder.recipient_name ||\n    currentOrder.delivery_recipient_name ||\n    '';\n\n  if (recipientName) {\n    orderContext += `Destinatária(o): ${recipientName}\\n`;\n  }\n\n  const giftMessage =\n    currentOrder.gift_message ||\n    currentOrder.card_message ||\n    '';\n\n  if (giftMessage) {\n    orderContext += `Mensagem do cartão: ${truncate(giftMessage, 220)}\\n`;\n  }\n\n  if (currentItems.length > 0) {\n    const itemsText = currentItems\n      .map((i) => {\n        const name =\n          i.product_name ||\n          i.name ||\n          i.item_name ||\n          i.title ||\n          'item';\n\n        const quantity = i.quantity || i.qty || 1;\n        return `${name} x${quantity}`;\n      })\n      .join(', ');\n\n    orderContext += `Itens: ${itemsText}\\n`;\n  }\n}\n\nlet enrichedInput = safeString(norm.message_text);\n\nif (norm.transcription) {\n  enrichedInput = `[Áudio transcrito]: ${norm.transcription}`;\n}\n\nif (norm.visual_description) {\n  enrichedInput += `${enrichedInput ? '\\n' : ''}[Imagem analisada]: ${norm.visual_description}`;\n}\n\nif (isPaymentReceipt) {\n  enrichedInput += `${enrichedInput ? '\\n' : ''}[SISTEMA: Cliente enviou imagem que parece ser comprovante de pagamento. Não confirme pagamento como aprovado; apenas acuse recebimento e siga o fluxo de conferência/checkout.]`;\n}\n\nif (hasCart) {\n  enrichedInput += `${enrichedInput ? '\\n' : ''}[SISTEMA: Cliente enviou um carrinho/pedido do WhatsApp. Priorize action=parse_whatsapp_cart se ainda não houver pedido rascunho estruturado.]`;\n}\n\nif (!enrichedInput && hasAudio) {\n  enrichedInput = '[SISTEMA: Cliente enviou áudio, mas a transcrição não está disponível. Peça para reenviar em texto ou áudio curto.]';\n}\n\nif (!enrichedInput && hasImage) {\n  enrichedInput = '[SISTEMA: Cliente enviou imagem, mas a análise visual não está disponível. Peça uma breve descrição do que deseja.]';\n}\n\nconst customerContextExtra = safeJsonPreview({\n  customer: {\n    id: customerId,\n    name: customerName,\n    is_existing: isExisting,\n    phone\n  },\n  conversation: {\n    id: conversationId,\n    stage: convStage,\n    human_lock: humanLock\n  },\n  message: {\n    type: messageType,\n    has_audio: hasAudio,\n    has_image: hasImage,\n    has_cart: hasCart,\n    is_payment_receipt: isPaymentReceipt\n  },\n  current_order: currentOrderId\n    ? {\n        id: currentOrderId,\n        public_code: currentOrderCode,\n        status: currentOrder.status || '',\n        fulfillment_type: currentOrder.fulfillment_type || '',\n        items_count: currentItems.length\n      }\n    : null\n}, 1200);\n\nconst SYSTEM_PROMPT = `Você é Flora, assistente virtual da Flor do Estudante 🌸 — floricultura especializada em flores, arranjos, buquês, cestas e presentes.\n\nCONTEXTO DA CAMPANHA:\n- Estamos em campanha do Dia das Mães.\n- Data/hora atual no Brasil: ${nowBR}.\n- Sua missão é ajudar o cliente a escolher um presente bonito, montar o pedido e conduzir até checkout/pagamento ou atendimento humano quando necessário.\n- O tom deve ser acolhedor, delicado, consultivo, objetivo e humano.\n- Use emojis com moderação: 🌸, 💐, 🌷, ❤️.\n\nIDENTIDADE:\n- Seu nome é Flora.\n- Você atende pela Flor do Estudante.\n- Você não deve dizer que é IA, robô ou modelo.\n- Não saia do personagem.\n- Não use linguagem fria, burocrática ou robótica.\n\nREGRAS COMERCIAIS CRÍTICAS:\n1. Priorize o Dia das Mães quando fizer sentido.\n2. Se a ocasião não estiver clara, pergunte delicadamente.\n3. Nunca invente produtos, preços, estoque, frete, prazo ou disponibilidade.\n4. Use somente dados que vierem do catálogo/workflow/contexto.\n5. Quando o cliente pedir opções, flores específicas, orçamento ou categoria clara, use action=search_catalog.\n6. Quando action=search_catalog, sua agent_reply deve ser só uma frase curta de transição, sem lista de produtos e sem pergunta final.\n7. Não negue disponibilidade sem consulta. Quando houver intenção clara, avance para montar o pedido: \"posso montar esse pedido para você\".\n8. Conduza a venda até pedido rascunho, dados essenciais e checkout sempre que possível.\n9. Não transfira para humano apenas porque o cliente quer fechar, pagar ou escolher produto.\n10. Acione humano se o cliente pedir atendente, houver reclamação, dúvida operacional não coberta, falha técnica, entrega excepcional, negociação especial ou risco de promessa indevida.\n11. Faça uma pergunta principal por resposta.\n12. Preserve dados já informados. Não peça novamente o que já está no contexto.\n\nAÇÕES DISPONÍVEIS:\n- ask_info\n- search_catalog\n- create_order_draft\n- update_order_draft\n- prepare_checkout\n- parse_whatsapp_cart\n- handoff_human\n\nSTAGES PERMITIDOS:\n- new\n- smalltalk\n- identificando_necessidade\n- coletando_ocasiao\n- coletando_preferencia\n- coletando_orcamento\n- consultando_catalogo\n- buscando_opcoes\n- apresentando_opcoes\n- pedido_em_montagem\n- confirmando_pedido\n- coletando_entrega_ou_retirada\n- coletando_destinatario\n- coletando_mensagem_cartao\n- finalizando_pagamento\n- aguardando_pagamento\n- handoff\n- erro\n\nHUMANIZAÇÃO POR MÚLTIPLAS MENSAGENS:\nVocê pode dividir a resposta em mais de uma mensagem quando isso deixar a conversa mais natural no WhatsApp.\n\nRegras:\n- Retorne sempre agent_reply e agent_messages.\n- agent_reply deve conter o texto completo consolidado.\n- agent_messages deve ser um array com as mensagens reais para WhatsApp.\n- Use no máximo 3 mensagens.\n- Use 1 mensagem quando a resposta for simples.\n- Use 2 ou 3 mensagens quando houver acolhimento + explicação curta + próxima pergunta.\n- Não envie mensagens vazias.\n- Não repita a mesma informação em mensagens diferentes.\n- A última mensagem deve conter a pergunta principal quando houver.\n- Evite quebras de linha complexas em agent_reply.\n- Quando mostrar opções de catálogo, não divida uma lista em várias mensagens; o workflow de catálogo cuidará da resposta final.\n\nREGRA DE SAUDAÇÃO:\nSe o cliente disser apenas \"oi\", \"olá\", \"bom dia\", \"boa tarde\" ou algo semelhante:\n- Responda com simpatia.\n- Apresente-se como Flora.\n- Abra o tema da campanha sem pressionar.\n- Pergunte se ele procura algo para o Dia das Mães ou outra ocasião.\n- action=ask_info.\n- agent_stage=identificando_necessidade ou coletando_ocasiao.\n\nExemplo de comportamento:\n{\n  \"action\": \"ask_info\",\n  \"agent_stage\": \"identificando_necessidade\",\n  \"agent_reply\": \"Olá! Eu sou a Flora, da Flor do Estudante 🌸 Posso te ajudar a escolher um presente especial. Você está procurando algo para o Dia das Mães ou outra ocasião?\",\n  \"agent_messages\": [\n    \"Olá! Eu sou a Flora, da Flor do Estudante 🌸\",\n    \"Posso te ajudar a escolher um presente especial.\",\n    \"Você está procurando algo para o Dia das Mães ou outra ocasião?\"\n  ]\n}\n\nREGRA DE BUSCA DE CATÁLOGO:\nUse action=search_catalog quando o cliente:\n- pedir opções;\n- citar flor/categoria/produto: rosas, girassol, orquídea, buquê, arranjo, cesta, chocolate, pelúcia, flores do campo;\n- informar orçamento;\n- pedir sugestão;\n- disser que quer presente para mãe, esposa, sogra, avó ou outra pessoa;\n- enviar foto de referência de arranjo/flor e pedir parecido.\n\nQuando action=search_catalog:\n- agent_stage deve ser consultando_catalogo ou buscando_opcoes.\n- agent_reply deve ser uma frase curta de transição.\n- Não pergunte outra coisa nessa resposta.\n- Não invente lista de produtos.\n- Preencha search_query com termos úteis.\n- Use occasion_filter=\"dia_das_maes\" quando fizer sentido.\n\nExemplos de agent_reply para search_catalog:\n- \"Perfeito, vou separar algumas opções lindas nesse estilo para você 🌸\"\n- \"Claro, vou buscar opções que combinam com esse presente 💐\"\n- \"Ótimo, vou procurar opções dentro dessa faixa para você 🌷\"\n\nREGRA DE ESCOLHA / COMPRA:\nSe o cliente disser algo como:\n- \"vou querer\"\n- \"quero esse\"\n- \"pode ser esse\"\n- \"vou levar\"\n- \"fecha esse\"\n- \"quero a cesta\"\n- \"quero o buquê\"\n- \"sim, esse mesmo\"\n- \"pode montar\"\n- \"pode fechar\"\n- \"gostei desse\"\n- \"fico com esse\"\n\nE houver produto claro na mensagem, histórico recente, catálogo apresentado ou pedido atual:\n- Interprete como escolha de produto.\n- Não pergunte novamente qual produto ele escolheu.\n- Não reapresente a lista de opções.\n- Se já houver produto/item_id claro, use action=create_order_draft ou update_order_draft.\n- Se precisar localizar dados reais do catálogo, use action=search_catalog como etapa técnica, com agent_stage=pedido_em_montagem e search_query igual ao produto mencionado.\n- O workflow validará o produto real antes de criar o pedido.\n\nExemplo:\nCliente: \"Gostei do ramalhete misto\"\nResposta:\n{\n  \"action\": \"search_catalog\",\n  \"agent_stage\": \"pedido_em_montagem\",\n  \"agent_reply\": \"Perfeito, vou montar esse pedido para você 🌸\",\n  \"agent_messages\": [\"Perfeito, vou montar esse pedido para você 🌸\"],\n  \"search_query\": \"ramalhete misto\",\n  \"occasion_filter\": \"dia_das_maes\"\n}\n\nREGRA DE MULTI-INTENÇÃO:\nAntes de avançar para etapas de finalização (coleta de endereço, pagamento, checkout):\n- Verifique se a mensagem do cliente contém MÚLTIPLAS intenções ou perguntas.\n- Responda COMPLETAMENTE a todas as perguntas ou menções de interesse antes de avançar para o próximo passo do fluxo de compra.\n- Exemplo: se o cliente diz \"quero a cesta mas tem girassóis também?\" — responda sobre os girassóis E depois avance para a montagem do pedido; NÃO inicie coleta de dados de entrega ignorando a pergunta sobre girassóis.\n- Se houver dúvida de catálogo, use search_catalog para responder antes de avançar.\n\nREGRA DE PEDIDO RASCUNHO:\nUse action=create_order_draft quando:\n- o cliente escolher um produto específico;\n- disser \"pode fechar\", \"vou querer\", \"pode montar\", \"reserva\", \"faz pra mim\";\n- enviar carrinho já com item escolhido e o workflow já tiver extraído itens;\n- houver produto claro e ainda não existir pedido atual.\n\nUse action=update_order_draft quando:\n- já existir pedido atual;\n- o cliente informar entrega/retirada;\n- informar endereço;\n- informar destinatário;\n- informar data/período;\n- informar mensagem do cartão;\n- mudar produto ou quantidade;\n- informar forma de pagamento.\n\nREGRA DE ENTREGA / RETIRADA:\nSe o produto/pedido já estiver escolhido e ainda faltar entrega ou retirada:\n- Pergunte se será entrega ou retirada.\n- action=ask_info ou update_order_draft, dependendo se já há pedido atual.\n- agent_stage=coletando_entrega_ou_retirada.\n\nSe for entrega, colete SEQUENCIALMENTE (uma informação por mensagem):\n1. CEP ou endereço completo + número da residência;\n2. Consulte o endereço completo via CEP e apresente-o UMA ÚNICA VEZ para confirmação;\n3. Após confirmação, NÃO repita o endereço novamente — siga para o próximo passo;\n4. nome da destinatária;\n5. telefone da destinatária, se necessário;\n6. data/período;\n7. mensagem do cartão.\n\nSe for retirada, colete:\n1. data;\n2. período;\n3. nome de quem vai retirar, se necessário.\n\nNão prometa horário exato sem confirmação.\n\nRESTRIÇÃO GEOGRÁFICA DE ENTREGA (CRÍTICO):\n- A loja fica em R. Demetrio Paulo Paini, 167 — Capitão Leônidas Marques, PR, 85790-000.\n- Entregas são realizadas SOMENTE dentro do município de Capitão Leônidas Marques (PR), CEPs com prefixo 85790.\n- Taxa de entrega atual: R$ 20,00 (taxa fixa — configuração por bairro prevista para o futuro).\n- Se o cliente informar um CEP ou cidade DIFERENTE de Capitão Leônidas Marques:\n  a) Informe cordialmente que a entrega não está disponível para essa localidade;\n  b) Ofereça a opção de retirada na loja;\n  c) Forneça o endereço da loja;\n  d) NÃO crie ou mantenha pedido com entrega fora da área permitida.\n- Nunca assuma um CEP fora do prefixo 85790 como válido para entrega.\n\nREGRA DE NÃO-REPETIÇÃO DE ENDEREÇO:\n- Uma vez que o endereço de entrega foi coletado e CONFIRMADO pelo cliente (estágio coletando_entrega_ou_retirada concluído), NÃO peça nem repita o endereço novamente.\n- Se os dados de entrega já estiverem no CONTEXTO DO PEDIDO ATUAL (fulfillment_type + address ou recipient_name), o endereço já foi coletado e confirmado.\n- Prossiga diretamente para as etapas seguintes (destinatário, data, mensagem do cartão, checkout).\n\nREGRA DE MENSAGEM DO CARTÃO:\nSe o cliente ainda não informou mensagem do cartão depois de escolher produto e entrega/retirada:\n- Ofereça ajuda.\n- Não pressione.\n- agent_stage=coletando_mensagem_cartao.\n\nExemplo:\n\"Quer incluir uma mensagem no cartão? Posso te ajudar a escrever uma bem bonita também 💐\"\n\nREGRA DE CHECKOUT / PAGAMENTO:\nUse action=prepare_checkout quando:\n- já houver pedido atual;\n- produto e dados mínimos estiverem suficientes;\n- cliente disser que quer PAGAR, FECHAR, FINALIZAR, CONFIRMAR, GERAR LINK, PIX, CARTÃO, CHECKOUT ou expressões similares como \"pode fechar\", \"finaliza aí\", \"manda o link\", \"quero pagar\", \"fecha\", \"confirmar pedido\".\n\nPALAVRAS-GATILHO para prepare_checkout (reconheça variações sem acento):\nfinalizar, fechar, confirmar, pagar, gerar link, link de pagamento, pagamento, cartão, credito, debito, pix, checkout, manda o pix, manda o link, pode finalizar, pode fechar, pode confirmar.\n\nNunca confirme pagamento como aprovado.\nSe o cliente enviar comprovante:\n- acuse recebimento;\n- não diga que está pago/aprovado;\n- use update_order_draft ou prepare_checkout conforme contexto;\n- se necessário, diga que a equipe/sistema fará a conferência.\n\nREGRA DE CARRINHO WHATSAPP:\nSe o cliente enviar carrinho/pedido do WhatsApp:\n- use action=parse_whatsapp_cart quando ainda não houver itens estruturados;\n- agent_reply deve ser curta e acolhedora;\n- não peça tudo de novo antes do parser.\n\nExemplo:\n{\n  \"action\": \"parse_whatsapp_cart\",\n  \"agent_stage\": \"pedido_em_montagem\",\n  \"agent_reply\": \"Perfeito, recebi seu carrinho e vou organizar o pedido para você 🌸\",\n  \"agent_messages\": [\"Perfeito, recebi seu carrinho e vou organizar o pedido para você 🌸\"],\n  \"search_query\": \"\",\n  \"occasion_filter\": \"dia_das_maes\"\n}\n\nREGRA PARA IMAGENS:\nSe a imagem for referência de flores/arranjo:\n- use a descrição visual como preferência;\n- se houver intenção de compra/sugestão, use search_catalog;\n- não diga que consegue replicar exatamente; diga que pode buscar opções nesse estilo.\n\nSe a imagem for comprovante:\n- não confirme aprovação do pagamento;\n- diga que recebeu o comprovante;\n- siga para conferência/finalização.\n\nREGRA PARA ÁUDIO:\nSe o áudio foi transcrito:\n- trate a transcrição como mensagem do cliente.\nSe a transcrição falhou:\n- peça para reenviar em texto ou um áudio mais curto.\n\nREGRA DE HANDOFF HUMANO:\nUse action=handoff_human apenas quando:\n- o cliente pedir atendente/pessoa humana;\n- houver reclamação;\n- houver pedido especial fora do fluxo;\n- houver falha técnica;\n- o cliente insistir em condição comercial, desconto ou exceção;\n- houver risco de promessa indevida;\n- o pedido exigir confirmação manual fora do alcance do workflow.\n\nNão use handoff_human apenas porque o cliente quer comprar, pagar ou fechar.\n\nFORMATO DE RESPOSTA:\nResponda sempre com JSON válido e nenhum texto fora do JSON.\n\nSchema obrigatório:\n{\n  \"action\": \"ask_info\",\n  \"agent_reply\": \"Texto completo consolidado para o cliente\",\n  \"agent_messages\": [\"Mensagem 1\", \"Mensagem 2\"],\n  \"agent_stage\": \"identificando_necessidade\",\n  \"search_query\": \"\",\n  \"occasion_filter\": \"dia_das_maes\",\n  \"order_id\": \"\",\n  \"order_data\": {\n    \"fulfillment_type\": \"\",\n    \"recipient_name\": \"\",\n    \"recipient_phone\": \"\",\n    \"delivery_address\": \"\",\n    \"gift_message\": \"\",\n    \"desired_date\": \"\",\n    \"desired_period\": \"\",\n    \"is_gift\": true,\n    \"surprise_delivery\": false,\n    \"add_items\": [],\n    \"notes\": \"\"\n  },\n  \"checkout_data\": {\n    \"payment_method\": \"\"\n  },\n  \"handoff\": {\n    \"reason\": \"\",\n    \"summary\": \"\"\n  }\n}\n\nVALORES ESPERADOS:\n- action deve ser uma das actions disponíveis.\n- agent_stage deve ser um dos stages permitidos.\n- occasion_filter deve ser \"dia_das_maes\" quando a conversa estiver relacionada à campanha; caso contrário, pode ser \"\".\n- fulfillment_type deve ser \"delivery\", \"pickup\" ou \"\".\n- payment_method pode ser \"pix\", \"mercado_pago\", \"pay_on_delivery\", \"pay_on_pickup\" ou \"\".\n- agent_messages deve ter pelo menos 1 mensagem e no máximo 3.\n- Se action=search_catalog, não liste produtos na agent_reply; o workflow fará isso após a busca.\n- Se action=create_order_draft ou update_order_draft, inclua em order_data apenas dados que o cliente realmente informou ou que estejam no contexto.\n`;\n\n// Derivar flags de endereço e entrega já confirmada\nconst addressConfirmed = Boolean(\n  currentOrderId &&\n  (currentOrder.fulfillment_type === 'delivery' || currentOrder.fulfillment_type === 'pickup') &&\n  (\n    currentOrder.delivery_address ||\n    currentOrder.address_snapshot ||\n    currentOrder.recipient_name ||\n    currentOrder.fulfillment_type === 'pickup'\n  )\n);\n\nconst USER_CONTEXT = `CONTEXTO DO ATENDIMENTO:\nCliente: ${customerName}\nTelefone: ${phone}\nStatus: ${isExisting ? 'Cliente cadastrado/recorrente' : 'Novo cliente'}\nEstágio atual no banco: ${convStage}\nHuman takeover ativo: ${humanLock ? 'sim' : 'não'}\n\n${orderContext ? `CONTEXTO DO PEDIDO ATUAL:\\n${orderContext}` : 'CONTEXTO DO PEDIDO ATUAL:\\nAinda não há pedido rascunho ativo identificado.'}\n\nFLAGS DE ESTADO:\n- address_already_confirmed: ${addressConfirmed ? 'SIM — endereço/retirada já coletado e confirmado. NÃO peça novamente.' : 'NÃO — ainda precisa coletar entrega/retirada.'}\n\nHISTÓRICO RECENTE:\n${historyText || '(primeira mensagem ou sem histórico recente)'}\n\nMENSAGEM ATUAL DO CLIENTE:\n${enrichedInput || '(sem texto)'}\n\nDADOS TÉCNICOS RESUMIDOS:\n${customerContextExtra}\n\nINSTRUÇÃO FINAL:\nCom base no contexto acima, retorne somente JSON válido seguindo o schema obrigatório.\n`;\n\nreturn [\n  {\n    json: {\n      ...norm,\n\n      system_prompt: SYSTEM_PROMPT,\n      user_context: USER_CONTEXT,\n\n      conversation_id: conversationId,\n      customer_id: customerId,\n      ctx_stage: convStage,\n\n      current_order_id: currentOrderId,\n      current_order_public_code: currentOrderCode,\n\n      customer_name: customerName,\n      is_existing_customer: isExisting,\n\n      transcription: norm.transcription || null,\n      visual_description: norm.visual_description || null,\n\n      has_audio: hasAudio,\n      has_image: hasImage,\n      has_cart: hasCart,\n      is_payment_receipt: isPaymentReceipt,\n\n      human_lock: humanLock,\n\n      catalog_base: catalogBase,\n      campaign: 'dia_das_maes',\n      prompt_version: 'flora_s6_dia_das_maes_v3.0'\n    }\n  }\n];"
       },
       "id": "ed5839e1-f640-417c-887f-8da840f28fc0",
       "name": "CODE: PREPARA PROMPT | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-8048, -1160]
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://openrouter.ai/api/v1/chat/completions",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "openRouterApi",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            },
-            {
-              "name": "HTTP-Referer",
-              "value": "https://flordoestudante.com.br"
-            },
-            {
-              "name": "X-Title",
-              "value": "Flor do Estudante Agent"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ model: 'google/gemini-2.5-flash', temperature: 0.3, max_tokens: 800, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: $json.system_prompt || 'Você é uma atendente virtual da Flor do Estudante. Responda sempre em JSON válido.' }, { role: 'user', content: $json.user_context || 'Cliente enviou uma mensagem sem contexto.' }] }) }}",
-        "options": {}
-      },
-      "id": "7a7ce3f6-4c98-4a6b-ab64-fd35b97c8bed",
-      "name": "HTTP: OPENROUTER CHAT | S6",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [-7824, -1160],
-      "credentials": {
-        "openRouterApi": {
-          "id": "4BdzzO60z91H2fqA",
-          "name": "openrouter_cloudfy"
-        }
-      },
-      "notes": "Uses OpenRouter HTTP for chat completions — maintains JSON mode stability."
+      "position": [-8048, -1176]
     },
     {
       "parameters": {
@@ -604,17 +564,17 @@
       "name": "CODE: PARSE JSON AGENTE | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-7600, -1160]
+      "position": [-7600, -1176]
     },
     {
       "parameters": {
-        "jsCode": "// @ts-nocheck\nconst parsed = $json || {};\nconst norm = $('NORMALIZA PAYLOAD WHATSAPP | S6').first().json || {};\n\nconst msg = String(norm.message_text_normalized || norm.message_text || '')\n  .toLowerCase()\n  .normalize('NFD')\n  .replace(/[\\u0300-\\u036f]/g, '')\n  .trim();\n\nconst stage = String(parsed.agent_stage || parsed.ctx_stage || '').toLowerCase();\n\nconst strongBuyIntent = /\\b(vou querer|vou levar|pode ser|pode montar|pode fechar|fecha esse|fechar esse|esse mesmo|essa mesmo|escolho|fico com|manda esse|manda essa)\\b/i.test(msg);\nconst weakBuyIntent = /\\b(quero|queria)\\b/i.test(msg);\nconst hasProductHint = /\\b(cesta|cafe da manha|buque|rosas|girassol|arranjo)\\b/i.test(msg);\nconst isChoosingFromOptions = ['apresentando_opcoes', 'buscando_opcoes', 'consultando_catalogo'].includes(stage);\n\nconst shouldCreateOrder = hasProductHint && (strongBuyIntent || (weakBuyIntent && isChoosingFromOptions));\n\nlet cleanQuery = msg\n  .replace(/\\b(sim|por favor|obrigado|obrigada|vou querer|vou levar|quero|queria|pode ser|pode montar|pode fechar|fecha esse|fechar esse|esse mesmo|essa mesmo|escolho|fico com|manda esse|manda essa)\\b/gi, ' ')\n  .replace(/\\b(a|o|um|uma|de|da|do|para|pra)\\b/gi, ' ')\n  .replace(/[^\\p{L}\\p{N}\\s]/gu, ' ')\n  .replace(/\\s+/g, ' ')\n  .trim();\n\nif (!cleanQuery && parsed.search_query) cleanQuery = String(parsed.search_query).trim();\n\nif (shouldCreateOrder) {\n  return [{\n    json: {\n      ...parsed,\n      agent_action: 'search_catalog',\n      agent_stage: 'pedido_em_montagem',\n      agent_reply: 'Perfeito, vou montar esse pedido para você 🌸',\n      search_query: cleanQuery || parsed.search_query || norm.message_text || '',\n      occasion_filter: parsed.occasion_filter || 'dia_das_maes',\n      force_create_order_after_catalog: true,\n      detected_buy_intent: true\n    }\n  }];\n}\n\nreturn [{ json: { ...parsed, force_create_order_after_catalog: false, detected_buy_intent: false } }];"
+        "jsCode": "// @ts-nocheck\n\nconst parsed = $json || {};\nconst norm = $('NORMALIZA PAYLOAD WHATSAPP | S6').first().json || {};\n\nconst msg = String(norm.message_text_normalized || norm.message_text || '')\n  .toLowerCase()\n  .normalize('NFD')\n  .replace(/[\\u0300-\\u036f]/g, '')\n  .trim();\n\nconst stage = String(parsed.agent_stage || parsed.ctx_stage || '').toLowerCase();\n\nconst strongBuyIntent =\n  /\\b(vou querer|vou levar|pode ser|pode montar|pode fechar|fecha esse|fechar esse|esse mesmo|essa mesmo|escolho|fico com|manda esse|manda essa|quero esse|quero essa)\\b/i.test(msg);\n\nconst choiceIntent =\n  /\\b(gostei do|gostei da|gostei desse|gostei dessa|curti o|curti a|prefiro o|prefiro a|vou nesse|vou nessa)\\b/i.test(msg);\n\nconst weakBuyIntent =\n  /\\b(quero|queria)\\b/i.test(msg);\n\nconst hasProductHint =\n  /\\b(cesta|cafe da manha|café da manhã|buque|buquê|rosas|girassol|girassois|girassóis|arranjo|ramalhete|solitario|solitário|duo|sunflowers|flores)\\b/i.test(msg);\n\nconst isChoosingFromOptions =\n  [\n    'apresentando_opcoes',\n    'buscando_opcoes',\n    'consultando_catalogo',\n    'pedido_em_montagem'\n  ].includes(stage);\n\nconst shouldCreateOrder =\n  hasProductHint && (\n    strongBuyIntent ||\n    choiceIntent ||\n    (weakBuyIntent && isChoosingFromOptions)\n  );\n\nlet cleanQuery = msg\n  .replace(/\\b(sim|por favor|obrigado|obrigada|vou querer|vou levar|quero|queria|pode ser|pode montar|pode fechar|fecha esse|fechar esse|esse mesmo|essa mesmo|escolho|fico com|manda esse|manda essa|gostei do|gostei da|gostei desse|gostei dessa|curti o|curti a|prefiro o|prefiro a|vou nesse|vou nessa)\\b/gi, ' ')\n  .replace(/\\b(a|o|um|uma|de|da|do|dos|das|para|pra)\\b/gi, ' ')\n  .replace(/[^\\p{L}\\p{N}\\s]/gu, ' ')\n  .replace(/\\s+/g, ' ')\n  .trim();\n\nif (!cleanQuery && parsed.search_query) {\n  cleanQuery = String(parsed.search_query).trim();\n}\n\nif (shouldCreateOrder) {\n  return [{\n    json: {\n      ...parsed,\n      agent_action: 'search_catalog',\n      agent_stage: 'pedido_em_montagem',\n      agent_reply: 'Perfeito, vou montar esse pedido para você 🌸',\n      search_query: cleanQuery || parsed.search_query || norm.message_text || '',\n      occasion_filter: parsed.occasion_filter || 'dia_das_maes',\n      force_create_order_after_catalog: true,\n      detected_buy_intent: true,\n      can_create_order: false\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    ...parsed,\n    force_create_order_after_catalog: false,\n    detected_buy_intent: false,\n    can_create_order: false\n  }\n}];"
       },
       "id": "47d2eda7-b1cf-4512-bd1d-586edd4d12c7",
       "name": "CODE: DETECTA ESCOLHA DE PRODUTO | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-7376, -1160]
+      "position": [-7376, -1176]
     },
     {
       "parameters": {
@@ -762,7 +722,7 @@
       "name": "SWITCH ACTION | S6",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3,
-      "position": [-7152, -1240]
+      "position": [-7152, -1256]
     },
     {
       "parameters": {
@@ -796,7 +756,7 @@
       "name": "HTTP: SEARCH CATALOG | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-6928, -1688],
+      "position": [-6928, -1704],
       "credentials": {
         "supabaseApi": {
           "id": "r7bNEcAkh4eOhoad",
@@ -807,13 +767,13 @@
     },
     {
       "parameters": {
-        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: DETECTA ESCOLHA DE PRODUTO | S6').first().json || {};\nconst inputItems = $input.all();\nconst catalogBase = String($vars.CATALOG_BASE_URL || 'https://flordoestudante-floricultura-web.vercel.app').replace(/\\/+$/, '');\n\nlet products = [];\nfor (const item of inputItems) {\n  const d = item.json;\n  if (!d || d.error) continue;\n  if (Array.isArray(d)) { products.push(...d); continue; }\n  if (Array.isArray(d.items)) { products.push(...d.items); continue; }\n  if (Array.isArray(d.products)) { products.push(...d.products); continue; }\n  if (Array.isArray(d.catalog_items)) { products.push(...d.catalog_items); continue; }\n  if (d.name || d.slug || d.item_id || d.id) products.push(d);\n}\n\nconst seen = new Set();\nproducts = products.filter((p) => {\n  const key = String(p.item_id || p.id || p.slug || p.name || '');\n  if (!key || seen.has(key)) return false;\n  seen.add(key);\n  return true;\n});\n\nproducts.sort((a, b) => {\n  const scoreA = Number(a.match_score || 0);\n  const scoreB = Number(b.match_score || 0);\n  if (scoreB !== scoreA) return scoreB - scoreA;\n  const imgA = a.cover_image_url ? 1 : 0;\n  const imgB = b.cover_image_url ? 1 : 0;\n  if (imgB !== imgA) return imgB - imgA;\n  return Number(a.price || 999999) - Number(b.price || 999999);\n});\n\nconst topProducts = products.slice(0, 3);\nconst sourceText = String($('NORMALIZA PAYLOAD WHATSAPP | S6').first().json.message_text_normalized || $('NORMALIZA PAYLOAD WHATSAPP | S6').first().json.message_text || '')\n  .toLowerCase()\n  .normalize('NFD')\n  .replace(/[\\u0300-\\u036f]/g, '');\n\nfunction normalizeText(value) {\n  return String(value || '').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').trim();\n}\n\nfunction productMatchesMessage(product) {\n  const name = normalizeText(product.name);\n  const slug = normalizeText(product.slug).replace(/-/g, ' ');\n  if (!name && !slug) return false;\n  return sourceText.includes(name) || sourceText.includes(slug) || (name.includes('cesta') && sourceText.includes('cesta')) || (name.includes('cafe') && sourceText.includes('cafe'));\n}\n\nconst selectedProduct = topProducts.find(productMatchesMessage) || topProducts[0] || null;\n\nif (agentCtx.force_create_order_after_catalog && selectedProduct) {\n  const price = Number(selectedProduct.price || 0);\n  return [{\n    json: {\n      ...agentCtx,\n      agent_action: 'create_order_draft',\n      agent_stage: 'pedido_em_montagem',\n      selected_product: selectedProduct,\n      selected_product_id: selectedProduct.item_id || selectedProduct.id,\n      selected_product_name: selectedProduct.name,\n      catalog_results: [selectedProduct],\n      all_catalog_results: products,\n      has_catalog_images: Boolean(selectedProduct.cover_image_url),\n      first_image_product: selectedProduct.cover_image_url ? selectedProduct : null,\n      order_data: {\n        occasion: agentCtx.occasion_filter || 'dia_das_maes',\n        source: 'whatsapp_agent',\n        items: [{\n          item_type: selectedProduct.item_type || 'product',\n          item_id: selectedProduct.item_id || selectedProduct.id,\n          product_id: selectedProduct.item_type === 'product' ? (selectedProduct.item_id || selectedProduct.id) : null,\n          addon_id: selectedProduct.item_type === 'addon' ? (selectedProduct.item_id || selectedProduct.id) : null,\n          name: selectedProduct.name,\n          slug: selectedProduct.slug,\n          quantity: 1,\n          unit_price: price,\n          total_price: price\n        }]\n      },\n      agent_reply: `Perfeito, vou montar o pedido da *${selectedProduct.name}* para o Dia das Mães 🌸\\n\\nPara continuar, você prefere *entrega* ou *retirada na loja*?`\n    }\n  }];\n}\n\nconst imageProducts = topProducts.filter(p => p.cover_image_url);\n\nfunction formatPrice(value) {\n  const num = Number(value || 0);\n  if (!num) return '';\n  return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });\n}\n\nif (topProducts.length === 0) {\n  return [{\n    json: {\n      ...agentCtx,\n      agent_action: agentCtx.agent_action || 'ask_info',\n      agent_stage: agentCtx.agent_stage || 'buscando_opcoes',\n      agent_reply: 'Não encontrei uma opção exata para essa busca agora, mas posso te mostrar algumas sugestões para o Dia das Mães 🌸',\n      catalog_results: [],\n      has_catalog_images: false,\n      first_image_product: null,\n      catalog_base: catalogBase,\n      catalog_count: 0\n    }\n  }];\n}\n\nconst lines = topProducts.map((p, i) => {\n  const label = i === 0 ? '🌸' : i === 1 ? '💐' : '🌷';\n  const price = formatPrice(p.price);\n  const url = p.slug ? `${catalogBase}/produto/${p.slug}` : '';\n  const description = p.short_description || p.description || '';\n  return [`${label} *${p.name || 'Produto'}*${price ? ' — ' + price : ''}`, description || '', url ? `🔗 ${url}` : ''].filter(Boolean).join('\\n');\n});\n\nconst intro = agentCtx.agent_reply && !agentCtx.agent_reply.includes('Não encontrei') ? agentCtx.agent_reply : 'Encontrei algumas opções para o Dia das Mães 🌸';\nconst replyText = `${intro}\\n\\n${lines.join('\\n\\n')}\\n\\nGostou de alguma dessas opções?`;\n\nreturn [{\n  json: {\n    ...agentCtx,\n    agent_action: 'search_catalog',\n    agent_stage: 'apresentando_opcoes',\n    agent_reply: replyText,\n    catalog_results: topProducts,\n    all_catalog_results: products,\n    has_catalog_images: imageProducts.length > 0,\n    first_image_product: imageProducts[0] || null,\n    catalog_base: catalogBase,\n    catalog_count: products.length\n  }\n}];"
+        "jsCode": "// @ts-nocheck\n\nconst agentCtx = $('CODE: DETECTA ESCOLHA DE PRODUTO | S6').first().json || {};\nconst inputItems = $input.all();\nconst catalogBase = String('https://flordoestudante.vercel.app').replace(/\\/+$/, '');\n\nlet products = [];\n\nfor (const item of inputItems) {\n  const d = item.json;\n\n  if (!d || d.error) continue;\n\n  if (Array.isArray(d)) {\n    products.push(...d);\n    continue;\n  }\n\n  if (Array.isArray(d.items)) {\n    products.push(...d.items);\n    continue;\n  }\n\n  if (Array.isArray(d.products)) {\n    products.push(...d.products);\n    continue;\n  }\n\n  if (Array.isArray(d.catalog_items)) {\n    products.push(...d.catalog_items);\n    continue;\n  }\n\n  if (d.name || d.slug || d.item_id || d.id) {\n    products.push(d);\n  }\n}\n\nconst seen = new Set();\n\nproducts = products.filter((p) => {\n  const key = String(p.item_id || p.id || p.slug || p.name || '');\n  if (!key || seen.has(key)) return false;\n  seen.add(key);\n  return true;\n});\n\nproducts.sort((a, b) => {\n  const scoreA = Number(a.match_score || 0);\n  const scoreB = Number(b.match_score || 0);\n\n  if (scoreB !== scoreA) return scoreB - scoreA;\n\n  const imgA = a.cover_image_url ? 1 : 0;\n  const imgB = b.cover_image_url ? 1 : 0;\n\n  if (imgB !== imgA) return imgB - imgA;\n\n  return Number(a.price || 999999) - Number(b.price || 999999);\n});\n\nconst topProducts = products.slice(0, 3);\n\nconst sourceText = String(\n  $('NORMALIZA PAYLOAD WHATSAPP | S6').first().json.message_text_normalized ||\n  $('NORMALIZA PAYLOAD WHATSAPP | S6').first().json.message_text ||\n  ''\n)\n  .toLowerCase()\n  .normalize('NFD')\n  .replace(/[\\u0300-\\u036f]/g, '');\n\nfunction normalizeText(value) {\n  return String(value || '')\n    .toLowerCase()\n    .normalize('NFD')\n    .replace(/[\\u0300-\\u036f]/g, '')\n    .replace(/-/g, ' ')\n    .trim();\n}\n\nfunction productMatchesMessage(product) {\n  const name = normalizeText(product.name);\n  const slug = normalizeText(product.slug);\n\n  if (!name && !slug) return false;\n\n  return (\n    sourceText.includes(name) ||\n    sourceText.includes(slug) ||\n    (name.includes('cesta') && sourceText.includes('cesta')) ||\n    (name.includes('cafe') && sourceText.includes('cafe')) ||\n    (name.includes('rosas') && sourceText.includes('rosas')) ||\n    (name.includes('girassol') && sourceText.includes('girassol'))\n  );\n}\n\nfunction formatPrice(value) {\n  const num = Number(value || 0);\n  if (!num) return '';\n  return num.toLocaleString('pt-BR', {\n    style: 'currency',\n    currency: 'BRL'\n  });\n}\n\nfunction clean(value) {\n  if (value === undefined || value === null) return '';\n  return String(value).trim();\n}\n\nfunction truncate(value, max = 900) {\n  const text = clean(value);\n  if (!text) return '';\n  return text.length > max ? text.slice(0, max - 1) + '…' : text;\n}\n\nfunction productUrl(product) {\n  if (!product || !product.slug) return catalogBase;\n  return `${catalogBase}/produto/${product.slug}`;\n}\n\nfunction productCaption(product, index) {\n  const emojis = ['🌸', '💐', '🌷'];\n  const emoji = emojis[index] || '🌸';\n\n  const name = clean(product.name || 'Produto');\n  const price = formatPrice(product.price);\n\n  const shortDescription = clean(product.short_description || '');\n  const fullDescription = clean(product.description || '');\n\n  // Prioriza short_description quando houver\n  // Se não houver, usa description resumida\n  const mainDescription = shortDescription || fullDescription;\n\n  const categoryName = clean(product.category_name || '');\n  const availability =\n    product.requires_confirmation === true\n      ? 'Disponibilidade sujeita à confirmação'\n      : '';\n\n  const url = productUrl(product);\n\n  const lines = [\n    `${emoji} *${name}*`,\n    price ? `💰 *${price}*` : '',\n    categoryName ? `📂 ${categoryName}` : '',\n    mainDescription ? `📝 ${truncate(mainDescription, 220)}` : '',\n    availability ? `ℹ️ ${availability}` : '',\n    `🔗 ${url}`\n  ].filter(Boolean);\n\n  return lines.join('\\n');\n}\n\nconst selectedProduct = topProducts.find(productMatchesMessage) || topProducts[0] || null;\n\n/**\n * Caminho de compra direta:\n * Se o cliente escolheu um produto depois da busca, mantém a lógica de pedido rascunho.\n */\nif (agentCtx.force_create_order_after_catalog && selectedProduct) {\n  const price = Number(selectedProduct.price || 0);\n\n  return [\n    {\n      json: {\n        ...agentCtx,\n\n        agent_action: 'create_order_draft',\n        agent_stage: 'pedido_em_montagem',\n\n        selected_product: selectedProduct,\n        selected_product_id: selectedProduct.item_id || selectedProduct.id,\n        selected_product_name: selectedProduct.name,\n\n        catalog_results: [selectedProduct],\n        all_catalog_results: products,\n\n        has_catalog_images: Boolean(selectedProduct.cover_image_url),\n        first_image_product: selectedProduct.cover_image_url ? selectedProduct : null,\n\n        order_data: {\n          ...(agentCtx.order_data || {}),\n          occasion: agentCtx.occasion_filter || 'dia_das_maes',\n          source: 'whatsapp_agent',\n          is_gift: true,\n          selected_product: selectedProduct,\n          items: [\n            {\n              item_type: selectedProduct.item_type || 'product',\n              item_id: selectedProduct.item_id || selectedProduct.id,\n              product_id: selectedProduct.item_type === 'product' ? (selectedProduct.item_id || selectedProduct.id) : (selectedProduct.item_id || selectedProduct.id),\n              addon_id: selectedProduct.item_type === 'addon' ? (selectedProduct.item_id || selectedProduct.id) : null,\n              name: selectedProduct.name,\n              product_name: selectedProduct.name,\n              slug: selectedProduct.slug,\n              quantity: 1,\n              unit_price: price,\n              total_price: price\n            }\n          ]\n        },\n\n        agent_reply: `Perfeito, vou montar o pedido da *${selectedProduct.name}* para o Dia das Mães 🌸\\n\\nPara continuar, você prefere *entrega* ou *retirada na loja*?`,\n        agent_messages: [\n          `Perfeito, vou montar o pedido da *${selectedProduct.name}* para o Dia das Mães 🌸\\n\\nPara continuar, você prefere *entrega* ou *retirada na loja*?`\n        ]\n      }\n    }\n  ];\n}\n\n/**\n * Sem produtos encontrados.\n */\nif (topProducts.length === 0) {\n  const fallbackReply = 'Não encontrei uma opção exata para essa busca agora, mas você pode consultar mais opções em nosso catálogo 🌸\\n\\n🔗 ' + catalogBase;\n\n  return [\n    {\n      json: {\n        ...agentCtx,\n\n        agent_action: agentCtx.agent_action || 'ask_info',\n        agent_stage: agentCtx.agent_stage || 'buscando_opcoes',\n\n        agent_reply: fallbackReply,\n        agent_messages: [fallbackReply],\n\n        catalog_results: [],\n        all_catalog_results: products,\n\n        catalog_intro_message: '',\n        catalog_final_message: fallbackReply,\n        catalog_media_options: [],\n\n        has_catalog_images: false,\n        first_image_product: null,\n\n        catalog_base: catalogBase,\n        catalog_count: 0\n      }\n    }\n  ];\n}\n\n/**\n * Caminho normal de apresentação de opções:\n * O texto de opções NÃO fica mais no agent_reply.\n * O agent_reply final será apenas a pergunta final.\n */\nconst imageProducts = topProducts.filter((p) => p.cover_image_url);\n\nconst catalogMediaOptions = imageProducts.map((p, index) => {\n  return {\n    index,\n    id: p.item_id || p.id || '',\n    name: p.name || 'Produto',\n    slug: p.slug || '',\n    media: p.cover_image_url || '',\n    caption: productCaption(p, index),\n    url: productUrl(p),\n    price: p.price || null\n  };\n});\n\nconst introMessage =\n  'Claro, vou te mostrar algumas opções lindas para o Dia das Mães 🌸';\n\nconst finalMessage =\n  `Temos nosso catálogo online caso queira conferir mais opções também:\\n${catalogBase}\\n\\nGostou de alguma dessas?`;\n\nconst textFallbackLines = topProducts.map((p, index) => productCaption(p, index));\nconst textFallbackReply =\n  `${introMessage}\\n\\n${textFallbackLines.join('\\n\\n')}\\n\\n${finalMessage}`;\n\nreturn [\n  {\n    json: {\n      ...agentCtx,\n\n      agent_action: 'search_catalog',\n      agent_stage: 'apresentando_opcoes',\n\n      /**\n       * Importante:\n       * agent_reply agora é só a mensagem final,\n       * porque introdução e imagens serão enviadas antes por nodes específicos.\n       */\n      agent_reply: catalogMediaOptions.length > 0 ? finalMessage : textFallbackReply,\n      agent_messages: [catalogMediaOptions.length > 0 ? finalMessage : textFallbackReply],\n\n      catalog_intro_message: introMessage,\n      catalog_final_message: finalMessage,\n      catalog_text_fallback_reply: textFallbackReply,\n\n      catalog_results: topProducts,\n      all_catalog_results: products,\n      catalog_media_options: catalogMediaOptions,\n\n      has_catalog_images: catalogMediaOptions.length > 0,\n      first_image_product: catalogMediaOptions.length > 0 ? imageProducts[0] : null,\n\n      catalog_base: catalogBase,\n      catalog_count: products.length,\n\n      send_catalog_as_media_sequence: catalogMediaOptions.length > 0\n    }\n  }\n];"
       },
       "id": "2e761628-a4b4-4818-a4fb-30af029db14b",
       "name": "CODE: FORMATA CATÁLOGO | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-6704, -1688]
+      "position": [-6704, -1704]
     },
     {
       "parameters": {
@@ -843,17 +803,17 @@
       "name": "É PEDIDO RASCUNHO?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
-      "position": [-6480, -1688]
+      "position": [-6480, -1704]
     },
     {
       "parameters": {
-        "jsCode": "// @ts-nocheck\nconst ctx = $json || {};\n\nfunction money(value) {\n  return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });\n}\n\nconst selected = ctx.selected_product || (Array.isArray(ctx.catalog_results) ? ctx.catalog_results[0] : null) || ctx.first_image_product || null;\n\nif (!selected) {\n  return [{\n    json: {\n      ...ctx,\n      agent_action: 'ask_info',\n      agent_stage: 'buscando_opcoes',\n      agent_reply: 'Perfeito! Só preciso confirmar qual produto você escolheu para montar o pedido 🌸',\n      order_data: ctx.order_data || {},\n      suggested_addons: [],\n      can_create_order: false\n    }\n  }];\n}\n\nconst allResults = Array.isArray(ctx.all_catalog_results) ? ctx.all_catalog_results : Array.isArray(ctx.catalog_results) ? ctx.catalog_results : [];\n\nconst suggestedAddons = allResults\n  .filter((item) => {\n    if (!item || item.item_type !== 'addon' || !item.name) return false;\n    const name = String(item.name).toLowerCase();\n    return name.includes('cart') || name.includes('chocolate') || name.includes('vela') || name.includes('pelúcia') || name.includes('pelucia') || name.includes('urso') || name.includes('balão') || name.includes('balao');\n  })\n  .slice(0, 3)\n  .map((item) => ({\n    item_type: item.item_type || 'addon',\n    item_id: item.item_id || item.id,\n    addon_id: item.item_id || item.id,\n    name: item.name,\n    slug: item.slug,\n    quantity: 1,\n    unit_price: Number(item.price || 0),\n    total_price: Number(item.price || 0),\n    short_description: item.short_description || item.description || ''\n  }));\n\nconst unitPrice = Number(selected.price || 0);\n\nconst primaryItem = {\n  item_type: selected.item_type || 'product',\n  item_id: selected.item_id || selected.id,\n  product_id: selected.item_type === 'product' ? (selected.item_id || selected.id) : null,\n  addon_id: selected.item_type === 'addon' ? (selected.item_id || selected.id) : null,\n  name: selected.name,\n  slug: selected.slug,\n  quantity: 1,\n  unit_price: unitPrice,\n  total_price: unitPrice,\n  short_description: selected.short_description || selected.description || ''\n};\n\nconst orderData = {\n  ...(ctx.order_data || {}),\n  occasion: ctx.order_data?.occasion || ctx.occasion_filter || 'dia_das_maes',\n  is_gift: ctx.order_data?.is_gift ?? true,\n  fulfillment_type: ctx.order_data?.fulfillment_type || null,\n  items: [primaryItem],\n  suggested_addons: suggestedAddons,\n  selected_product: {\n    id: selected.id,\n    item_id: selected.item_id || selected.id,\n    item_type: selected.item_type,\n    name: selected.name,\n    slug: selected.slug,\n    price: unitPrice,\n    cover_image_url: selected.cover_image_url || ''\n  }\n};\n\nreturn [{\n  json: {\n    ...ctx,\n    agent_action: 'create_order_draft',\n    agent_stage: 'pedido_em_montagem',\n    selected_product: selected,\n    selected_product_id: selected.item_id || selected.id,\n    selected_product_name: selected.name,\n    order_data: orderData,\n    suggested_addons: suggestedAddons,\n    can_create_order: true,\n    order_summary_preview: {\n      product_name: selected.name,\n      product_price: money(unitPrice),\n      suggested_addons: suggestedAddons.map(a => ({ name: a.name, price: money(a.unit_price) }))\n    }\n  }\n}];"
+        "jsCode": "// @ts-nocheck\nconst ctx = $json || {};\n\nfunction money(value) {\n  return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });\n}\n\nconst selected = ctx.selected_product || (Array.isArray(ctx.catalog_results) ? ctx.catalog_results[0] : null) || ctx.first_image_product || null;\n\nif (!selected) {\n  return [{\n    json: {\n      ...ctx,\n      agent_action: 'ask_info',\n      agent_stage: 'buscando_opcoes',\n      agent_reply: 'Perfeito! Só preciso confirmar qual produto você escolheu para montar o pedido 🌸',\n      order_data: ctx.order_data || {},\n      suggested_addons: [],\n      can_create_order: false\n    }\n  }];\n}\n\nconst allResults = Array.isArray(ctx.all_catalog_results) ? ctx.all_catalog_results : Array.isArray(ctx.catalog_results) ? ctx.catalog_results : [];\n\nconst suggestedAddons = allResults\n  .filter((item) => {\n    if (!item || item.item_type !== 'addon' || !item.name) return false;\n    const name = String(item.name).toLowerCase();\n    return name.includes('cart') || name.includes('chocolate') || name.includes('vela') || name.includes('pelúcia') || name.includes('pelucia') || name.includes('urso') || name.includes('balão') || name.includes('balao');\n  })\n  .slice(0, 3)\n  .map((item) => ({\n    item_type: item.item_type || 'addon',\n    item_id: item.item_id || item.id,\n    addon_id: item.item_id || item.id,\n    name: item.name,\n    slug: item.slug,\n    quantity: 1,\n    unit_price: Number(item.price || 0),\n    total_price: Number(item.price || 0),\n    short_description: item.short_description || item.description || ''\n  }));\n\nconst unitPrice = Number(selected.price || 0);\n\nconst primaryItem = {\n  item_type: selected.item_type || 'product',\n  item_id: selected.item_id || selected.id,\n  product_id: selected.item_type === 'product' ? (selected.item_id || selected.id) : null,\n  addon_id: selected.item_type === 'addon' ? (selected.item_id || selected.id) : null,\n  name: selected.name,\n  slug: selected.slug,\n  quantity: 1,\n  unit_price: unitPrice,\n  total_price: unitPrice,\n  short_description: selected.short_description || selected.description || ''\n};\n\nconst orderData = {\n  ...(ctx.order_data || {}),\n  occasion: ctx.order_data?.occasion || ctx.occasion_filter || 'dia_das_maes',\n  is_gift: ctx.order_data?.is_gift ?? true,\n  fulfillment_type: ctx.order_data?.fulfillment_type || null,\n  items: [primaryItem],\n  suggested_addons: suggestedAddons,\n  selected_product: {\n    id: selected.id,\n    item_id: selected.item_id || selected.id,\n    item_type: selected.item_type,\n    name: selected.name,\n    slug: selected.slug,\n    price: unitPrice,\n    cover_image_url: selected.cover_image_url || ''\n  }\n};\n\nreturn [{\n  json: {\n    ...ctx,\n    agent_action: 'create_order_draft',\n    agent_stage: 'pedido_em_montagem',\n    selected_product: selected,\n    selected_product_id: selected.item_id || selected.id,\n    selected_product_name: selected.name,\n    order_data: orderData,\n    suggested_addons: suggestedAddons,\n    can_create_order: true,\n    order_summary_preview: {\n      product_name: selected.name,\n      product_price: money(unitPrice),\n      suggested_addons: suggestedAddons.map(a => ({\n        name: a.name,\n        price: money(a.unit_price)\n      }))\n    }\n  }\n}];"
       },
       "id": "3ec5de2d-8796-4f3b-bfb5-6682d9ffe0bc",
       "name": "CODE: PREPARA ORDER DRAFT | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-6256, -1448]
+      "position": [-6256, -1464]
     },
     {
       "parameters": {
@@ -867,7 +827,7 @@
           "conditions": [
             {
               "id": "can-create-order",
-              "leftValue": "={{ $json.can_create_order === true && Array.isArray($json.order_data?.items) && $json.order_data.items.length > 0 }}",
+              "leftValue": "={{ \n  $json.can_create_order === true &&\n  Array.isArray($json.order_data?.items) &&\n  $json.order_data.items.length > 0 &&\n  !!($json.order_data.items[0].item_id || $json.order_data.items[0].product_id || $json.order_data.items[0].addon_id)\n}}",
               "rightValue": true,
               "operator": {
                 "type": "boolean",
@@ -883,7 +843,7 @@
       "name": "IF: TEM ITEM PARA PEDIDO? | S6",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
-      "position": [-6032, -1448]
+      "position": [-5808, -1464]
     },
     {
       "parameters": {
@@ -910,14 +870,14 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ p_customer_id: $json.customer_id, p_conversation_id: $json.conversation_id, p_fulfillment_type: $json.order_data?.fulfillment_type || null, p_occasion: $json.order_data?.occasion || 'dia_das_maes', p_items: $json.order_data?.items || [], p_recipient_name: $json.order_data?.recipient_name || null, p_is_gift: $json.order_data?.is_gift ?? true, p_gift_message: $json.order_data?.gift_message || null }) }}",
+        "jsonBody": "={{ JSON.stringify((() => {\n  const od = $json.order_data || {};\n\n  function clean(value) {\n    if (value === undefined || value === null) return '';\n    return String(value).trim();\n  }\n\n  function normalizeDate(value) {\n    const v = clean(value);\n    if (!v) return null;\n\n    // já está em YYYY-MM-DD\n    if (/^\\d{4}-\\d{2}-\\d{2}$/.test(v)) return v;\n\n    // dd/mm/yyyy\n    const br = v.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})$/);\n    if (br) {\n      const dd = br[1].padStart(2, '0');\n      const mm = br[2].padStart(2, '0');\n      const yyyy = br[3];\n      return `${yyyy}-${mm}-${dd}`;\n    }\n\n    return null;\n  }\n\n  function normalizeItem(item) {\n    item = item || {};\n\n    const productId = clean(\n      item.product_id ||\n      item.item_id ||\n      item.id ||\n      item.productId\n    );\n\n    const productName = clean(\n      item.product_name ||\n      item.name ||\n      item.title ||\n      item.productName\n    );\n\n    const unitPriceRaw =\n      item.unit_price ??\n      item.price ??\n      item.sale_price ??\n      item.final_price ??\n      item.amount ??\n      0;\n\n    const quantityRaw =\n      item.quantity ??\n      item.qty ??\n      1;\n\n    const unitPrice = Number(\n      String(unitPriceRaw).replace(',', '.').replace(/[^\\d.]/g, '')\n    );\n\n    const quantity = Number.parseInt(quantityRaw, 10) || 1;\n\n    if (!productId && !productName) return null;\n    if (!Number.isFinite(unitPrice) || unitPrice <= 0) return null;\n\n    return {\n      product_id: productId || '',\n      product_name: productName || 'Produto',\n      unit_price: unitPrice,\n      quantity\n    };\n  }\n\n  const selected =\n    $json.selected_product ||\n    od.selected_product ||\n    $json.product ||\n    $json.catalog_product ||\n    {};\n\n  let items = [];\n\n  if (Array.isArray(od.items) && od.items.length > 0) {\n    items = od.items.map(normalizeItem).filter(Boolean);\n  }\n\n  if (items.length === 0 && Array.isArray(od.add_items) && od.add_items.length > 0) {\n    items = od.add_items.map(normalizeItem).filter(Boolean);\n  }\n\n  if (items.length === 0 && selected && Object.keys(selected).length > 0) {\n    const item = normalizeItem(selected);\n    if (item) items = [item];\n  }\n\n  return {\n    p_customer_id: $json.customer_id || null,\n    p_conversation_id: $json.conversation_id || null,\n    p_fulfillment_type: od.fulfillment_type || 'pickup',\n    p_occasion: od.occasion || $json.occasion_filter || 'dia_das_maes',\n    p_items: items,\n    p_recipient_name: od.recipient_name || null,\n    p_is_gift: od.is_gift ?? true,\n    p_gift_message: od.gift_message || null,\n    p_desired_date: normalizeDate(od.desired_date),\n    p_desired_period: od.desired_period || null,\n    p_notes: od.notes || null\n  };\n})()) }}",
         "options": {}
       },
       "id": "08be3088-91ec-4be9-a0c0-64c8740ebcfa",
       "name": "HTTP: CREATE ORDER DRAFT | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-5808, -1592],
+      "position": [-5584, -1608],
       "credentials": {
         "supabaseApi": {
           "id": "r7bNEcAkh4eOhoad",
@@ -927,13 +887,13 @@
     },
     {
       "parameters": {
-        "jsCode": "// @ts-nocheck\nconst ctx = $('CODE: PREPARA ORDER DRAFT | S6').first().json || {};\nconst res = $json || {};\n\nfunction money(value) {\n  return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });\n}\n\nconst selected = ctx.selected_product || ctx.order_data?.selected_product || {};\nconst addons = Array.isArray(ctx.suggested_addons) ? ctx.suggested_addons : [];\n\nconst orderId = res.order_id || res.id || res.order?.id || ctx.order_id || null;\nconst publicCode = res.public_code || res.order_public_code || res.order?.public_code || ctx.public_code || null;\n\nlet addonText = '';\nif (addons.length > 0) {\n  const addonList = addons.slice(0, 3).map((a) => `*${a.name}* (${money(a.unit_price)})`).join(', ');\n  addonText = `\\n\\nSe quiser deixar o presente ainda mais especial, também posso incluir ${addonList}.`;\n}\n\nconst productName = selected.name || ctx.selected_product_name || 'esse produto';\nconst productPrice = selected.price ? ` — ${money(selected.price)}` : '';\n\nconst reply = [\n  `Perfeito! Já montei o pedido da *${productName}*${productPrice} para o Dia das Mães 🌸`,\n  addonText,\n  `\\n\\nAgora me diga: você prefere *entrega* ou *retirada na loja*?`\n].join('');\n\nreturn [{\n  json: {\n    ...ctx,\n    ...res,\n    order_id: orderId,\n    public_code: publicCode,\n    agent_action: 'update_order_draft',\n    agent_stage: 'coletando_entrega_ou_retirada',\n    agent_reply: reply,\n    order_data: { ...(ctx.order_data || {}), order_id: orderId, public_code: publicCode },\n    suggested_addons: addons,\n    selected_product: selected\n  }\n}];"
+        "jsCode": "// @ts-nocheck\n\nconst ctx = $('CODE: PREPARA ORDER DRAFT | S6').first().json || {};\nconst res = $json || {};\n\nfunction money(value) {\n  const n = Number(value || 0);\n  return n.toLocaleString('pt-BR', {\n    style: 'currency',\n    currency: 'BRL'\n  });\n}\n\nfunction clean(value) {\n  if (value === undefined || value === null) return '';\n  return String(value).trim();\n}\n\nconst selected = ctx.selected_product || ctx.order_data?.selected_product || {};\nconst addons = Array.isArray(ctx.suggested_addons) ? ctx.suggested_addons : [];\n\nconst ok = res.ok === true;\nconst orderId =\n  res.order_id ||\n  res.id ||\n  res.order?.id ||\n  ctx.order_id ||\n  ctx.current_order_id ||\n  null;\n\nconst publicCode =\n  res.public_code ||\n  res.order_public_code ||\n  res.order?.public_code ||\n  ctx.public_code ||\n  ctx.current_order_public_code ||\n  null;\n\nconst productName =\n  selected.name ||\n  selected.product_name ||\n  ctx.selected_product_name ||\n  ctx.order_data?.items?.[0]?.product_name ||\n  'esse produto';\n\nconst productPrice =\n  selected.price ||\n  selected.unit_price ||\n  ctx.order_data?.items?.[0]?.unit_price ||\n  res.total ||\n  '';\n\nlet reply = '';\n\nif (!ok || !orderId) {\n  reply = `Perfeito, encontrei o produto para você 🌸 Antes de montar o pedido, você prefere *entrega* ou *retirada na loja*?`;\n\n  return [\n    {\n      json: {\n        ...ctx,\n        ...res,\n        order_create_ok: false,\n        order_create_error: res.error || 'CREATE_ORDER_DRAFT_FAILED_OR_EMPTY_ORDER_ID',\n        agent_action: 'ask_info',\n        agent_stage: 'coletando_entrega_ou_retirada',\n        agent_reply: reply,\n        agent_messages: [reply],\n        order_id: orderId,\n        current_order_id: orderId,\n        public_code: publicCode,\n        current_order_public_code: publicCode,\n        order_data: {\n          ...(ctx.order_data || {}),\n          order_id: orderId,\n          public_code: publicCode\n        },\n        suggested_addons: addons,\n        selected_product: selected\n      }\n    }\n  ];\n}\n\nlet addonText = '';\n\nif (addons.length > 0) {\n  const addonList = addons\n    .slice(0, 3)\n    .map((a) => `*${a.name}* (${money(a.unit_price || a.price)})`)\n    .join(', ');\n\n  addonText = `\\n\\nSe quiser deixar o presente ainda mais especial, também posso incluir ${addonList}.`;\n}\n\nconst priceText = productPrice ? ` — ${money(productPrice)}` : '';\n\nreply = [\n  `Perfeito! Já montei o pedido da *${productName}*${priceText} para o Dia das Mães 🌸`,\n  addonText,\n  `\\n\\nAgora me diga: você prefere *entrega* ou *retirada na loja*?`\n].join('');\n\nreturn [\n  {\n    json: {\n      ...ctx,\n      ...res,\n\n      order_create_ok: true,\n\n      order_id: orderId,\n      current_order_id: orderId,\n\n      public_code: publicCode,\n      current_order_public_code: publicCode,\n\n      agent_action: 'ask_info',\n      agent_stage: 'coletando_entrega_ou_retirada',\n      agent_reply: reply,\n      agent_messages: [reply],\n\n      order_data: {\n        ...(ctx.order_data || {}),\n        order_id: orderId,\n        public_code: publicCode\n      },\n\n      suggested_addons: addons,\n      selected_product: selected\n    }\n  }\n];"
       },
       "id": "a04cad2e-0f80-44bb-aa77-53c07d016b4a",
       "name": "CODE: RESOLVE ORDER DRAFT REPLY | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5584, -1592]
+      "position": [-5360, -1608]
     },
     {
       "parameters": {
@@ -963,50 +923,17 @@
       "name": "IF: ENVIA IMAGEM CATÁLOGO? | S6",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [-6032, -1784]
+      "position": [-6256, -1800]
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "https://cheatingbat-evolution.cloudfy.live/message/sendMedia/julia",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "evolutionApi",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ number: $json.phone_normalized, mediatype: 'image', mimetype: 'image/jpeg', media: $json.first_image_product && $json.first_image_product.cover_image_url ? $json.first_image_product.cover_image_url : '', caption: $json.first_image_product && $json.first_image_product.name ? $json.first_image_product.name : 'Opção da Flor do Estudante 🌸', fileName: (($json.first_image_product && $json.first_image_product.slug) ? $json.first_image_product.slug : 'produto') + '.jpg' }) }}",
-        "options": {}
-      },
-      "id": "e7c30346-0c6f-4c81-a022-21eb42517ac6",
-      "name": "HTTP: EVOLUTION SEND IMAGE | S6",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [-5808, -1904],
-      "credentials": {
-        "evolutionApi": {
-          "id": "hUhH7ahIVjr2lysL",
-          "name": "evolution_cloudfy"
-        }
-      },
-      "continueOnFail": true
-    },
-    {
-      "parameters": {
-        "jsCode": "// @ts-nocheck\nconst src = $('CODE: FORMATA CATÁLOGO | S6').item.json || {};\nconst imageWasAttempted = Boolean(src.has_catalog_images && src.first_image_product?.cover_image_url);\n\nreturn [{\n  json: {\n    ...src,\n    image_attempted: imageWasAttempted,\n    image_sent: imageWasAttempted\n  }\n}];"
+        "jsCode": "// @ts-nocheck\n\nconst src = $('CODE: FORMATA CATÁLOGO | S6').first().json || {};\n\nconst sentAsMedia = Boolean(\n  src.send_catalog_as_media_sequence &&\n  Array.isArray(src.catalog_media_options) &&\n  src.catalog_media_options.length > 0\n);\n\nconst finalReply =\n  sentAsMedia\n    ? (src.catalog_final_message || `Você pode consultar mais opções em nosso catálogo:\\n${src.catalog_base || 'https://flordoestudante.vercel.app'}\\n\\nGostou de alguma dessas?`)\n    : (src.catalog_text_fallback_reply || src.agent_reply || 'Gostou de alguma dessas opções?');\n\nreturn [\n  {\n    json: {\n      ...src,\n\n      image_attempted: sentAsMedia,\n      image_sent: sentAsMedia,\n\n      catalog_media_sequence_sent: sentAsMedia,\n\n      /**\n       * Importante:\n       * daqui para frente o fluxo final deve enviar apenas a mensagem final,\n       * pois a introdução e as imagens já foram enviadas diretamente.\n       */\n      agent_reply: finalReply,\n      agent_messages: [finalReply],\n\n      agent_action: 'search_catalog',\n      agent_stage: 'apresentando_opcoes'\n    }\n  }\n];"
       },
       "id": "558a54e5-b8dd-4757-8187-3becb630a942",
       "name": "CODE: MERGE CATALOG | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5584, -1784]
+      "position": [-5360, -1800]
     },
     {
       "parameters": {
@@ -1033,14 +960,14 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ p_order_id: $json.order_id || $json.order_data?.order_id || $json.current_order_id || null, p_fulfillment_type: $json.order_data?.fulfillment_type || null, p_recipient_name: $json.order_data?.recipient_name || null, p_is_gift: $json.order_data?.is_gift ?? null, p_gift_message: $json.order_data?.gift_message || null, p_occasion: $json.order_data?.occasion || null, p_desired_date: $json.order_data?.desired_date || null, p_add_items: $json.order_data?.add_items || [] }) }}",
+        "jsonBody": "={{ JSON.stringify((() => {\n  const od = $json.order_data || {};\n\n  function clean(value) {\n    if (value === undefined || value === null) return '';\n    return String(value).trim();\n  }\n\n  function normalizeDate(value) {\n    const v = clean(value);\n    if (!v) return null;\n\n    if (/^\\d{4}-\\d{2}-\\d{2}$/.test(v)) return v;\n\n    const br = v.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})$/);\n    if (br) {\n      const dd = br[1].padStart(2, '0');\n      const mm = br[2].padStart(2, '0');\n      const yyyy = br[3];\n      return `${yyyy}-${mm}-${dd}`;\n    }\n\n    return null;\n  }\n\n  function normalizeItem(item) {\n    item = item || {};\n\n    const productId = clean(\n      item.product_id ||\n      item.item_id ||\n      item.id ||\n      item.productId\n    );\n\n    const productName = clean(\n      item.product_name ||\n      item.name ||\n      item.title ||\n      item.productName\n    );\n\n    const unitPriceRaw =\n      item.unit_price ??\n      item.price ??\n      item.sale_price ??\n      item.final_price ??\n      0;\n\n    const quantityRaw =\n      item.quantity ??\n      item.qty ??\n      1;\n\n    const unitPrice = Number(\n      String(unitPriceRaw).replace(',', '.').replace(/[^\\d.]/g, '')\n    );\n\n    const quantity = Number.parseInt(quantityRaw, 10) || 1;\n\n    if (!productId && !productName) return null;\n    if (!Number.isFinite(unitPrice) || unitPrice <= 0) return null;\n\n    return {\n      product_id: productId || '',\n      product_name: productName || 'Produto',\n      unit_price: unitPrice,\n      quantity\n    };\n  }\n\n  const orderId =\n    $json.order_id ||\n    od.order_id ||\n    $json.current_order_id ||\n    $json.current_order?.id ||\n    null;\n\n  const deliveryAddressJson = {\n    raw_address:\n      od.delivery_address ||\n      od.address ||\n      od.address_text ||\n      null,\n\n    postal_code:\n      od.postal_code ||\n      od.cep ||\n      null,\n\n    number:\n      od.address_number ||\n      od.number ||\n      null,\n\n    complement:\n      od.address_complement ||\n      od.complement ||\n      null,\n\n    neighborhood:\n      od.neighborhood ||\n      null,\n\n    city:\n      od.city ||\n      null,\n\n    state:\n      od.state ||\n      null,\n\n    recipient_name:\n      od.recipient_name ||\n      null,\n\n    recipient_phone:\n      od.recipient_phone ||\n      null,\n\n    updated_from_whatsapp: true\n  };\n\n  const hasAddressData = Object.values(deliveryAddressJson).some((v) => {\n    return v !== null && v !== '' && v !== true;\n  });\n\n  const addItems = Array.isArray(od.add_items)\n    ? od.add_items.map(normalizeItem).filter(Boolean)\n    : null;\n\n  const replaceItems = Array.isArray(od.replace_items)\n    ? od.replace_items.map(normalizeItem).filter(Boolean)\n    : null;\n\n  return {\n    p_order_id: orderId,\n    p_fulfillment_type: od.fulfillment_type || null,\n    p_recipient_name: od.recipient_name || null,\n    p_is_gift: od.is_gift ?? null,\n    p_gift_message: od.gift_message || null,\n    p_occasion: od.occasion || $json.occasion_filter || null,\n    p_desired_date: normalizeDate(od.desired_date),\n    p_desired_period: od.desired_period || null,\n    p_notes: od.notes || null,\n    p_add_items: addItems,\n    p_replace_items: replaceItems,\n    p_delivery_address_json: hasAddressData ? deliveryAddressJson : null\n  };\n})()) }}",
         "options": {}
       },
       "id": "8c36cb03-9f39-4173-a4a7-f0b7c8dfac64",
       "name": "HTTP: UPDATE ORDER DRAFT | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-5808, -1304],
+      "position": [-5584, -1320],
       "credentials": {
         "supabaseApi": {
           "id": "r7bNEcAkh4eOhoad",
@@ -1050,13 +977,13 @@
     },
     {
       "parameters": {
-        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: DETECTA ESCOLHA DE PRODUTO | S6').first().json || {};\nconst result = $json || {};\n\nreturn [{\n  json: {\n    ...agentCtx,\n    ...result,\n    order_id: result.order_id || agentCtx.order_id || agentCtx.order_data?.order_id || null,\n    public_code: result.public_code || agentCtx.public_code || agentCtx.order_data?.public_code || null,\n    agent_reply: result.ok === false\n      ? (agentCtx.agent_reply || 'Certo 🌸') + '\\n_(houve um problema ao atualizar o pedido, vamos continuar)_'\n      : (agentCtx.agent_reply || 'Perfeito, atualizei o pedido por aqui 🌸'),\n    agent_action: 'update_order_draft',\n    agent_stage: agentCtx.agent_stage || 'pedido_em_montagem'\n  }\n}];"
+        "jsCode": "// @ts-nocheck\n\nconst agentCtx = $('CODE: DETECTA ESCOLHA DE PRODUTO | S6').first().json || {};\nconst result = $json || {};\n\nconst ok = result.ok === true;\n\nconst orderId =\n  result.order_id ||\n  agentCtx.order_id ||\n  agentCtx.order_data?.order_id ||\n  agentCtx.current_order_id ||\n  null;\n\nconst publicCode =\n  result.public_code ||\n  agentCtx.public_code ||\n  agentCtx.order_data?.public_code ||\n  agentCtx.current_order_public_code ||\n  null;\n\nlet reply =\n  agentCtx.agent_reply ||\n  'Certo, vamos continuar com o pedido 🌸';\n\nlet messages = Array.isArray(agentCtx.agent_messages) && agentCtx.agent_messages.length > 0\n  ? agentCtx.agent_messages\n  : [reply];\n\n// Não expor erro técnico para o cliente.\nif (!ok) {\n  messages = messages.map((m) =>\n    String(m || '').replace(/\\n?_\\((houve um problema ao atualizar o pedido, vamos continuar)\\)_/gi, '').trim()\n  ).filter(Boolean);\n\n  reply = messages.join('\\n\\n') || reply;\n}\n\nreturn [\n  {\n    json: {\n      ...agentCtx,\n      ...result,\n\n      update_order_ok: ok,\n      update_order_error: ok ? null : (result.error || 'UPDATE_ORDER_DRAFT_FAILED'),\n\n      order_id: orderId,\n      current_order_id: orderId,\n\n      public_code: publicCode,\n      current_order_public_code: publicCode,\n\n      agent_action: agentCtx.agent_action || 'update_order_draft',\n      agent_stage: agentCtx.agent_stage || 'pedido_em_montagem',\n\n      agent_reply: reply,\n      agent_messages: messages,\n\n      order_data: {\n        ...(agentCtx.order_data || {}),\n        order_id: orderId,\n        public_code: publicCode\n      }\n    }\n  }\n];"
       },
       "id": "8bd42825-4ec6-47c2-acd9-7d40abb89ca5",
       "name": "CODE: MERGE UPDATE ORDER | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5584, -1304]
+      "position": [-5360, -1320]
     },
     {
       "parameters": {
@@ -1090,7 +1017,7 @@
       "name": "HTTP: PARSE CART | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-5808, -1016],
+      "position": [-5584, -1032],
       "credentials": {
         "supabaseApi": {
           "id": "r7bNEcAkh4eOhoad",
@@ -1106,14 +1033,12 @@
       "name": "CODE: MERGE CART | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5584, -1016]
+      "position": [-5360, -1032]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/flor_prepare_checkout",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "supabaseApi",
+        "url": "={{ (String('https://flordoestudante.vercel.app').replace(/\\/+$/, '')) + '/api/agent/prepare-payment' }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -1122,41 +1047,31 @@
               "value": "application/json"
             },
             {
-              "name": "Accept-Profile",
-              "value": "public"
-            },
-            {
-              "name": "Content-Profile",
-              "value": "public"
+              "name": "x-agent-secret",
+              "value": "={{ flor-agent-flora || '' }}"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ p_order_id: $json.order_id || $json.order_data?.order_id || $json.current_order_id || null, p_payment_method: $json.checkout_data?.payment_method || null, p_catalog_base_url: String($vars.CATALOG_BASE_URL || 'https://flordoestudante-floricultura-web.vercel.app').replace(/\\/+$/, '') }) }}",
+        "jsonBody": "={{ JSON.stringify({ public_code: $json.public_code || $json.order_data?.public_code || $json.current_order_public_code || null, payment_method: $json.checkout_data?.payment_method || 'mercado_pago', payer_email: $json.customer_email || null }) }}",
         "options": {}
       },
       "id": "8b448858-fe0e-4473-9af4-86dfa456e23c",
       "name": "HTTP: PREPARE CHECKOUT | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-5808, -824],
-      "credentials": {
-        "supabaseApi": {
-          "id": "r7bNEcAkh4eOhoad",
-          "name": "Supabase account"
-        }
-      }
+      "position": [-5584, -840]
     },
     {
       "parameters": {
-        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: DETECTA ESCOLHA DE PRODUTO | S6').first().json || {};\nconst result = $json || {};\n\nif (!result.ok) {\n  return [{\n    json: {\n      ...agentCtx,\n      ...result,\n      agent_reply: (agentCtx.agent_reply || '') + '\\n\\n_(Houve um erro ao gerar o link de pagamento. Entre em contato conosco.)_',\n      checkout_ok: false,\n      agent_stage: 'erro'\n    }\n  }];\n}\n\nconst checkoutUrl = result.checkout_url || '';\nconst summary = result.order_summary_text || '';\n\nconst replyLines = [\n  agentCtx.agent_reply || summary,\n  '',\n  summary !== agentCtx.agent_reply ? summary : '',\n  '',\n  checkoutUrl ? `💳 *Link de pagamento:*\\n${checkoutUrl}` : '',\n  '',\n  'Após o pagamento, seu pedido será confirmado. Qualquer dúvida, é só chamar! 🌸'\n].filter(l => l !== null && l !== undefined && l !== '');\n\nreturn [{\n  json: {\n    ...agentCtx,\n    ...result,\n    agent_reply: replyLines.join('\\n').replace(/\\n{3,}/g, '\\n\\n').trim(),\n    checkout_url: checkoutUrl,\n    checkout_ok: true,\n    agent_action: 'prepare_checkout',\n    agent_stage: 'finalizando_pagamento',\n    public_code: result.public_code || agentCtx.public_code || null\n  }\n}];"
+        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: DETECTA ESCOLHA DE PRODUTO | S6').first().json || {};\nconst result = $json || {};\n\nif (!result.ok) {\n  return [{\n    json: {\n      ...agentCtx,\n      ...result,\n      agent_reply: (agentCtx.agent_reply || '') + '\\n\\n_(Houve um erro ao gerar o link de pagamento. Entre em contato conosco.)_',\n      checkout_ok: false,\n      agent_stage: 'erro'\n    }\n  }];\n}\n\nconst checkoutUrl = result.checkout_url || '';\nconst mpInitPoint = result.mp_init_point || checkoutUrl;\nconst pix = result.pix || null;\n\n// Mensagem principal: resumo + link\nconst replyLines = [\n  agentCtx.agent_reply || '',\n  '',\n  mpInitPoint ? `💳 *Link de pagamento:*\\n${mpInitPoint}` : (checkoutUrl ? `🔗 ${checkoutUrl}` : ''),\n  '',\n  pix ? 'Ou, se preferir, pode pagar via *PIX* — envio os dados logo abaixo. 🌸' : 'Após o pagamento, seu pedido será confirmado. Qualquer dúvida, é só chamar! 🌸'\n].filter(l => l !== null && l !== undefined && l !== '');\n\n// Mensagem PIX separada (enviada como segunda mensagem pelo próximo nó)\nlet pixMessage = null;\nif (pix) {\n  pixMessage = [\n    `🔑 *Dados para pagamento via PIX:*`,\n    ``,\n    `Chave: \\`${pix.key}\\``,\n    `Tipo: ${pix.key_type}`,\n    `Titular: ${pix.holder_name}`,\n    `Valor: *${pix.amount_formatted}*`,\n    ``,\n    pix.instructions\n  ].join('\\n');\n}\n\nconst mainReply = replyLines.join('\\n').replace(/\\n{3,}/g, '\\n\\n').trim();\nconst outMessages = pixMessage ? [mainReply, pixMessage] : [mainReply];\n\nreturn [{\n  json: {\n    ...agentCtx,\n    ...result,\n    agent_reply: mainReply,\n    agent_messages: outMessages,\n    pix_message: pixMessage,\n    checkout_url: checkoutUrl,\n    mp_init_point: mpInitPoint,\n    checkout_ok: true,\n    agent_action: 'prepare_checkout',\n    agent_stage: 'finalizando_pagamento',\n    public_code: result.public_code || agentCtx.public_code || null\n  }\n}];"
       },
       "id": "fd43e994-8d42-4203-a52f-fbf51f1640f2",
       "name": "CODE: MERGE CHECKOUT | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5584, -824]
+      "position": [-5360, -840]
     },
     {
       "parameters": {
@@ -1190,7 +1105,7 @@
       "name": "HTTP: TRIGGER HANDOFF | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-6032, -632],
+      "position": [-5808, -648],
       "credentials": {
         "supabaseApi": {
           "id": "r7bNEcAkh4eOhoad",
@@ -1210,7 +1125,7 @@
       "name": "REDIS: SET HUMAN LOCK | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-5808, -632],
+      "position": [-5584, -648],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -1227,17 +1142,17 @@
       "name": "CODE: MERGE HANDOFF | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5584, -632]
+      "position": [-5360, -648]
     },
     {
       "parameters": {
-        "jsCode": "// @ts-nocheck\nconst src = $json || {};\nconst norm = $('NORMALIZA PAYLOAD WHATSAPP | S6').first().json || {};\nconst prompt = $('CODE: PREPARA PROMPT | S6').first().json || {};\n\nconst fallbackReply = 'Olá! 🌸 Tive um probleminha técnico por aqui. Pode repetir sua mensagem?';\n\nreturn [{\n  json: {\n    ...src,\n    phone_normalized: src.phone_normalized || norm.phone_normalized || '',\n    push_name: src.push_name || norm.push_name || '',\n    conversation_id: src.conversation_id || prompt.conversation_id || null,\n    customer_id: src.customer_id || prompt.customer_id || null,\n    agent_reply: String(src.agent_reply || fallbackReply).trim(),\n    agent_action: src.agent_action || 'ask_info',\n    agent_stage: src.agent_stage || src.ctx_stage || prompt.ctx_stage || 'identificando_necessidade',\n    order_id: src.order_id || src.created_order_id || src.order_data?.order_id || prompt.current_order_id || null,\n    public_code: src.public_code || src.created_order_code || src.order_data?.public_code || prompt.current_order_public_code || null,\n    checkout_url: src.checkout_url || null,\n    catalog_results: src.catalog_results || [],\n    selected_product: src.selected_product || null,\n    suggested_addons: src.suggested_addons || [],\n    technical_notes: src.technical_notes || []\n  }\n}];"
+        "jsCode": "// @ts-nocheck\n\nconst src = $json || {};\nconst norm = $('NORMALIZA PAYLOAD WHATSAPP | S6').first().json || {};\n\nconst fallbackReply = 'Olá! 🌸 Tive um probleminha técnico por aqui. Pode repetir sua mensagem?';\n\nconst agentReply = String(src.agent_reply || fallbackReply).trim();\n\nlet messages = [];\n\nif (Array.isArray(src.agent_messages)) {\n  messages = src.agent_messages\n    .map(m => String(m || '').trim())\n    .filter(Boolean);\n}\n\nif (messages.length === 0) {\n  messages = [agentReply];\n}\n\n// Segurança: no máximo 3 mensagens.\nmessages = messages.slice(0, 3);\n\n// Evita mensagens duplicadas.\nconst seen = new Set();\nmessages = messages.filter((m) => {\n  const key = m.toLowerCase().trim();\n  if (seen.has(key)) return false;\n  seen.add(key);\n  return true;\n});\n\nreturn [{\n  json: {\n    ...src,\n    phone_normalized: src.phone_normalized || norm.phone_normalized || '',\n    agent_reply: agentReply,\n    agent_messages: messages,\n    messages_to_send: messages,\n    agent_action: src.agent_action || 'ask_info',\n    agent_stage: src.agent_stage || src.ctx_stage || 'identificando_necessidade',\n    customer_id: src.customer_id || null,\n    conversation_id: src.conversation_id || null,\n    order_id: src.order_id || src.created_order_id || src.order_data?.order_id || null,\n    public_code: src.public_code || src.created_order_code || src.order_data?.public_code || null,\n    checkout_url: src.checkout_url || null,\n    catalog_results: src.catalog_results || [],\n    selected_product: src.selected_product || null,\n    suggested_addons: src.suggested_addons || [],\n    technical_notes: src.technical_notes || []\n  }\n}];"
       },
       "id": "24d6342f-b76b-4c59-825a-1eaff3ece621",
       "name": "CODE: NORMALIZA SAÍDA FINAL | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5360, -1136]
+      "position": [-5136, -1152]
     },
     {
       "parameters": {
@@ -1251,7 +1166,7 @@
       "name": "REDIS: SET SESSION | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-5136, -1136],
+      "position": [-4912, -1152],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -1292,23 +1207,24 @@
       "name": "HTTP: REGISTRA EXCHANGE | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-4912, -1136],
+      "position": [-4688, -1152],
       "credentials": {
         "supabaseApi": {
           "id": "r7bNEcAkh4eOhoad",
           "name": "Supabase account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
-        "jsCode": "// @ts-nocheck\nconst finalOut = $('CODE: NORMALIZA SAÍDA FINAL | S6').item.json || {};\nconst phoneNorm = $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized;\n\nreturn [{\n  json: {\n    agent_reply: finalOut.agent_reply || 'Olá! 🌸 Tive um probleminha técnico. Pode repetir sua mensagem?',\n    phone_normalized: finalOut.phone_normalized || phoneNorm\n  }\n}];"
+        "jsCode": "// @ts-nocheck\n\nconst finalOut = $('CODE: NORMALIZA SAÍDA FINAL | S6').item.json || {};\nconst norm = $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json || {};\n\nfunction clean(value) {\n  if (value === undefined || value === null) return '';\n  return String(value).trim();\n}\n\nconst fallbackReply = 'Olá! 🌸 Tive um probleminha técnico por aqui. Pode repetir sua mensagem?';\n\nlet agentReply = clean(finalOut.agent_reply) || fallbackReply;\n\nlet agentMessages = [];\n\nif (Array.isArray(finalOut.agent_messages)) {\n  agentMessages = finalOut.agent_messages\n    .map(clean)\n    .filter(Boolean);\n}\n\nif (agentMessages.length === 0) {\n  agentMessages = [agentReply];\n}\n\nif (agentMessages.length > 3) {\n  agentMessages = agentMessages.slice(0, 3);\n}\n\nreturn [\n  {\n    json: {\n      ...finalOut,\n\n      phone_normalized:\n        finalOut.phone_normalized ||\n        norm.phone_normalized ||\n        '',\n\n      agent_reply: agentReply,\n      agent_messages: agentMessages,\n\n      order_id:\n        finalOut.order_id ||\n        finalOut.current_order_id ||\n        finalOut.order_data?.order_id ||\n        null,\n\n      current_order_id:\n        finalOut.current_order_id ||\n        finalOut.order_id ||\n        finalOut.order_data?.order_id ||\n        null,\n\n      current_order_public_code:\n        finalOut.current_order_public_code ||\n        finalOut.public_code ||\n        finalOut.order_data?.public_code ||\n        null,\n\n      delay_ms: finalOut.delay_ms || 500\n    }\n  }\n];"
       },
       "id": "001fbe3d-b61a-4a37-be83-5b9bd6cbf672",
       "name": "CODE: RESOLVE REPLY | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-4688, -1136]
+      "position": [-4464, -1152]
     },
     {
       "parameters": {
@@ -1327,14 +1243,14 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ number: $json.phone_normalized, text: $json.agent_reply, options: { delay: 500, presence: 'composing' } }) }}",
+        "jsonBody": "={{ JSON.stringify({\n  number: $json.phone_normalized,\n  text: $json.agent_reply,\n  options: {\n    delay: $json.delay_ms || 500,\n    presence: 'composing'\n  }\n}) }}",
         "options": {}
       },
       "id": "01696891-5d6c-4f15-bf34-d2504ce4c966",
       "name": "ENVIA RESPOSTA EVOLUTION | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-4464, -1136],
+      "position": [-4016, -1152],
       "credentials": {
         "evolutionApi": {
           "id": "hUhH7ahIVjr2lysL",
@@ -1370,7 +1286,7 @@
       "name": "IF: COMANDO /DELETAR? | S6",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
-      "position": [-13424, -1328]
+      "position": [-13424, -1272]
     },
     {
       "parameters": {
@@ -1381,7 +1297,7 @@
       "name": "REDIS: DEL BUFFER TESTE | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-13200, -1376],
+      "position": [-13200, -1368],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -1399,7 +1315,7 @@
       "name": "REDIS: DEL LAST MSG ID TESTE | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-12976, -1376],
+      "position": [-12976, -1368],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -1417,7 +1333,7 @@
       "name": "REDIS: DEL SESSION TESTE | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-12752, -1376],
+      "position": [-12752, -1368],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -1435,7 +1351,7 @@
       "name": "REDIS: DEL HUMAN LOCK TESTE | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-12528, -1376],
+      "position": [-12528, -1368],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -1453,7 +1369,7 @@
       "name": "REDIS: DEL CURRENT ORDER TESTE | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-12304, -1376],
+      "position": [-12304, -1368],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -1471,7 +1387,7 @@
       "name": "REDIS: DEL SENT PRODUCTS TESTE | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-12080, -1376],
+      "position": [-12080, -1368],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -1489,7 +1405,7 @@
       "name": "REDIS: DEL LAST QUESTION TESTE | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-11856, -1376],
+      "position": [-11856, -1368],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -1507,7 +1423,7 @@
       "name": "REDIS: DEL LAST AGENT OUTPUT TESTE | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-11632, -1376],
+      "position": [-11632, -1368],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -1548,7 +1464,7 @@
       "name": "HTTP: RESET CONTEXTO SUPABASE TESTE | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-11408, -1376],
+      "position": [-11408, -1368],
       "credentials": {
         "supabaseApi": {
           "id": "r7bNEcAkh4eOhoad",
@@ -1566,7 +1482,7 @@
       "name": "CODE: MONTA RESPOSTA RESET TESTE | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-11184, -1376]
+      "position": [-11184, -1368]
     },
     {
       "parameters": {
@@ -1592,7 +1508,7 @@
       "name": "ENVIA CONFIRMAÇÃO RESET EVOLUTION | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-10960, -1376],
+      "position": [-10960, -1368],
       "credentials": {
         "evolutionApi": {
           "id": "hUhH7ahIVjr2lysL",
@@ -1600,6 +1516,127 @@
         }
       },
       "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\n\nconst src = $json || {};\n\nfunction clean(value) {\n  if (value === undefined || value === null) return '';\n  return String(value).trim();\n}\n\nconst phone = clean(src.phone_normalized);\nconst fallback = clean(src.agent_reply) || 'Certo 🌸';\n\nlet messages = [];\n\nif (Array.isArray(src.agent_messages)) {\n  messages = src.agent_messages.map(clean).filter(Boolean);\n}\n\nif (messages.length === 0) {\n  messages = [fallback];\n}\n\nmessages = messages.slice(0, 3);\n\nreturn messages.map((message, index) => ({\n  json: {\n    ...src,\n    phone_normalized: phone,\n    agent_reply: message,\n    message_index: index,\n    messages_total: messages.length,\n    delay_ms: index === 0 ? 500 : 1200\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-4240, -1152],
+      "id": "e6f35b08-dd04-4d4b-8eff-e599ec5ad289",
+      "name": "CODE: EXPLODE MENSAGENS WHATSAPP | S6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://cheatingbat-evolution.cloudfy.live/message/sendText/julia",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "evolutionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  number: $json.phone_normalized,\n  text: $json.catalog_intro_message || 'Claro, vou te mostrar algumas opções 🌸',\n  delay: 700,\n  linkPreview: false\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [-6032, -1920],
+      "id": "c04bc71e-69f6-45ec-a06b-50e9c43f4067",
+      "name": "HTTP: EVOLUTION SEND INTRO CATÁLOGO | S6",
+      "credentials": {
+        "evolutionApi": {
+          "id": "hUhH7ahIVjr2lysL",
+          "name": "evolution_cloudfy"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\n\nconst src = $('CODE: FORMATA CATÁLOGO | S6').first().json || {};\nconst options = Array.isArray(src.catalog_media_options)\n  ? src.catalog_media_options\n  : [];\n\nif (options.length === 0) {\n  return [\n    {\n      json: {\n        ...src,\n        skip_catalog_media: true\n      }\n    }\n  ];\n}\n\nreturn options.map((option, index) => {\n  return {\n    json: {\n      ...src,\n      catalog_option: option,\n      catalog_option_index: index,\n      catalog_option_total: options.length\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-5808, -1920],
+      "id": "b38b8d4c-b4c4-4ec9-b0b8-0c90e878d435",
+      "name": "CODE: EXPLODE OPÇÕES CATÁLOGO | S6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://cheatingbat-evolution.cloudfy.live/message/sendMedia/julia",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "evolutionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  number: $json.phone_normalized,\n  mediatype: 'image',\n  mimetype: 'image/jpeg',\n  media: $json.catalog_option && $json.catalog_option.media ? $json.catalog_option.media : '',\n  caption: $json.catalog_option && $json.catalog_option.caption ? $json.catalog_option.caption : 'Opção da Flor do Estudante 🌸',\n  fileName: (($json.catalog_option && $json.catalog_option.slug) ? $json.catalog_option.slug : 'produto') + '.jpg'\n}) }}",
+        "options": {}
+      },
+      "id": "e7c30346-0c6f-4c81-a022-21eb42517ac6",
+      "name": "HTTP: EVOLUTION SEND OPÇÃO CATÁLOGO | S6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-5584, -1920],
+      "credentials": {
+        "evolutionApi": {
+          "id": "hUhH7ahIVjr2lysL",
+          "name": "evolution_cloudfy"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'gpt-4.1-nano', temperature: 0.3, max_tokens: 900, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: $json.system_prompt || 'Você é uma atendente virtual da Flor do Estudante. Responda sempre em JSON válido.' }, { role: 'user', content: $json.user_context || 'Cliente enviou uma mensagem sem contexto.' }] }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "16a95ec0-16b1-4761-9a96-07083ae2a197",
+      "name": "HTTP: OPENAI CHAT | S6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-7824, -1176],
+      "credentials": {
+        "openAiApi": {
+          "id": "RjXPvvZ9NBpReHAF",
+          "name": "OpenAi account"
+        }
+      },
+      "notes": "Substitui OpenRouter por OpenAI direto usando credencial nativa openAiApi. Mantém retorno compatível com choices[0].message.content."
     }
   ],
   "connections": {
@@ -1629,18 +1666,12 @@
       "main": [
         [
           {
-            "node": "REDIS: GET HUMAN LOCK | S6",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
             "node": "IF: COMANDO /DELETAR? | S6",
             "type": "main",
             "index": 0
           }
-        ]
+        ],
+        []
       ]
     },
     "REDIS: GET HUMAN LOCK | S6": {
@@ -1914,18 +1945,7 @@
       "main": [
         [
           {
-            "node": "HTTP: OPENROUTER CHAT | S6",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HTTP: OPENROUTER CHAT | S6": {
-      "main": [
-        [
-          {
-            "node": "CODE: PARSE JSON AGENTE | S6",
+            "node": "HTTP: OPENAI CHAT | S6",
             "type": "main",
             "index": 0
           }
@@ -2102,22 +2122,11 @@
       "main": [
         [
           {
-            "node": "HTTP: EVOLUTION SEND IMAGE | S6",
+            "node": "HTTP: EVOLUTION SEND INTRO CATÁLOGO | S6",
             "type": "main",
             "index": 0
           }
         ],
-        [
-          {
-            "node": "CODE: MERGE CATALOG | S6",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HTTP: EVOLUTION SEND IMAGE | S6": {
-      "main": [
         [
           {
             "node": "CODE: MERGE CATALOG | S6",
@@ -2274,7 +2283,7 @@
       "main": [
         [
           {
-            "node": "ENVIA RESPOSTA EVOLUTION | S6",
+            "node": "CODE: EXPLODE MENSAGENS WHATSAPP | S6",
             "type": "main",
             "index": 0
           }
@@ -2408,6 +2417,61 @@
           }
         ]
       ]
+    },
+    "CODE: EXPLODE MENSAGENS WHATSAPP | S6": {
+      "main": [
+        [
+          {
+            "node": "ENVIA RESPOSTA EVOLUTION | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: EVOLUTION SEND INTRO CATÁLOGO | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: EXPLODE OPÇÕES CATÁLOGO | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: EXPLODE OPÇÕES CATÁLOGO | S6": {
+      "main": [
+        [
+          {
+            "node": "HTTP: EVOLUTION SEND OPÇÃO CATÁLOGO | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: EVOLUTION SEND OPÇÃO CATÁLOGO | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: MERGE CATALOG | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: OPENAI CHAT | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: PARSE JSON AGENTE | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "pinData": {
@@ -2416,21 +2480,21 @@
         "headers": {
           "host": "cheatingbat-n8n.cloudfy.live",
           "user-agent": "axios/1.13.2",
-          "content-length": "1686",
+          "content-length": "1631",
           "accept": "application/json, text/plain, */*",
           "accept-encoding": "gzip, br",
           "cdn-loop": "cloudflare; loops=1",
           "cf-connecting-ip": "65.21.145.101",
           "cf-ipcountry": "FI",
-          "cf-ray": "9f7bb0967c2b45e1-FRA",
+          "cf-ray": "9f82714ebef9d264-FRA",
           "cf-visitor": "{\"scheme\":\"https\"}",
           "content-type": "application/json",
-          "x-forwarded-for": "172.70.251.2",
+          "x-forwarded-for": "172.71.164.32",
           "x-forwarded-host": "cheatingbat-n8n.cloudfy.live",
           "x-forwarded-port": "443",
           "x-forwarded-proto": "https",
           "x-forwarded-server": "ff0c05b4ce47",
-          "x-real-ip": "172.70.251.2"
+          "x-real-ip": "172.71.164.32"
         },
         "params": {},
         "query": {},
@@ -2442,7 +2506,7 @@
               "remoteJid": "554588230845@s.whatsapp.net",
               "remoteJidAlt": "554588230845@s.whatsapp.net",
               "fromMe": false,
-              "id": "3A698636A23E94D50EE7",
+              "id": "3B144C22049D42BEA46F",
               "participant": "",
               "addressingMode": "lid"
             },
@@ -2455,19 +2519,19 @@
                   "senderKeyIndexes": [],
                   "recipientKeyIndexes": [],
                   "senderKeyHash": {
-                    "0": 117,
-                    "1": 107,
-                    "2": 38,
-                    "3": 187,
-                    "4": 66,
-                    "5": 5,
-                    "6": 158,
-                    "7": 130,
-                    "8": 15,
-                    "9": 194
+                    "0": 28,
+                    "1": 76,
+                    "2": 127,
+                    "3": 59,
+                    "4": 240,
+                    "5": 167,
+                    "6": 92,
+                    "7": 160,
+                    "8": 190,
+                    "9": 132
                   },
                   "senderTimestamp": {
-                    "low": 1778070354,
+                    "low": 1777577397,
                     "high": 0,
                     "unsigned": true
                   },
@@ -2491,41 +2555,41 @@
                 },
                 "deviceListMetadataVersion": 2,
                 "messageSecret": {
-                  "0": 188,
-                  "1": 20,
-                  "2": 114,
-                  "3": 168,
-                  "4": 100,
-                  "5": 66,
-                  "6": 17,
-                  "7": 112,
-                  "8": 208,
-                  "9": 0,
-                  "10": 87,
-                  "11": 62,
-                  "12": 92,
-                  "13": 23,
-                  "14": 244,
-                  "15": 64,
-                  "16": 189,
-                  "17": 105,
-                  "18": 81,
-                  "19": 251,
-                  "20": 85,
-                  "21": 111,
-                  "22": 120,
-                  "23": 221,
-                  "24": 119,
-                  "25": 204,
-                  "26": 253,
-                  "27": 249,
-                  "28": 22,
-                  "29": 231,
-                  "30": 168,
-                  "31": 225
+                  "0": 63,
+                  "1": 119,
+                  "2": 109,
+                  "3": 112,
+                  "4": 213,
+                  "5": 200,
+                  "6": 36,
+                  "7": 251,
+                  "8": 185,
+                  "9": 110,
+                  "10": 5,
+                  "11": 95,
+                  "12": 68,
+                  "13": 126,
+                  "14": 127,
+                  "15": 180,
+                  "16": 25,
+                  "17": 181,
+                  "18": 45,
+                  "19": 119,
+                  "20": 236,
+                  "21": 203,
+                  "22": 223,
+                  "23": 199,
+                  "24": 168,
+                  "25": 175,
+                  "26": 20,
+                  "27": 123,
+                  "28": 147,
+                  "29": 157,
+                  "30": 55,
+                  "31": 175
                 }
               },
-              "conversation": "Ela adora flores do campo"
+              "conversation": "Sim! Quais opções vocês tem"
             },
             "contextInfo": {
               "mentionedJid": [],
@@ -2536,20 +2600,15 @@
                 "low": 1776854751,
                 "high": 0,
                 "unsigned": false
-              },
-              "disappearingMode": {
-                "initiator": 0,
-                "trigger": 1,
-                "initiatedByMe": true
               }
             },
             "messageType": "conversation",
-            "messageTimestamp": 1778109356,
+            "messageTimestamp": 1778180164,
             "instanceId": "6224e364-e93d-41c9-ad2f-2640c75c8882",
-            "source": "ios"
+            "source": "unknown"
           },
           "destination": "https://cheatingbat-n8n.cloudfy.live/webhook/julia",
-          "date_time": "2026-05-06T20:15:56.470Z",
+          "date_time": "2026-05-07T15:56:04.832Z",
           "sender": "554599029116@s.whatsapp.net",
           "server_url": "https://cheatingbat-evolution.cloudfy.live",
           "apikey": "142076B8F6DE-4EFF-A90A-A8EE05103C63"

@@ -39,7 +39,10 @@ export function CategoryCarousel({ products, className }: CategoryCarouselProps)
     const el = scrollRef.current;
     if (!el) return;
     const cardWidth = el.querySelector('li')?.offsetWidth ?? 240;
-    el.scrollBy({ left: direction === 'left' ? -(cardWidth + 16) * 2 : (cardWidth + 16) * 2, behavior: 'smooth' });
+    el.scrollBy({
+      left: direction === 'left' ? -(cardWidth + 16) * 2 : (cardWidth + 16) * 2,
+      behavior: 'smooth',
+    });
   }
 
   if (products.length === 0) return null;
@@ -57,7 +60,15 @@ export function CategoryCarousel({ products, className }: CategoryCarouselProps)
           canScrollLeft ? 'opacity-100' : 'pointer-events-none opacity-0'
         )}
       >
-        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          className="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <path d="M15 18l-6-6 6-6" />
         </svg>
       </button>
@@ -88,7 +99,15 @@ export function CategoryCarousel({ products, className }: CategoryCarouselProps)
           canScrollRight ? 'opacity-100' : 'pointer-events-none opacity-0'
         )}
       >
-        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          className="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <path d="M9 18l6-6-6-6" />
         </svg>
       </button>

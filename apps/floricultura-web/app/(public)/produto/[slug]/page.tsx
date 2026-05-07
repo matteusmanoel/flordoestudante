@@ -42,7 +42,10 @@ export default async function ProductPage({ params }: PageProps) {
           </div>
           {recommended.length > 0 && (
             <div className="mt-12 pt-8 border-t border-border">
-              <CompleteSeuPresente products={recommended} />
+              <CompleteSeuPresente
+                products={recommended}
+                title="Você pode gostar também..."
+              />
             </div>
           )}
         </div>

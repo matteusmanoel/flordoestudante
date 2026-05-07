@@ -10,7 +10,7 @@
       "name": "WEBHOOK EVOLUTION | FLOR",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [-14096, -1032],
+      "position": [-14096, -1256],
       "webhookId": "flor-whatsapp-inbound-s6"
     },
     {
@@ -21,7 +21,7 @@
       "name": "NORMALIZA PAYLOAD WHATSAPP | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-13872, -1032]
+      "position": [-13872, -1256]
     },
     {
       "parameters": {
@@ -59,7 +59,7 @@
       "name": "DEVE PROCESSAR? | S6",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [-13648, -1032]
+      "position": [-13648, -1256]
     },
     {
       "parameters": {
@@ -71,7 +71,7 @@
       "name": "REDIS: GET HUMAN LOCK | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-13424, -1032],
+      "position": [-13200, -1160],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -107,7 +107,7 @@
       "name": "HUMAN TAKEOVER ATIVO? | S6",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [-13200, -1032]
+      "position": [-12976, -1160]
     },
     {
       "parameters": {
@@ -119,7 +119,7 @@
       "name": "REDIS: GET BUFFER ATUAL | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-12976, -1032],
+      "position": [-12752, -1160],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -135,7 +135,7 @@
       "name": "CODE: ATUALIZA BUFFER | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-12752, -1032]
+      "position": [-12528, -1160]
     },
     {
       "parameters": {
@@ -149,7 +149,7 @@
       "name": "REDIS: SET BUFFER | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-12528, -1032],
+      "position": [-12304, -1160],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -169,7 +169,7 @@
       "name": "REDIS: SET LAST MSG ID | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-12304, -1032],
+      "position": [-12080, -1160],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -186,7 +186,7 @@
       "name": "WAIT 2S | S6",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1,
-      "position": [-12080, -1032],
+      "position": [-11856, -1160],
       "webhookId": "36f6329c-0792-420b-8506-e4bdfc90b7e0"
     },
     {
@@ -199,7 +199,7 @@
       "name": "REDIS: GET LAST MSG ID | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-11856, -1032],
+      "position": [-11632, -1160],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -235,7 +235,7 @@
       "name": "AINDA É O MAIS RECENTE? | S6",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [-11632, -1032]
+      "position": [-11408, -1160]
     },
     {
       "parameters": {
@@ -247,7 +247,7 @@
       "name": "REDIS: GET BUFFER FINAL | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-11408, -1032],
+      "position": [-11184, -1160],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -263,7 +263,7 @@
       "name": "CODE: MONTA CONTEXTO | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-11184, -1032]
+      "position": [-10960, -1160]
     },
     {
       "parameters": {
@@ -274,7 +274,7 @@
       "name": "REDIS: DEL BUFFER | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-10960, -1032],
+      "position": [-10736, -1160],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
@@ -310,7 +310,7 @@
       "name": "IF: HAS AUDIO? | S6",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [-10736, -1032]
+      "position": [-10512, -1160]
     },
     {
       "parameters": {
@@ -320,7 +320,7 @@
       "name": "CODE: PREP AUDIO | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-10512, -1104]
+      "position": [-10288, -1232]
     },
     {
       "parameters": {
@@ -356,7 +356,7 @@
       "name": "HTTP: EVOLUTION GET AUDIO | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-10288, -1104],
+      "position": [-10064, -1232],
       "credentials": {
         "evolutionApi": {
           "id": "hUhH7ahIVjr2lysL",
@@ -373,7 +373,7 @@
       "name": "CODE: AUDIO TO BINARY | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-10064, -1104],
+      "position": [-9840, -1232],
       "continueOnFail": true
     },
     {
@@ -384,7 +384,7 @@
       "name": "CODE: MERGE AUDIO | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-9616, -1104]
+      "position": [-9392, -1232]
     },
     {
       "parameters": {
@@ -413,7 +413,7 @@
       "name": "IF: HAS IMAGE? | S6",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [-9392, -1032]
+      "position": [-9168, -1160]
     },
     {
       "parameters": {
@@ -423,7 +423,7 @@
       "name": "CODE: PREP IMAGE | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-9168, -1104]
+      "position": [-8944, -1232]
     },
     {
       "parameters": {
@@ -467,7 +467,7 @@
       "name": "HTTP: OPENAI VISION | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-8944, -1104],
+      "position": [-8720, -1232],
       "credentials": {
         "openRouterApi": {
           "id": "4BdzzO60z91H2fqA",
@@ -485,7 +485,25 @@
       "name": "CODE: MERGE IMAGE | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-8720, -1104]
+      "position": [-8496, -1232]
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [-9616, -1232],
+      "id": "d8028afd-c87b-4ba9-8492-bec239564b55",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "openAiApi": {
+          "id": "RjXPvvZ9NBpReHAF",
+          "name": "OpenAi account"
+        }
+      }
     },
     {
       "parameters": {
@@ -511,29 +529,15 @@
           ]
         },
         "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "p_phone_normalized",
-              "value": "={{ $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}"
-            },
-            {
-              "name": "p_channel",
-              "value": "whatsapp"
-            },
-            {
-              "name": "p_recent_limit",
-              "value": "10"
-            }
-          ]
-        },
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ p_phone_normalized: $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized, p_channel: 'whatsapp', p_recent_limit: 10 }) }}",
         "options": {}
       },
-      "id": "859feb34-49b7-412d-8f36-932417f08542",
+      "id": "5852ee32-2cf2-4ee0-9b38-8abc9baed1c0",
       "name": "HTTP: SUPABASE GET CONTEXT | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-8496, -1032],
+      "position": [-8272, -1160],
       "credentials": {
         "supabaseApi": {
           "id": "r7bNEcAkh4eOhoad",
@@ -543,13 +547,13 @@
     },
     {
       "parameters": {
-        "jsCode": "// @ts-nocheck\n// Prepara prompt completo para o agente IA com contexto de Dia das Mães\nconst norm = $('CODE: MONTA CONTEXTO | S6').item.json;\nconst ctx = $json;\n\nconst customer = ctx.customer || {};\nconst conversation = ctx.conversation || {};\nconst recentMessages = ctx.recent_messages || [];\nconst currentOrder = ctx.current_order || {};\nconst currentItems = ctx.current_order_items || [];\n\nconst phone = norm.phone_normalized;\nconst customerName = customer.full_name || norm.push_name || 'cliente';\nconst isExisting = customer.is_existing_customer;\nconst convStage = conversation.stage || 'new';\nconst humanLock = conversation.human_takeover || false;\nconst conversationId = ctx.conversation_id || null;\nconst customerId = ctx.customer_id || null;\n\n// Build recent messages history\nconst historyText = recentMessages.slice(-8).map(m => {\n  const who = m.sender_type === 'agent' ? '🤖 Agente' : '👤 Cliente';\n  return `${who}: ${(m.body || '').substring(0, 200)}`;\n}).join('\\n');\n\n// Build current order context\nlet orderContext = '';\nif (currentOrder.order_id) {\n  orderContext = `Pedido atual: ${currentOrder.public_code} (${currentOrder.status})\\n`;\n  orderContext += `  Total: R$ ${currentOrder.total_amount || '?'}\\n`;\n  orderContext += `  Entrega: ${currentOrder.fulfillment_type || '?'}\\n`;\n  if (currentItems.length > 0) {\n    orderContext += `  Itens: ${currentItems.map(i => `${i.product_name} x${i.quantity}`).join(', ')}\\n`;\n  }\n}\n\n// Input enrichment (transcription/vision)\nlet enrichedInput = norm.message_text || '';\nif (norm.transcription) {\n  enrichedInput = `[Áudio transcrito]: ${norm.transcription}`;\n}\nif (norm.visual_description) {\n  enrichedInput += (enrichedInput ? '\\n' : '') + `[Imagem analisada]: ${norm.visual_description}`;\n}\nif (norm.agent_note?.includes('PAYMENT_RECEIPT')) {\n  enrichedInput += '\\n[SISTEMA: Cliente enviou o que parece ser comprovante de pagamento]';\n}\n\nconst SYSTEM_PROMPT = `Você é Ana, atendente virtual da Flor do Estudante 🌸 — floricultura especializada em flores, arranjos, buquês, cestas e presentes.\n\nDATA DE HOJE: ${new Date().toLocaleDateString('pt-BR')} — A 4 dias do Dia das Mães 💐\n\nREGRAS COMERCIAIS:\n1. Priorize SEMPRE o Dia das Mães. Se o cliente não especificar ocasião, pergunte.\n2. Finalize vendas de forma autônoma — não transfira para humano apenas para fechar pedido/pagamento.\n3. NUNCA invente produtos ou preços. Use apenas dados do catálogo fornecido.\n4. Não bloqueie por disponibilidade de estoque — diga \"posso montar esse pedido para você\".\n5. Faça UMA pergunta por resposta. Seja objetivo e caloroso.\n6. Quando sugerir produto com slug, inclua o link: ${norm.full_payload ? '$vars.CATALOG_BASE_URL' : '[CATALOG_BASE_URL]'}/produto/{slug}\n7. Para pagamento: aceite PIX, cartão ou pagamento na entrega/retirada conforme disponível.\n8. Se o cliente informar preferência clara como “flores do campo”, “rosas”, “girassol”, “cesta”, “buquê” ou orçamento, use action=search_catalog imediatamente.\n\n\nACTIONS DISPONÍVEIS (retorne SEMPRE JSON válido com action):\n- ask_info: fazer pergunta ou dar resposta de texto\n- search_catalog: buscar produtos no catálogo (sempre antes de sugerir)\n- create_order_draft: criar novo pedido rascunho\n- update_order_draft: atualizar pedido existente (itens, entrega, destinatário, mensagem)\n- prepare_checkout: finalizar pedido e gerar link de pagamento (quando cliente confirmar)\n- parse_whatsapp_cart: processar carrinho do WhatsApp\n- handoff_human: transferir para humano (APENAS para: reclamação grave, pedido explícito de atendente, erro técnico impossível de resolver)\n\nQuando action=search_catalog:\n- agent_reply deve ser uma frase curta de transição, não uma pergunta.\n- Exemplo: \"Perfeito, vou separar algumas opções nesse estilo para você 🌸\"\n- A resposta final com produtos será montada após a busca no catálogo.\n\nFLUXO SUGERIDO PARA DIA DAS MÃES:\n1. Saudar → perguntar se é para Dia das Mães ou outra ocasião\n2. Entender orçamento/preferência → buscar catálogo\n3. Sugerir 2-3 opções com link e preço\n4. Confirmar escolha → criar/atualizar pedido\n5. Confirmar: destinatário, entrega/retirada, mensagem no cartão\n6. Gerar checkout → enviar link de pagamento\n\nPARA IMAGENS RECEBIDAS:\n- Se for referência visual (buquê, arranjo): use como inspiração, busque similar no catálogo\n- Se for comprovante: registre e avance para confirmação do pedido\n\nFORMATO DE RESPOSTA — SEMPRE JSON VÁLIDO:\n{\n  \"action\": \"search_catalog\",\n  \"agent_reply\": \"Texto da resposta para o cliente (use emojis com moderação)\",\n  \"agent_stage\": \"identificando_necessidade | buscando_opcoes | confirmando_pedido | finalizando_pagamento\",\n  \"search_query\": \"(se action=search_catalog) termo de busca\",\n  \"occasion_filter\": \"(opcional) dia_das_maes | aniversario | presente\",\n  \"order_id\": \"(se relevante) UUID do pedido\",\n  \"order_data\": {\n    \"(se create/update_order_draft)\": \"...\"\n  },\n  \"checkout_data\": {\n    \"payment_method\": \"(se prepare_checkout) mercado_pago | pay_on_delivery | pay_on_pickup\"\n  }\n}`;\n\nconst USER_CONTEXT = `CONTEXTO DO ATENDIMENTO:\nCliente: ${customerName} | Telefone: ${phone} | ${isExisting ? 'Cliente cadastrado' : 'Novo cliente'}\nEstágio conversa: ${convStage}\n${orderContext}\nHistórico recente:\\n${historyText || '(primeira mensagem)'}\n\nMENSAGEM ATUAL DO CLIENTE:\n${enrichedInput || '(sem texto)'}`;\n\nreturn [{\n  json: {\n    ...norm,\n    system_prompt: SYSTEM_PROMPT,\n    user_context: USER_CONTEXT,\n    conversation_id: conversationId,\n    customer_id: customerId,\n    ctx_stage: convStage,\n    transcription: norm.transcription || null,\n    visual_description: norm.visual_description || null\n  }\n}];"
+        "jsCode": "// @ts-nocheck\nconst norm = $('CODE: MONTA CONTEXTO | S6').item.json || {};\nconst ctx = $json || {};\n\nconst customer = ctx.customer || {};\nconst conversation = ctx.conversation || {};\nconst recentMessages = Array.isArray(ctx.recent_messages) ? ctx.recent_messages : [];\nconst currentOrder = ctx.current_order || {};\nconst currentItems = Array.isArray(ctx.current_order_items) ? ctx.current_order_items : [];\n\nconst phone = norm.phone_normalized || '';\nconst customerName = customer.full_name || norm.push_name || 'cliente';\nconst isExisting = Boolean(customer.is_existing_customer || customer.id || ctx.customer_id);\nconst convStage = conversation.stage || 'new';\nconst humanLock = conversation.human_takeover || false;\nconst conversationId = ctx.conversation_id || conversation.id || null;\nconst customerId = ctx.customer_id || customer.id || null;\nconst catalogBase = String($vars.CATALOG_BASE_URL || 'https://flordoestudante-floricultura-web.vercel.app').replace(/\\/+$/, '');\n\nconst currentOrderId = currentOrder.order_id || currentOrder.id || ctx.current_order_id || null;\nconst currentOrderCode = currentOrder.public_code || currentOrder.order_public_code || ctx.current_order_public_code || null;\n\nconst historyText = recentMessages.slice(-8).map(m => {\n  const who = m.sender_type === 'agent' ? '🤖 Agente' : '👤 Cliente';\n  return `${who}: ${(m.body || '').substring(0, 200)}`;\n}).join('\\n');\n\nlet orderContext = '';\nif (currentOrderId) {\n  orderContext = `Pedido atual: ${currentOrderCode || currentOrderId} (${currentOrder.status || 'draft'})\\n`;\n  orderContext += `  Total: R$ ${currentOrder.total_amount || currentOrder.current_order_total_amount || '?'}\\n`;\n  orderContext += `  Entrega: ${currentOrder.fulfillment_type || '?'}\\n`;\n  if (currentItems.length > 0) {\n    orderContext += `  Itens: ${currentItems.map(i => `${i.product_name || i.name || i.item_name || 'item'} x${i.quantity || 1}`).join(', ')}\\n`;\n  }\n}\n\nlet enrichedInput = norm.message_text || '';\nif (norm.transcription) enrichedInput = `[Áudio transcrito]: ${norm.transcription}`;\nif (norm.visual_description) enrichedInput += (enrichedInput ? '\\n' : '') + `[Imagem analisada]: ${norm.visual_description}`;\nif (String(norm.agent_note || '').includes('PAYMENT_RECEIPT')) enrichedInput += '\\n[SISTEMA: Cliente enviou o que parece ser comprovante de pagamento]';\n\nconst SYSTEM_PROMPT = `Você é Ana, atendente virtual da Flor do Estudante 🌸 — floricultura especializada em flores, arranjos, buquês, cestas e presentes.\n\nDATA DE HOJE: ${new Date().toLocaleDateString('pt-BR')} — período de campanha do Dia das Mães 💐\n\nREGRAS COMERCIAIS:\n1. Priorize SEMPRE o Dia das Mães. Se o cliente não especificar ocasião, pergunte.\n2. Finalize vendas de forma autônoma — não transfira para humano apenas para fechar pedido/pagamento.\n3. NUNCA invente produtos ou preços. Use apenas dados do catálogo fornecido pelo workflow.\n4. Não bloqueie por disponibilidade de estoque — diga \"posso montar esse pedido para você\".\n5. Faça UMA pergunta por resposta. Seja objetivo e caloroso.\n6. Quando sugerir produto com slug, inclua o link: ${catalogBase}/produto/{slug}\n7. Para pagamento: aceite PIX, cartão ou pagamento na entrega/retirada conforme disponível.\n8. Se o cliente informar preferência clara como “flores do campo”, “rosas”, “girassol”, “cesta”, “buquê” ou orçamento, use action=search_catalog imediatamente.\n\nREGRA DE ESCOLHA / COMPRA:\nSe o cliente disser algo como \"vou querer\", \"quero esse\", \"pode ser esse\", \"vou levar\", \"fecha esse\", \"quero a cesta\", \"quero o buquê\", \"sim, esse mesmo\", \"pode montar\" ou \"pode fechar\" e houver produto claro na mensagem ou no histórico recente, a action correta é create_order_draft, não search_catalog.\n\nSe ainda precisar localizar o item no catálogo para obter item_id/preço, use search_catalog apenas como etapa técnica, mas a próxima ação do workflow deve criar o pedido rascunho automaticamente quando encontrar correspondência forte.\n\nNunca responda novamente com lista de opções quando o cliente já escolheu uma opção clara.\n\nACTIONS DISPONÍVEIS:\n- ask_info\n- search_catalog\n- create_order_draft\n- update_order_draft\n- prepare_checkout\n- parse_whatsapp_cart\n- handoff_human\n\nSTAGES PERMITIDOS:\nidentificando_necessidade, coletando_ocasiao, coletando_preferencia, coletando_orcamento, consultando_catalogo, buscando_opcoes, apresentando_opcoes, pedido_em_montagem, confirmando_pedido, coletando_entrega_ou_retirada, coletando_destinatario, coletando_mensagem_cartao, finalizando_pagamento, aguardando_pagamento, handoff, erro.\n\nQuando action=search_catalog:\n- agent_reply deve ser uma frase curta de transição, não uma pergunta.\n- Exemplo: \"Perfeito, vou separar algumas opções nesse estilo para você 🌸\"\n- A resposta final com produtos será montada após a busca no catálogo.\n\nFLUXO SUGERIDO:\n1. Entender ocasião/preferência/orçamento → buscar catálogo.\n2. Sugerir 2-3 opções com link e preço.\n3. Confirmar escolha → criar/atualizar pedido.\n4. Confirmar entrega/retirada, destinatário, endereço e mensagem no cartão.\n5. Gerar checkout → enviar link de pagamento.\n\nFORMATO DE RESPOSTA — SEMPRE JSON VÁLIDO:\n{\n  \"action\": \"search_catalog\",\n  \"agent_reply\": \"Texto da resposta para o cliente\",\n  \"agent_stage\": \"identificando_necessidade\",\n  \"search_query\": \"\",\n  \"occasion_filter\": \"dia_das_maes\",\n  \"order_id\": \"\",\n  \"order_data\": {\n    \"fulfillment_type\": \"delivery | pickup\",\n    \"recipient_name\": \"\",\n    \"gift_message\": \"\",\n    \"desired_date\": \"\",\n    \"add_items\": []\n  },\n  \"checkout_data\": {\n    \"payment_method\": \"pix | mercado_pago | pay_on_delivery | pay_on_pickup\"\n  }\n}`;\n\nconst USER_CONTEXT = `CONTEXTO DO ATENDIMENTO:\nCliente: ${customerName} | Telefone: ${phone} | ${isExisting ? 'Cliente cadastrado' : 'Novo cliente'}\nEstágio conversa: ${convStage}\n${orderContext}\nHistórico recente:\\n${historyText || '(primeira mensagem)'}\n\nMENSAGEM ATUAL DO CLIENTE:\n${enrichedInput || '(sem texto)'}`;\n\nreturn [{\n  json: {\n    ...norm,\n    system_prompt: SYSTEM_PROMPT,\n    user_context: USER_CONTEXT,\n    conversation_id: conversationId,\n    customer_id: customerId,\n    ctx_stage: convStage,\n    current_order_id: currentOrderId,\n    current_order_public_code: currentOrderCode,\n    transcription: norm.transcription || null,\n    visual_description: norm.visual_description || null,\n    human_lock: humanLock\n  }\n}];"
       },
-      "id": "af796cc8-cbb6-4c0f-bb11-ed16106928ba",
+      "id": "ed5839e1-f640-417c-887f-8da840f28fc0",
       "name": "CODE: PREPARA PROMPT | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-8272, -1032]
+      "position": [-8048, -1160]
     },
     {
       "parameters": {
@@ -576,31 +580,41 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({\n  model: 'google/gemini-2.5-flash',\n  temperature: 0.3,\n  max_tokens: 800,\n  response_format: { type: 'json_object' },\n  messages: [\n    {\n      role: 'system',\n      content: $json.system_prompt || 'Você é uma atendente virtual da Flor do Estudante. Responda sempre em JSON válido.'\n    },\n    {\n      role: 'user',\n      content: $json.user_context || 'Cliente enviou uma mensagem sem contexto.'\n    }\n  ]\n}) }}",
+        "jsonBody": "={{ JSON.stringify({ model: 'google/gemini-2.5-flash', temperature: 0.3, max_tokens: 800, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: $json.system_prompt || 'Você é uma atendente virtual da Flor do Estudante. Responda sempre em JSON válido.' }, { role: 'user', content: $json.user_context || 'Cliente enviou uma mensagem sem contexto.' }] }) }}",
         "options": {}
       },
-      "id": "55ed6b7c-f356-4f06-94af-40fd26487d52",
+      "id": "7a7ce3f6-4c98-4a6b-ab64-fd35b97c8bed",
       "name": "HTTP: OPENROUTER CHAT | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-8048, -1032],
+      "position": [-7824, -1160],
       "credentials": {
         "openRouterApi": {
           "id": "4BdzzO60z91H2fqA",
           "name": "openrouter_cloudfy"
         }
       },
-      "notes": "Uses OpenRouter HTTP for chat completions — maintains JSON mode stability. OpenRouter HTTP chosen over native OpenAI node for reliable JSON schema enforcement."
+      "notes": "Uses OpenRouter HTTP for chat completions — maintains JSON mode stability."
     },
     {
       "parameters": {
-        "jsCode": "// @ts-nocheck\n// Parse e valida resposta JSON do agente\nconst norm = $('CODE: PREPARA PROMPT | S6').item.json;\nconst llmResp = $json;\n\nconst VALID_ACTIONS = [\n  'ask_info', 'search_catalog', 'create_order_draft', 'update_order_draft',\n  'prepare_checkout', 'parse_whatsapp_cart', 'handoff_human'\n];\n\nconst VALID_STAGES = [\n  'new',\n  'smalltalk',\n  'identificando_necessidade',\n  'coletando_ocasiao',\n  'coletando_preferencia',\n  'coletando_orcamento',\n  'consultando_catalogo',\n  'buscando_opcoes',\n  'apresentando_opcoes',\n  'pedido_em_montagem',\n  'confirmando_pedido',\n  'coletando_entrega_ou_retirada',\n  'coletando_destinatario',\n  'coletando_mensagem_cartao',\n  'finalizando_pagamento',\n  'aguardando_pagamento',\n  'aguardando_confirmacao_humana',\n  'handoff',\n  'human_takeover',\n  'finalizado',\n  'erro'\n];\n\nlet parsed = null;\nlet rawContent = '';\n\ntry {\n  rawContent = llmResp.choices?.[0]?.message?.content || '{}';\n  // Try direct parse\n  try { parsed = JSON.parse(rawContent); } catch (_) {}\n  // Try extracting JSON from markdown block\n  if (!parsed) {\n    const m = rawContent.match(/```(?:json)?\\s*([\\s\\S]+?)```/);\n    if (m) { try { parsed = JSON.parse(m[1]); } catch (_) {} }\n  }\n  // Try extracting first {...}\n  if (!parsed) {\n    const m2 = rawContent.match(/\\{[\\s\\S]+\\}/);\n    if (m2) { try { parsed = JSON.parse(m2[0]); } catch (_) {} }\n  }\n} catch (e) {\n  parsed = null;\n}\n\n// Fallback if parsing failed\nif (!parsed || typeof parsed !== 'object') {\n  return [{ json: {\n    ...norm,\n    agent_action: 'ask_info',\n    agent_reply: 'Desculpe, tive um pequeno problema. Pode repetir sua mensagem? 🌸',\n    agent_stage: norm.ctx_stage || 'identificando_necessidade',\n    parse_error: true,\n    raw_content: rawContent.substring(0, 500)\n  }}];\n}\n\n// Validate and sanitize\nconst action = VALID_ACTIONS.includes(parsed.action) ? parsed.action : 'ask_info';\nconst stage = VALID_STAGES.includes(parsed.agent_stage) ? parsed.agent_stage : (norm.ctx_stage || 'identificando_necessidade');\nconst reply = (parsed.agent_reply || '').toString().trim();\n\nif (!reply && action === 'ask_info') {\n  return [{ json: {\n    ...norm,\n    agent_action: 'ask_info',\n    agent_reply: 'Olá! 🌸 Como posso te ajudar hoje?',\n    agent_stage: stage,\n    parse_error: false\n  }}];\n}\n\nreturn [{ json: {\n  ...norm,\n  agent_action: action,\n  agent_reply: reply || '(aguardando dados)',\n  agent_stage: stage,\n  search_query: parsed.search_query || '',\n  occasion_filter: parsed.occasion_filter || '',\n  order_id: parsed.order_id || norm.current_order_id || null,\n  order_data: parsed.order_data || null,\n  checkout_data: parsed.checkout_data || null,\n  parse_error: false\n}}];"
+        "jsCode": "// @ts-nocheck\nconst norm = $('CODE: PREPARA PROMPT | S6').item.json || {};\nconst llmResp = $json || {};\n\nconst VALID_ACTIONS = ['ask_info','search_catalog','create_order_draft','update_order_draft','prepare_checkout','parse_whatsapp_cart','handoff_human'];\nconst VALID_STAGES = ['new','smalltalk','identificando_necessidade','coletando_ocasiao','coletando_preferencia','coletando_orcamento','consultando_catalogo','buscando_opcoes','apresentando_opcoes','pedido_em_montagem','confirmando_pedido','coletando_entrega_ou_retirada','coletando_destinatario','coletando_mensagem_cartao','finalizando_pagamento','aguardando_pagamento','aguardando_confirmacao_humana','handoff','human_takeover','finalizado','erro'];\n\nlet parsed = null;\nlet rawContent = '';\n\ntry {\n  rawContent = llmResp.choices?.[0]?.message?.content || '{}';\n  try { parsed = JSON.parse(rawContent); } catch (_) {}\n  if (!parsed) {\n    const m = rawContent.match(/```(?:json)?\\s*([\\s\\S]+?)```/);\n    if (m) { try { parsed = JSON.parse(m[1]); } catch (_) {} }\n  }\n  if (!parsed) {\n    const m2 = rawContent.match(/\\{[\\s\\S]+\\}/);\n    if (m2) { try { parsed = JSON.parse(m2[0]); } catch (_) {} }\n  }\n} catch (e) {\n  parsed = null;\n}\n\nif (!parsed || typeof parsed !== 'object') {\n  return [{\n    json: {\n      ...norm,\n      agent_action: 'ask_info',\n      agent_reply: 'Desculpe, tive um pequeno problema. Pode repetir sua mensagem? 🌸',\n      agent_stage: norm.ctx_stage || 'identificando_necessidade',\n      parse_error: true,\n      raw_content: String(rawContent || '').substring(0, 500)\n    }\n  }];\n}\n\nconst action = VALID_ACTIONS.includes(parsed.action) ? parsed.action : 'ask_info';\nconst stage = VALID_STAGES.includes(parsed.agent_stage) ? parsed.agent_stage : (norm.ctx_stage || 'identificando_necessidade');\nconst reply = (parsed.agent_reply || '').toString().trim();\n\nif (!reply && action === 'ask_info') {\n  return [{\n    json: {\n      ...norm,\n      agent_action: 'ask_info',\n      agent_reply: 'Olá! 🌸 Como posso te ajudar hoje?',\n      agent_stage: stage,\n      parse_error: false\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    ...norm,\n    agent_action: action,\n    agent_reply: reply || '(aguardando dados)',\n    agent_stage: stage,\n    search_query: parsed.search_query || '',\n    occasion_filter: parsed.occasion_filter || '',\n    order_id: parsed.order_id || norm.current_order_id || null,\n    order_data: parsed.order_data || null,\n    checkout_data: parsed.checkout_data || null,\n    parse_error: false\n  }\n}];"
       },
-      "id": "68ba8489-36cf-4f5d-ba39-105d09d2b656",
+      "id": "10b05817-10c8-4943-9693-840fd12a4811",
       "name": "CODE: PARSE JSON AGENTE | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-7824, -1032]
+      "position": [-7600, -1160]
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\nconst parsed = $json || {};\nconst norm = $('NORMALIZA PAYLOAD WHATSAPP | S6').first().json || {};\n\nconst msg = String(norm.message_text_normalized || norm.message_text || '')\n  .toLowerCase()\n  .normalize('NFD')\n  .replace(/[\\u0300-\\u036f]/g, '')\n  .trim();\n\nconst stage = String(parsed.agent_stage || parsed.ctx_stage || '').toLowerCase();\n\nconst strongBuyIntent = /\\b(vou querer|vou levar|pode ser|pode montar|pode fechar|fecha esse|fechar esse|esse mesmo|essa mesmo|escolho|fico com|manda esse|manda essa)\\b/i.test(msg);\nconst weakBuyIntent = /\\b(quero|queria)\\b/i.test(msg);\nconst hasProductHint = /\\b(cesta|cafe da manha|buque|rosas|girassol|arranjo)\\b/i.test(msg);\nconst isChoosingFromOptions = ['apresentando_opcoes', 'buscando_opcoes', 'consultando_catalogo'].includes(stage);\n\nconst shouldCreateOrder = hasProductHint && (strongBuyIntent || (weakBuyIntent && isChoosingFromOptions));\n\nlet cleanQuery = msg\n  .replace(/\\b(sim|por favor|obrigado|obrigada|vou querer|vou levar|quero|queria|pode ser|pode montar|pode fechar|fecha esse|fechar esse|esse mesmo|essa mesmo|escolho|fico com|manda esse|manda essa)\\b/gi, ' ')\n  .replace(/\\b(a|o|um|uma|de|da|do|para|pra)\\b/gi, ' ')\n  .replace(/[^\\p{L}\\p{N}\\s]/gu, ' ')\n  .replace(/\\s+/g, ' ')\n  .trim();\n\nif (!cleanQuery && parsed.search_query) cleanQuery = String(parsed.search_query).trim();\n\nif (shouldCreateOrder) {\n  return [{\n    json: {\n      ...parsed,\n      agent_action: 'search_catalog',\n      agent_stage: 'pedido_em_montagem',\n      agent_reply: 'Perfeito, vou montar esse pedido para você 🌸',\n      search_query: cleanQuery || parsed.search_query || norm.message_text || '',\n      occasion_filter: parsed.occasion_filter || 'dia_das_maes',\n      force_create_order_after_catalog: true,\n      detected_buy_intent: true\n    }\n  }];\n}\n\nreturn [{ json: { ...parsed, force_create_order_after_catalog: false, detected_buy_intent: false } }];"
+      },
+      "id": "47d2eda7-b1cf-4512-bd1d-586edd4d12c7",
+      "name": "CODE: DETECTA ESCOLHA DE PRODUTO | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-7376, -1160]
     },
     {
       "parameters": {
@@ -744,11 +758,11 @@
           "fallbackOutput": "extra"
         }
       },
-      "id": "72d03c78-26b5-4bda-9298-2d9791b168a7",
+      "id": "17e9a4dc-ee63-4625-ba04-d7f72ae4c4fa",
       "name": "SWITCH ACTION | S6",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3,
-      "position": [-7600, -1112]
+      "position": [-7152, -1240]
     },
     {
       "parameters": {
@@ -774,29 +788,15 @@
           ]
         },
         "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "p_query",
-              "value": "={{ $json.search_query || $json.message_text || '' }}"
-            },
-            {
-              "name": "p_occasion",
-              "value": "={{ $json.occasion_filter || 'dia_das_maes' }}"
-            },
-            {
-              "name": "p_limit",
-              "value": "5"
-            }
-          ]
-        },
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ p_query: $json.search_query || $json.message_text || '', p_occasion: $json.occasion_filter || 'dia_das_maes', p_limit: 5 }) }}",
         "options": {}
       },
-      "id": "fba95bf4-cc92-4750-b9c3-ebd9a1a159e8",
+      "id": "9349aba1-d44a-4b8e-8bde-b2890d0de9a0",
       "name": "HTTP: SEARCH CATALOG | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-7376, -1608],
+      "position": [-6928, -1688],
       "credentials": {
         "supabaseApi": {
           "id": "r7bNEcAkh4eOhoad",
@@ -807,13 +807,13 @@
     },
     {
       "parameters": {
-        "jsCode": "// @ts-nocheck\n// Formata resultado do catálogo com links e imagens\nconst agentCtx = $('CODE: PARSE JSON AGENTE | S6').item.json;\nconst catalogResp = $json;\n\nconst catalogBase = $vars.CATALOG_BASE_URL || 'https://floricultura.vercel.app';\n\nlet products = [];\nif (Array.isArray(catalogResp)) products = catalogResp;\nelse if (Array.isArray(catalogResp.items)) products = catalogResp.items;\nelse if (Array.isArray(catalogResp.products)) products = catalogResp.products;\n\nif (products.length === 0) {\n  return [{ json: {\n    ...agentCtx,\n    agent_reply: 'Não encontrei produtos específicos para essa busca agora. Posso sugerir alguns dos nossos arranjos mais pedidos para o Dia das Mães? 🌸',\n    catalog_results: [],\n    has_catalog_images: false\n  }}];\n}\n\n// Build catalog reply text\nlet replyText = agentCtx.agent_reply || 'Veja as opções que encontrei:\\n';\nconst imageProducts = products.filter(p => p.cover_image_url);\n\nif (!replyText.includes('R$') && products.length > 0) {\n  const lines = products.slice(0, 3).map((p, i) => {\n    const url = `${catalogBase}/produto/${p.slug || ''}`;\n    const price = p.price ? `R$ ${parseFloat(p.price).toFixed(2).replace('.', ',')}` : '';\n    const label = i === 0 ? '🌸' : i === 1 ? '💐' : '🌺';\n    return `${label} *${p.name}*${price ? ' — ' + price : ''}\\n${p.short_description || ''}\\n${url}`;\n  });\n  replyText = (agentCtx.agent_reply || 'Encontrei estas opções para você:') + '\\n\\n' + lines.join('\\n\\n');\n}\n\nreturn [{ json: {\n  ...agentCtx,\n  agent_reply: replyText,\n  catalog_results: products,\n  has_catalog_images: imageProducts.length > 0,\n  first_image_product: imageProducts[0] || null,\n  catalog_base: catalogBase\n}}];"
+        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: DETECTA ESCOLHA DE PRODUTO | S6').first().json || {};\nconst inputItems = $input.all();\nconst catalogBase = String($vars.CATALOG_BASE_URL || 'https://flordoestudante-floricultura-web.vercel.app').replace(/\\/+$/, '');\n\nlet products = [];\nfor (const item of inputItems) {\n  const d = item.json;\n  if (!d || d.error) continue;\n  if (Array.isArray(d)) { products.push(...d); continue; }\n  if (Array.isArray(d.items)) { products.push(...d.items); continue; }\n  if (Array.isArray(d.products)) { products.push(...d.products); continue; }\n  if (Array.isArray(d.catalog_items)) { products.push(...d.catalog_items); continue; }\n  if (d.name || d.slug || d.item_id || d.id) products.push(d);\n}\n\nconst seen = new Set();\nproducts = products.filter((p) => {\n  const key = String(p.item_id || p.id || p.slug || p.name || '');\n  if (!key || seen.has(key)) return false;\n  seen.add(key);\n  return true;\n});\n\nproducts.sort((a, b) => {\n  const scoreA = Number(a.match_score || 0);\n  const scoreB = Number(b.match_score || 0);\n  if (scoreB !== scoreA) return scoreB - scoreA;\n  const imgA = a.cover_image_url ? 1 : 0;\n  const imgB = b.cover_image_url ? 1 : 0;\n  if (imgB !== imgA) return imgB - imgA;\n  return Number(a.price || 999999) - Number(b.price || 999999);\n});\n\nconst topProducts = products.slice(0, 3);\nconst sourceText = String($('NORMALIZA PAYLOAD WHATSAPP | S6').first().json.message_text_normalized || $('NORMALIZA PAYLOAD WHATSAPP | S6').first().json.message_text || '')\n  .toLowerCase()\n  .normalize('NFD')\n  .replace(/[\\u0300-\\u036f]/g, '');\n\nfunction normalizeText(value) {\n  return String(value || '').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').trim();\n}\n\nfunction productMatchesMessage(product) {\n  const name = normalizeText(product.name);\n  const slug = normalizeText(product.slug).replace(/-/g, ' ');\n  if (!name && !slug) return false;\n  return sourceText.includes(name) || sourceText.includes(slug) || (name.includes('cesta') && sourceText.includes('cesta')) || (name.includes('cafe') && sourceText.includes('cafe'));\n}\n\nconst selectedProduct = topProducts.find(productMatchesMessage) || topProducts[0] || null;\n\nif (agentCtx.force_create_order_after_catalog && selectedProduct) {\n  const price = Number(selectedProduct.price || 0);\n  return [{\n    json: {\n      ...agentCtx,\n      agent_action: 'create_order_draft',\n      agent_stage: 'pedido_em_montagem',\n      selected_product: selectedProduct,\n      selected_product_id: selectedProduct.item_id || selectedProduct.id,\n      selected_product_name: selectedProduct.name,\n      catalog_results: [selectedProduct],\n      all_catalog_results: products,\n      has_catalog_images: Boolean(selectedProduct.cover_image_url),\n      first_image_product: selectedProduct.cover_image_url ? selectedProduct : null,\n      order_data: {\n        occasion: agentCtx.occasion_filter || 'dia_das_maes',\n        source: 'whatsapp_agent',\n        items: [{\n          item_type: selectedProduct.item_type || 'product',\n          item_id: selectedProduct.item_id || selectedProduct.id,\n          product_id: selectedProduct.item_type === 'product' ? (selectedProduct.item_id || selectedProduct.id) : null,\n          addon_id: selectedProduct.item_type === 'addon' ? (selectedProduct.item_id || selectedProduct.id) : null,\n          name: selectedProduct.name,\n          slug: selectedProduct.slug,\n          quantity: 1,\n          unit_price: price,\n          total_price: price\n        }]\n      },\n      agent_reply: `Perfeito, vou montar o pedido da *${selectedProduct.name}* para o Dia das Mães 🌸\\n\\nPara continuar, você prefere *entrega* ou *retirada na loja*?`\n    }\n  }];\n}\n\nconst imageProducts = topProducts.filter(p => p.cover_image_url);\n\nfunction formatPrice(value) {\n  const num = Number(value || 0);\n  if (!num) return '';\n  return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });\n}\n\nif (topProducts.length === 0) {\n  return [{\n    json: {\n      ...agentCtx,\n      agent_action: agentCtx.agent_action || 'ask_info',\n      agent_stage: agentCtx.agent_stage || 'buscando_opcoes',\n      agent_reply: 'Não encontrei uma opção exata para essa busca agora, mas posso te mostrar algumas sugestões para o Dia das Mães 🌸',\n      catalog_results: [],\n      has_catalog_images: false,\n      first_image_product: null,\n      catalog_base: catalogBase,\n      catalog_count: 0\n    }\n  }];\n}\n\nconst lines = topProducts.map((p, i) => {\n  const label = i === 0 ? '🌸' : i === 1 ? '💐' : '🌷';\n  const price = formatPrice(p.price);\n  const url = p.slug ? `${catalogBase}/produto/${p.slug}` : '';\n  const description = p.short_description || p.description || '';\n  return [`${label} *${p.name || 'Produto'}*${price ? ' — ' + price : ''}`, description || '', url ? `🔗 ${url}` : ''].filter(Boolean).join('\\n');\n});\n\nconst intro = agentCtx.agent_reply && !agentCtx.agent_reply.includes('Não encontrei') ? agentCtx.agent_reply : 'Encontrei algumas opções para o Dia das Mães 🌸';\nconst replyText = `${intro}\\n\\n${lines.join('\\n\\n')}\\n\\nGostou de alguma dessas opções?`;\n\nreturn [{\n  json: {\n    ...agentCtx,\n    agent_action: 'search_catalog',\n    agent_stage: 'apresentando_opcoes',\n    agent_reply: replyText,\n    catalog_results: topProducts,\n    all_catalog_results: products,\n    has_catalog_images: imageProducts.length > 0,\n    first_image_product: imageProducts[0] || null,\n    catalog_base: catalogBase,\n    catalog_count: products.length\n  }\n}];"
       },
-      "id": "cf75d853-8f07-4592-89b5-d30ac0d8ed8f",
+      "id": "2e761628-a4b4-4818-a4fb-30af029db14b",
       "name": "CODE: FORMATA CATÁLOGO | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-7152, -1608]
+      "position": [-6704, -1688]
     },
     {
       "parameters": {
@@ -822,12 +822,12 @@
             "caseSensitive": true,
             "leftValue": "",
             "typeValidation": "strict",
-            "version": 1
+            "version": 3
           },
           "conditions": [
             {
-              "id": "has-image",
-              "leftValue": "={{ $json.has_catalog_images }}",
+              "id": "41d98b1e-ef7f-4cc8-a87e-b4bd74c5a677",
+              "leftValue": "={{ $json.agent_action === 'create_order_draft' || $json.force_create_order_after_catalog === true }}",
               "rightValue": true,
               "operator": {
                 "type": "boolean",
@@ -839,74 +839,51 @@
         },
         "options": {}
       },
-      "id": "aa35ff19-b147-42f9-9860-835c07cb614a",
-      "name": "IF: ENVIA IMAGEM CATÁLOGO? | S6",
+      "id": "1e8e6adb-83a7-49b2-81d7-e25b59185b9d",
+      "name": "É PEDIDO RASCUNHO?",
       "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
-      "position": [-6928, -1608]
+      "typeVersion": 2.3,
+      "position": [-6480, -1688]
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "https://cheatingbat-evolution.cloudfy.live/message/sendImage/julia",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "evolutionApi",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [{}]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
+        "jsCode": "// @ts-nocheck\nconst ctx = $json || {};\n\nfunction money(value) {\n  return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });\n}\n\nconst selected = ctx.selected_product || (Array.isArray(ctx.catalog_results) ? ctx.catalog_results[0] : null) || ctx.first_image_product || null;\n\nif (!selected) {\n  return [{\n    json: {\n      ...ctx,\n      agent_action: 'ask_info',\n      agent_stage: 'buscando_opcoes',\n      agent_reply: 'Perfeito! Só preciso confirmar qual produto você escolheu para montar o pedido 🌸',\n      order_data: ctx.order_data || {},\n      suggested_addons: [],\n      can_create_order: false\n    }\n  }];\n}\n\nconst allResults = Array.isArray(ctx.all_catalog_results) ? ctx.all_catalog_results : Array.isArray(ctx.catalog_results) ? ctx.catalog_results : [];\n\nconst suggestedAddons = allResults\n  .filter((item) => {\n    if (!item || item.item_type !== 'addon' || !item.name) return false;\n    const name = String(item.name).toLowerCase();\n    return name.includes('cart') || name.includes('chocolate') || name.includes('vela') || name.includes('pelúcia') || name.includes('pelucia') || name.includes('urso') || name.includes('balão') || name.includes('balao');\n  })\n  .slice(0, 3)\n  .map((item) => ({\n    item_type: item.item_type || 'addon',\n    item_id: item.item_id || item.id,\n    addon_id: item.item_id || item.id,\n    name: item.name,\n    slug: item.slug,\n    quantity: 1,\n    unit_price: Number(item.price || 0),\n    total_price: Number(item.price || 0),\n    short_description: item.short_description || item.description || ''\n  }));\n\nconst unitPrice = Number(selected.price || 0);\n\nconst primaryItem = {\n  item_type: selected.item_type || 'product',\n  item_id: selected.item_id || selected.id,\n  product_id: selected.item_type === 'product' ? (selected.item_id || selected.id) : null,\n  addon_id: selected.item_type === 'addon' ? (selected.item_id || selected.id) : null,\n  name: selected.name,\n  slug: selected.slug,\n  quantity: 1,\n  unit_price: unitPrice,\n  total_price: unitPrice,\n  short_description: selected.short_description || selected.description || ''\n};\n\nconst orderData = {\n  ...(ctx.order_data || {}),\n  occasion: ctx.order_data?.occasion || ctx.occasion_filter || 'dia_das_maes',\n  is_gift: ctx.order_data?.is_gift ?? true,\n  fulfillment_type: ctx.order_data?.fulfillment_type || null,\n  items: [primaryItem],\n  suggested_addons: suggestedAddons,\n  selected_product: {\n    id: selected.id,\n    item_id: selected.item_id || selected.id,\n    item_type: selected.item_type,\n    name: selected.name,\n    slug: selected.slug,\n    price: unitPrice,\n    cover_image_url: selected.cover_image_url || ''\n  }\n};\n\nreturn [{\n  json: {\n    ...ctx,\n    agent_action: 'create_order_draft',\n    agent_stage: 'pedido_em_montagem',\n    selected_product: selected,\n    selected_product_id: selected.item_id || selected.id,\n    selected_product_name: selected.name,\n    order_data: orderData,\n    suggested_addons: suggestedAddons,\n    can_create_order: true,\n    order_summary_preview: {\n      product_name: selected.name,\n      product_price: money(unitPrice),\n      suggested_addons: suggestedAddons.map(a => ({ name: a.name, price: money(a.unit_price) }))\n    }\n  }\n}];"
+      },
+      "id": "3ec5de2d-8796-4f3b-bfb5-6682d9ffe0bc",
+      "name": "CODE: PREPARA ORDER DRAFT | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-6256, -1448]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
             {
-              "name": "number",
-              "value": "={{ $json.phone_normalized }}"
-            },
-            {
-              "name": "mediatype",
-              "value": "image"
-            },
-            {
-              "name": "mimetype",
-              "value": "image/jpeg"
-            },
-            {
-              "name": "media",
-              "value": "={{ $json.first_image_product.cover_image_url }}"
-            },
-            {
-              "name": "caption",
-              "value": "={{ $json.agent_reply }}"
-            },
-            {
-              "name": "fileName",
-              "value": "produto.jpg"
+              "id": "can-create-order",
+              "leftValue": "={{ $json.can_create_order === true && Array.isArray($json.order_data?.items) && $json.order_data.items.length > 0 }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
             }
-          ]
+          ],
+          "combinator": "and"
         },
         "options": {}
       },
-      "id": "78759c0c-9ef7-4c30-81a2-e4b2202af3bc",
-      "name": "HTTP: EVOLUTION SEND IMAGE | S6",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [-6704, -1680],
-      "credentials": {
-        "evolutionApi": {
-          "id": "hUhH7ahIVjr2lysL",
-          "name": "evolution_cloudfy"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "// @ts-nocheck\nconst src = $('CODE: FORMATA CATÁLOGO | S6').item.json;\nreturn [{ json: { ...src, image_sent: true } }];"
-      },
-      "id": "4e2ac40f-61ec-4f31-bd61-041b01790f9b",
-      "name": "CODE: MERGE CATALOG | S6",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [-6480, -1608]
+      "id": "0ca363f6-f1a7-41d8-8da3-b754a47ca3af",
+      "name": "IF: TEM ITEM PARA PEDIDO? | S6",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [-6032, -1448]
     },
     {
       "parameters": {
@@ -932,49 +909,15 @@
           ]
         },
         "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "p_customer_id",
-              "value": "={{ $json.customer_id }}"
-            },
-            {
-              "name": "p_conversation_id",
-              "value": "={{ $json.conversation_id }}"
-            },
-            {
-              "name": "p_fulfillment_type",
-              "value": "={{ $json.order_data?.fulfillment_type || 'pickup' }}"
-            },
-            {
-              "name": "p_occasion",
-              "value": "={{ $json.order_data?.occasion || 'dia_das_maes' }}"
-            },
-            {
-              "name": "p_items",
-              "value": "={{ JSON.stringify($json.order_data?.items || []) }}"
-            },
-            {
-              "name": "p_recipient_name",
-              "value": "={{ $json.order_data?.recipient_name || '' }}"
-            },
-            {
-              "name": "p_is_gift",
-              "value": "={{ $json.order_data?.is_gift || false }}"
-            },
-            {
-              "name": "p_gift_message",
-              "value": "={{ $json.order_data?.gift_message || '' }}"
-            }
-          ]
-        },
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ p_customer_id: $json.customer_id, p_conversation_id: $json.conversation_id, p_fulfillment_type: $json.order_data?.fulfillment_type || null, p_occasion: $json.order_data?.occasion || 'dia_das_maes', p_items: $json.order_data?.items || [], p_recipient_name: $json.order_data?.recipient_name || null, p_is_gift: $json.order_data?.is_gift ?? true, p_gift_message: $json.order_data?.gift_message || null }) }}",
         "options": {}
       },
-      "id": "399cede5-7ebd-40a2-b8a7-b9bb34fd4512",
+      "id": "08be3088-91ec-4be9-a0c0-64c8740ebcfa",
       "name": "HTTP: CREATE ORDER DRAFT | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-6704, -1368],
+      "position": [-5808, -1592],
       "credentials": {
         "supabaseApi": {
           "id": "r7bNEcAkh4eOhoad",
@@ -984,18 +927,91 @@
     },
     {
       "parameters": {
-        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: PARSE JSON AGENTE | S6').item.json;\nconst result = $json;\nconst catalogBase = $vars.CATALOG_BASE_URL || 'https://floricultura.vercel.app';\n\nlet reply = agentCtx.agent_reply;\nif (result.ok && result.public_code) {\n  const orderUrl = `${catalogBase}/pedido/${result.public_code}`;\n  reply += `\\n\\n🛒 Pedido criado! Código: *${result.public_code}*\\nAcompanhe aqui: ${orderUrl}`;\n}\n\nreturn [{ json: {\n  ...agentCtx,\n  agent_reply: reply,\n  created_order_id: result.order_id || null,\n  created_order_code: result.public_code || null\n}}];"
+        "jsCode": "// @ts-nocheck\nconst ctx = $('CODE: PREPARA ORDER DRAFT | S6').first().json || {};\nconst res = $json || {};\n\nfunction money(value) {\n  return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });\n}\n\nconst selected = ctx.selected_product || ctx.order_data?.selected_product || {};\nconst addons = Array.isArray(ctx.suggested_addons) ? ctx.suggested_addons : [];\n\nconst orderId = res.order_id || res.id || res.order?.id || ctx.order_id || null;\nconst publicCode = res.public_code || res.order_public_code || res.order?.public_code || ctx.public_code || null;\n\nlet addonText = '';\nif (addons.length > 0) {\n  const addonList = addons.slice(0, 3).map((a) => `*${a.name}* (${money(a.unit_price)})`).join(', ');\n  addonText = `\\n\\nSe quiser deixar o presente ainda mais especial, também posso incluir ${addonList}.`;\n}\n\nconst productName = selected.name || ctx.selected_product_name || 'esse produto';\nconst productPrice = selected.price ? ` — ${money(selected.price)}` : '';\n\nconst reply = [\n  `Perfeito! Já montei o pedido da *${productName}*${productPrice} para o Dia das Mães 🌸`,\n  addonText,\n  `\\n\\nAgora me diga: você prefere *entrega* ou *retirada na loja*?`\n].join('');\n\nreturn [{\n  json: {\n    ...ctx,\n    ...res,\n    order_id: orderId,\n    public_code: publicCode,\n    agent_action: 'update_order_draft',\n    agent_stage: 'coletando_entrega_ou_retirada',\n    agent_reply: reply,\n    order_data: { ...(ctx.order_data || {}), order_id: orderId, public_code: publicCode },\n    suggested_addons: addons,\n    selected_product: selected\n  }\n}];"
       },
-      "id": "15f26295-25f0-4cbe-bce6-c12dc1579631",
-      "name": "CODE: MERGE CREATE ORDER | S6",
+      "id": "a04cad2e-0f80-44bb-aa77-53c07d016b4a",
+      "name": "CODE: RESOLVE ORDER DRAFT REPLY | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-6480, -1368]
+      "position": [-5584, -1592]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "has-image",
+              "leftValue": "={{ $json.has_catalog_images }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e1c68567-2a0d-4a43-8c8f-e7b12936f1b7",
+      "name": "IF: ENVIA IMAGEM CATÁLOGO? | S6",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-6032, -1784]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/search_ready_catalog_for_agent",
+        "url": "https://cheatingbat-evolution.cloudfy.live/message/sendMedia/julia",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "evolutionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ number: $json.phone_normalized, mediatype: 'image', mimetype: 'image/jpeg', media: $json.first_image_product && $json.first_image_product.cover_image_url ? $json.first_image_product.cover_image_url : '', caption: $json.first_image_product && $json.first_image_product.name ? $json.first_image_product.name : 'Opção da Flor do Estudante 🌸', fileName: (($json.first_image_product && $json.first_image_product.slug) ? $json.first_image_product.slug : 'produto') + '.jpg' }) }}",
+        "options": {}
+      },
+      "id": "e7c30346-0c6f-4c81-a022-21eb42517ac6",
+      "name": "HTTP: EVOLUTION SEND IMAGE | S6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-5808, -1904],
+      "credentials": {
+        "evolutionApi": {
+          "id": "hUhH7ahIVjr2lysL",
+          "name": "evolution_cloudfy"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\nconst src = $('CODE: FORMATA CATÁLOGO | S6').item.json || {};\nconst imageWasAttempted = Boolean(src.has_catalog_images && src.first_image_product?.cover_image_url);\n\nreturn [{\n  json: {\n    ...src,\n    image_attempted: imageWasAttempted,\n    image_sent: imageWasAttempted\n  }\n}];"
+      },
+      "id": "558a54e5-b8dd-4757-8187-3becb630a942",
+      "name": "CODE: MERGE CATALOG | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-5584, -1784]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/flor_update_order_draft",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
         "sendHeaders": true,
@@ -1016,49 +1032,15 @@
           ]
         },
         "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "p_order_id",
-              "value": "={{ $json.order_id }}"
-            },
-            {
-              "name": "p_fulfillment_type",
-              "value": "={{ $json.order_data?.fulfillment_type || null }}"
-            },
-            {
-              "name": "p_recipient_name",
-              "value": "={{ $json.order_data?.recipient_name || null }}"
-            },
-            {
-              "name": "p_is_gift",
-              "value": "={{ $json.order_data?.is_gift || null }}"
-            },
-            {
-              "name": "p_gift_message",
-              "value": "={{ $json.order_data?.gift_message || null }}"
-            },
-            {
-              "name": "p_occasion",
-              "value": "={{ $json.order_data?.occasion || null }}"
-            },
-            {
-              "name": "p_desired_date",
-              "value": "={{ $json.order_data?.desired_date || null }}"
-            },
-            {
-              "name": "p_add_items",
-              "value": "={{ JSON.stringify($json.order_data?.add_items || null) }}"
-            }
-          ]
-        },
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ p_order_id: $json.order_id || $json.order_data?.order_id || $json.current_order_id || null, p_fulfillment_type: $json.order_data?.fulfillment_type || null, p_recipient_name: $json.order_data?.recipient_name || null, p_is_gift: $json.order_data?.is_gift ?? null, p_gift_message: $json.order_data?.gift_message || null, p_occasion: $json.order_data?.occasion || null, p_desired_date: $json.order_data?.desired_date || null, p_add_items: $json.order_data?.add_items || [] }) }}",
         "options": {}
       },
-      "id": "959dfa29-92be-4f74-91dc-fae0cdd70c79",
+      "id": "8c36cb03-9f39-4173-a4a7-f0b7c8dfac64",
       "name": "HTTP: UPDATE ORDER DRAFT | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-6704, -1176],
+      "position": [-5808, -1304],
       "credentials": {
         "supabaseApi": {
           "id": "r7bNEcAkh4eOhoad",
@@ -1068,18 +1050,18 @@
     },
     {
       "parameters": {
-        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: PARSE JSON AGENTE | S6').item.json;\nconst result = $json;\nreturn [{ json: {\n  ...agentCtx,\n  agent_reply: result.ok === false\n    ? agentCtx.agent_reply + '\\n_(houve um problema ao atualizar o pedido, vamos continuar)_'\n    : agentCtx.agent_reply\n}}];"
+        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: DETECTA ESCOLHA DE PRODUTO | S6').first().json || {};\nconst result = $json || {};\n\nreturn [{\n  json: {\n    ...agentCtx,\n    ...result,\n    order_id: result.order_id || agentCtx.order_id || agentCtx.order_data?.order_id || null,\n    public_code: result.public_code || agentCtx.public_code || agentCtx.order_data?.public_code || null,\n    agent_reply: result.ok === false\n      ? (agentCtx.agent_reply || 'Certo 🌸') + '\\n_(houve um problema ao atualizar o pedido, vamos continuar)_'\n      : (agentCtx.agent_reply || 'Perfeito, atualizei o pedido por aqui 🌸'),\n    agent_action: 'update_order_draft',\n    agent_stage: agentCtx.agent_stage || 'pedido_em_montagem'\n  }\n}];"
       },
-      "id": "fd301937-73ad-49f6-9246-3f079448de1f",
+      "id": "8bd42825-4ec6-47c2-acd9-7d40abb89ca5",
       "name": "CODE: MERGE UPDATE ORDER | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-6480, -1176]
+      "position": [-5584, -1304]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/search_ready_catalog_for_agent",
+        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/flor_parse_whatsapp_cart",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
         "sendHeaders": true,
@@ -1100,25 +1082,15 @@
           ]
         },
         "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "p_phone_normalized",
-              "value": "={{ $json.phone_normalized }}"
-            },
-            {
-              "name": "p_cart_payload",
-              "value": "={{ JSON.stringify($json.full_payload?.data?.message?.orderMessage || $json.full_payload?.data?.message || {}) }}"
-            }
-          ]
-        },
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ p_phone_normalized: $json.phone_normalized, p_cart_payload: $json.full_payload?.data?.message?.orderMessage || $json.full_payload?.data?.message || {} }) }}",
         "options": {}
       },
-      "id": "b4e8f81a-085f-4e89-bc27-d09b7df064dc",
+      "id": "3ee400ae-6c32-4cfd-b54b-6651c60be5e5",
       "name": "HTTP: PARSE CART | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-6704, -888],
+      "position": [-5808, -1016],
       "credentials": {
         "supabaseApi": {
           "id": "r7bNEcAkh4eOhoad",
@@ -1128,18 +1100,18 @@
     },
     {
       "parameters": {
-        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: PARSE JSON AGENTE | S6').item.json;\nconst result = $json;\nconst matchedCount = result.items?.filter(i => i.matched)?.length || 0;\nconst totalCount = result.item_count || 0;\nreturn [{ json: {\n  ...agentCtx,\n  cart_batch_id: result.batch_id || null,\n  cart_matched: matchedCount,\n  cart_total: totalCount,\n  agent_reply: matchedCount > 0\n    ? agentCtx.agent_reply\n    : agentCtx.agent_reply + '\\n\\nIdentifiquei os itens do seu carrinho. Posso confirmar o pedido?'\n}}];"
+        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: DETECTA ESCOLHA DE PRODUTO | S6').first().json || {};\nconst result = $json || {};\nconst matchedCount = result.items?.filter(i => i.matched)?.length || 0;\nconst totalCount = result.item_count || result.items?.length || 0;\n\nreturn [{\n  json: {\n    ...agentCtx,\n    ...result,\n    cart_batch_id: result.batch_id || null,\n    cart_matched: matchedCount,\n    cart_total: totalCount,\n    agent_action: 'parse_whatsapp_cart',\n    agent_stage: 'confirmando_pedido',\n    agent_reply: matchedCount > 0\n      ? (agentCtx.agent_reply || 'Identifiquei os itens do seu carrinho. Posso confirmar o pedido?')\n      : (agentCtx.agent_reply || 'Identifiquei os itens do seu carrinho.') + '\\n\\nPosso confirmar o pedido?'\n  }\n}];"
       },
-      "id": "ca31f871-d0ac-425d-b016-6e1dac71b606",
+      "id": "8f5ca54f-615a-44cb-8aee-48447844ef8a",
       "name": "CODE: MERGE CART | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-6480, -888]
+      "position": [-5584, -1016]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/search_ready_catalog_for_agent",
+        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/flor_prepare_checkout",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
         "sendHeaders": true,
@@ -1160,29 +1132,15 @@
           ]
         },
         "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "p_order_id",
-              "value": "={{ $json.order_id }}"
-            },
-            {
-              "name": "p_payment_method",
-              "value": "={{ $json.checkout_data?.payment_method || null }}"
-            },
-            {
-              "name": "p_catalog_base_url",
-              "value": "={{ $vars.CATALOG_BASE_URL }}"
-            }
-          ]
-        },
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ p_order_id: $json.order_id || $json.order_data?.order_id || $json.current_order_id || null, p_payment_method: $json.checkout_data?.payment_method || null, p_catalog_base_url: String($vars.CATALOG_BASE_URL || 'https://flordoestudante-floricultura-web.vercel.app').replace(/\\/+$/, '') }) }}",
         "options": {}
       },
-      "id": "c5559ca2-69d1-44e0-976d-fa5d4c3b956d",
+      "id": "8b448858-fe0e-4473-9af4-86dfa456e23c",
       "name": "HTTP: PREPARE CHECKOUT | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-6704, -696],
+      "position": [-5808, -824],
       "credentials": {
         "supabaseApi": {
           "id": "r7bNEcAkh4eOhoad",
@@ -1192,18 +1150,18 @@
     },
     {
       "parameters": {
-        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: PARSE JSON AGENTE | S6').item.json;\nconst result = $json;\n\nif (!result.ok) {\n  return [{ json: {\n    ...agentCtx,\n    agent_reply: agentCtx.agent_reply + '\\n\\n_(Houve um erro ao gerar o link de pagamento. Entre em contato conosco.)_',\n    checkout_ok: false\n  }}];\n}\n\nconst checkoutUrl = result.checkout_url || '';\nconst summary = result.order_summary_text || '';\n\nconst replyLines = [\n  agentCtx.agent_reply || summary,\n  '',\n  summary !== agentCtx.agent_reply ? summary : '',\n  '',\n  `💳 *Link de pagamento:*\\n${checkoutUrl}`,\n  '',\n  'Após o pagamento, seu pedido será confirmado. Qualquer dúvida, é só chamar! 🌸'\n].filter(l => l !== null && l !== undefined);\n\nreturn [{ json: {\n  ...agentCtx,\n  agent_reply: replyLines.join('\\n').replace(/\\n{3,}/g, '\\n\\n').trim(),\n  checkout_url: checkoutUrl,\n  checkout_ok: true,\n  agent_stage: 'finalizando_pagamento'\n}}];"
+        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: DETECTA ESCOLHA DE PRODUTO | S6').first().json || {};\nconst result = $json || {};\n\nif (!result.ok) {\n  return [{\n    json: {\n      ...agentCtx,\n      ...result,\n      agent_reply: (agentCtx.agent_reply || '') + '\\n\\n_(Houve um erro ao gerar o link de pagamento. Entre em contato conosco.)_',\n      checkout_ok: false,\n      agent_stage: 'erro'\n    }\n  }];\n}\n\nconst checkoutUrl = result.checkout_url || '';\nconst summary = result.order_summary_text || '';\n\nconst replyLines = [\n  agentCtx.agent_reply || summary,\n  '',\n  summary !== agentCtx.agent_reply ? summary : '',\n  '',\n  checkoutUrl ? `💳 *Link de pagamento:*\\n${checkoutUrl}` : '',\n  '',\n  'Após o pagamento, seu pedido será confirmado. Qualquer dúvida, é só chamar! 🌸'\n].filter(l => l !== null && l !== undefined && l !== '');\n\nreturn [{\n  json: {\n    ...agentCtx,\n    ...result,\n    agent_reply: replyLines.join('\\n').replace(/\\n{3,}/g, '\\n\\n').trim(),\n    checkout_url: checkoutUrl,\n    checkout_ok: true,\n    agent_action: 'prepare_checkout',\n    agent_stage: 'finalizando_pagamento',\n    public_code: result.public_code || agentCtx.public_code || null\n  }\n}];"
       },
-      "id": "bbd4281a-1279-4921-ada7-b0a79a7d37b8",
+      "id": "fd43e994-8d42-4203-a52f-fbf51f1640f2",
       "name": "CODE: MERGE CHECKOUT | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-6480, -696]
+      "position": [-5584, -824]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/search_ready_catalog_for_agent",
+        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/flor_trigger_handoff",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
         "sendHeaders": true,
@@ -1224,33 +1182,15 @@
           ]
         },
         "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "p_conversation_id",
-              "value": "={{ $json.conversation_id }}"
-            },
-            {
-              "name": "p_reason",
-              "value": "={{ $json.agent_action === 'handoff_human' ? 'requested_by_customer' : 'agent_decision' }}"
-            },
-            {
-              "name": "p_agent_note",
-              "value": "={{ $json.agent_reply?.substring(0, 200) || '' }}"
-            },
-            {
-              "name": "p_customer_id",
-              "value": "={{ $json.customer_id || null }}"
-            }
-          ]
-        },
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ p_conversation_id: $json.conversation_id, p_reason: $json.agent_action === 'handoff_human' ? 'requested_by_customer' : 'agent_decision', p_agent_note: ($json.agent_reply || '').substring(0, 200), p_customer_id: $json.customer_id || null }) }}",
         "options": {}
       },
-      "id": "86644f64-18f1-4f81-b23d-e4fdab647d6d",
+      "id": "674ba3b0-8a92-4205-b8a8-7f96b8734805",
       "name": "HTTP: TRIGGER HANDOFF | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-6928, -504],
+      "position": [-6032, -632],
       "credentials": {
         "supabaseApi": {
           "id": "r7bNEcAkh4eOhoad",
@@ -1266,47 +1206,59 @@
         "expire": true,
         "ttl": 3600
       },
-      "id": "cd30dd60-a1e3-45b2-8a17-c579da885b96",
+      "id": "6d1cf750-b7fb-4a6c-9df7-6ef6f1a8d7f3",
       "name": "REDIS: SET HUMAN LOCK | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-6704, -504],
+      "position": [-5808, -632],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
           "name": "redis_cloudfy"
         }
-      }
+      },
+      "continueOnFail": true
     },
     {
       "parameters": {
-        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: PARSE JSON AGENTE | S6').item.json;\nreturn [{ json: { ...agentCtx, human_lock_set: true, agent_stage: 'handoff' } }];"
+        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: DETECTA ESCOLHA DE PRODUTO | S6').first().json || {};\nconst result = $json || {};\n\nreturn [{\n  json: {\n    ...agentCtx,\n    ...result,\n    human_lock_set: true,\n    agent_action: 'handoff_human',\n    agent_stage: 'handoff',\n    agent_reply: agentCtx.agent_reply || 'Certo, vou chamar uma pessoa da equipe para te ajudar por aqui 🌸'\n  }\n}];"
       },
-      "id": "6417db77-111e-4614-a4d3-fffb73b1ccf2",
+      "id": "d1698b00-fe1c-4975-b963-1480cd872eb9",
       "name": "CODE: MERGE HANDOFF | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-6480, -504]
+      "position": [-5584, -632]
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\nconst src = $json || {};\nconst norm = $('NORMALIZA PAYLOAD WHATSAPP | S6').first().json || {};\nconst prompt = $('CODE: PREPARA PROMPT | S6').first().json || {};\n\nconst fallbackReply = 'Olá! 🌸 Tive um probleminha técnico por aqui. Pode repetir sua mensagem?';\n\nreturn [{\n  json: {\n    ...src,\n    phone_normalized: src.phone_normalized || norm.phone_normalized || '',\n    push_name: src.push_name || norm.push_name || '',\n    conversation_id: src.conversation_id || prompt.conversation_id || null,\n    customer_id: src.customer_id || prompt.customer_id || null,\n    agent_reply: String(src.agent_reply || fallbackReply).trim(),\n    agent_action: src.agent_action || 'ask_info',\n    agent_stage: src.agent_stage || src.ctx_stage || prompt.ctx_stage || 'identificando_necessidade',\n    order_id: src.order_id || src.created_order_id || src.order_data?.order_id || prompt.current_order_id || null,\n    public_code: src.public_code || src.created_order_code || src.order_data?.public_code || prompt.current_order_public_code || null,\n    checkout_url: src.checkout_url || null,\n    catalog_results: src.catalog_results || [],\n    selected_product: src.selected_product || null,\n    suggested_addons: src.suggested_addons || [],\n    technical_notes: src.technical_notes || []\n  }\n}];"
+      },
+      "id": "24d6342f-b76b-4c59-825a-1eaff3ece621",
+      "name": "CODE: NORMALIZA SAÍDA FINAL | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-5360, -1136]
     },
     {
       "parameters": {
         "operation": "set",
         "key": "={{ 'flor:session:' + $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}",
-        "value": "={{ JSON.stringify({ stage: $json.agent_stage, last_action: $json.agent_action, agent_reply: $json.agent_reply, ts: Date.now() }) }}",
+        "value": "={{ JSON.stringify({ stage: $json.agent_stage, last_action: $json.agent_action, agent_reply: $json.agent_reply, order_id: $json.order_id || null, public_code: $json.public_code || null, ts: Date.now() }) }}",
         "expire": true,
         "ttl": 86400
       },
-      "id": "2b087a60-868e-46ae-a496-b3e16e88a5a6",
+      "id": "e06201e5-4b25-4b48-91d0-26f8193b2f22",
       "name": "REDIS: SET SESSION | S6",
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
-      "position": [-6256, -1032],
+      "position": [-5136, -1136],
       "credentials": {
         "redis": {
           "id": "L3M7sVsK0xWc3qf3",
           "name": "redis_cloudfy"
         }
-      }
+      },
+      "continueOnFail": true
     },
     {
       "parameters": {
@@ -1332,81 +1284,15 @@
           ]
         },
         "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "p_phone_normalized",
-              "value": "={{ $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}"
-            },
-            {
-              "name": "p_push_name",
-              "value": "={{ $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.push_name }}"
-            },
-            {
-              "name": "p_channel",
-              "value": "whatsapp"
-            },
-            {
-              "name": "p_external_contact_id",
-              "value": "={{ $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized + '@s.whatsapp.net' }}"
-            },
-            {
-              "name": "p_instance",
-              "value": "={{ $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.instance }}"
-            },
-            {
-              "name": "p_message_type",
-              "value": "={{ $('CODE: MONTA CONTEXTO | S6').item.json.message_type }}"
-            },
-            {
-              "name": "p_message_body",
-              "value": "={{ $('CODE: MONTA CONTEXTO | S6').item.json.message_text }}"
-            },
-            {
-              "name": "p_media_url",
-              "value": "={{ $('CODE: MONTA CONTEXTO | S6').item.json.media_url || '' }}"
-            },
-            {
-              "name": "p_raw_payload",
-              "value": "={{ JSON.stringify($('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.raw_payload) }}"
-            },
-            {
-              "name": "p_agent_reply",
-              "value": "={{ $('REDIS: SET SESSION | S6').item.json.agent_reply }}"
-            },
-            {
-              "name": "p_agent_action",
-              "value": "={{ $('CODE: PARSE JSON AGENTE | S6').item.json.agent_action }}"
-            },
-            {
-              "name": "p_agent_stage",
-              "value": "={{ $('CODE: PARSE JSON AGENTE | S6').item.json.agent_stage }}"
-            },
-            {
-              "name": "p_customer_id",
-              "value": "={{ $('CODE: PREPARA PROMPT | S6').item.json.customer_id || null }}"
-            },
-            {
-              "name": "p_conversation_id",
-              "value": "={{ $('CODE: PREPARA PROMPT | S6').item.json.conversation_id || null }}"
-            },
-            {
-              "name": "p_transcription",
-              "value": "={{ $('CODE: MONTA CONTEXTO | S6').item.json.transcription || null }}"
-            },
-            {
-              "name": "p_visual_description",
-              "value": "={{ $('CODE: MONTA CONTEXTO | S6').item.json.visual_description || null }}"
-            }
-          ]
-        },
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ p_phone_normalized: $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized, p_push_name: $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.push_name, p_channel: 'whatsapp', p_external_contact_id: $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.external_contact_id || ($('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized + '@s.whatsapp.net'), p_instance: $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.instance, p_message_type: $('CODE: MONTA CONTEXTO | S6').item.json.message_type, p_message_body: $('CODE: MONTA CONTEXTO | S6').item.json.message_text, p_media_url: $('CODE: MONTA CONTEXTO | S6').item.json.media_url || '', p_raw_payload: $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.raw_payload, p_agent_reply: $('CODE: NORMALIZA SAÍDA FINAL | S6').item.json.agent_reply, p_agent_action: $('CODE: NORMALIZA SAÍDA FINAL | S6').item.json.agent_action, p_agent_stage: $('CODE: NORMALIZA SAÍDA FINAL | S6').item.json.agent_stage, p_customer_id: $('CODE: NORMALIZA SAÍDA FINAL | S6').item.json.customer_id || null, p_conversation_id: $('CODE: NORMALIZA SAÍDA FINAL | S6').item.json.conversation_id || null, p_transcription: $('CODE: MONTA CONTEXTO | S6').item.json.transcription || null, p_visual_description: $('CODE: MONTA CONTEXTO | S6').item.json.visual_description || null }) }}",
         "options": {}
       },
-      "id": "2c04f86c-d819-45db-93e3-1dda44500e54",
+      "id": "e07f64c2-0190-45a3-9e3f-76fe4772c445",
       "name": "HTTP: REGISTRA EXCHANGE | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-6032, -1032],
+      "position": [-4912, -1136],
       "credentials": {
         "supabaseApi": {
           "id": "r7bNEcAkh4eOhoad",
@@ -1416,31 +1302,13 @@
     },
     {
       "parameters": {
-        "jsCode": "// @ts-nocheck\n// FIX: Resolve agent_reply de forma confiável para ENVIA EVOLUTION\n// Redis SET passa o item de entrada como output, mas após HTTP REGISTRA EXCHANGE\n// o $json é a resposta da RPC. Buscamos agent_reply de forma robusta.\n\n// Prioridade: valor que entrou no REDIS SET SESSION (tem agent_reply no input)\nconst sessionInput = $('REDIS: SET SESSION | S6').item.json;\nconst parseOut = $('CODE: PARSE JSON AGENTE | S6').item.json;\n\nconst agentReply = \n  sessionInput?.agent_reply ||\n  parseOut?.agent_reply ||\n  'Olá! 🌸 Tive um probleminha técnico. Pode repetir sua mensagem?';\n\nconst phoneNorm = $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized;\n\nreturn [{ json: { agent_reply: agentReply, phone_normalized: phoneNorm } }];"
+        "jsCode": "// @ts-nocheck\nconst finalOut = $('CODE: NORMALIZA SAÍDA FINAL | S6').item.json || {};\nconst phoneNorm = $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized;\n\nreturn [{\n  json: {\n    agent_reply: finalOut.agent_reply || 'Olá! 🌸 Tive um probleminha técnico. Pode repetir sua mensagem?',\n    phone_normalized: finalOut.phone_normalized || phoneNorm\n  }\n}];"
       },
-      "id": "cefba0cf-235c-4f68-bfe3-a4cc123f6e32",
+      "id": "001fbe3d-b61a-4a37-be83-5b9bd6cbf672",
       "name": "CODE: RESOLVE REPLY | S6",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-5808, -1032]
-    },
-    {
-      "parameters": {
-        "resource": "audio",
-        "operation": "transcribe",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.openAi",
-      "typeVersion": 2.1,
-      "position": [-9840, -1104],
-      "id": "d8028afd-c87b-4ba9-8492-bec239564b55",
-      "name": "Transcribe a recording",
-      "credentials": {
-        "openAiApi": {
-          "id": "RjXPvvZ9NBpReHAF",
-          "name": "OpenAi account"
-        }
-      }
+      "position": [-4688, -1136]
     },
     {
       "parameters": {
@@ -1459,20 +1327,279 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({\n  number: $json.phone_normalized,\n  text: $json.agent_reply,\n  options: {\n    delay: 500,\n    presence: 'composing'\n  }\n}) }}",
+        "jsonBody": "={{ JSON.stringify({ number: $json.phone_normalized, text: $json.agent_reply, options: { delay: 500, presence: 'composing' } }) }}",
         "options": {}
       },
-      "id": "d3b38821-2a6a-4c9c-a626-46c9058c09c9",
+      "id": "01696891-5d6c-4f15-bf34-d2504ce4c966",
       "name": "ENVIA RESPOSTA EVOLUTION | S6",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-5584, -1032],
+      "position": [-4464, -1136],
       "credentials": {
         "evolutionApi": {
           "id": "hUhH7ahIVjr2lysL",
           "name": "evolution_cloudfy"
         }
       }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "is-reset-command",
+              "leftValue": "={{ ['/deletar', '/reset', 'deletar', 'reset'].includes(($json.message_text_normalized || $json.message_text || '').trim().toLowerCase()) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6485718b-b35b-4502-b8e7-88b17032abbf",
+      "name": "IF: COMANDO /DELETAR? | S6",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [-13424, -1328]
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ 'flor:buffer:' + $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}"
+      },
+      "id": "69965ff7-8ec1-4612-a35d-99aad201fe14",
+      "name": "REDIS: DEL BUFFER TESTE | S6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-13200, -1376],
+      "credentials": {
+        "redis": {
+          "id": "L3M7sVsK0xWc3qf3",
+          "name": "redis_cloudfy"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ 'flor:last_msg_id:' + $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}"
+      },
+      "id": "157655cb-0996-4b72-b3c0-cbb931057443",
+      "name": "REDIS: DEL LAST MSG ID TESTE | S6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-12976, -1376],
+      "credentials": {
+        "redis": {
+          "id": "L3M7sVsK0xWc3qf3",
+          "name": "redis_cloudfy"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ 'flor:session:' + $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}"
+      },
+      "id": "2d81523b-bfef-4fd6-95cc-8468847fb368",
+      "name": "REDIS: DEL SESSION TESTE | S6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-12752, -1376],
+      "credentials": {
+        "redis": {
+          "id": "L3M7sVsK0xWc3qf3",
+          "name": "redis_cloudfy"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ 'flor:human_lock:' + $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}"
+      },
+      "id": "0f7efede-3a62-4f6f-8640-b3d1cf5fcb73",
+      "name": "REDIS: DEL HUMAN LOCK TESTE | S6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-12528, -1376],
+      "credentials": {
+        "redis": {
+          "id": "L3M7sVsK0xWc3qf3",
+          "name": "redis_cloudfy"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ 'flor:current_order:' + $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}"
+      },
+      "id": "aed21e5d-f246-4553-8dc3-cac968618256",
+      "name": "REDIS: DEL CURRENT ORDER TESTE | S6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-12304, -1376],
+      "credentials": {
+        "redis": {
+          "id": "L3M7sVsK0xWc3qf3",
+          "name": "redis_cloudfy"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ 'flor:sent_products:' + $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}"
+      },
+      "id": "54a3e98f-cbcf-466e-a5b8-a6de349d4eaf",
+      "name": "REDIS: DEL SENT PRODUCTS TESTE | S6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-12080, -1376],
+      "credentials": {
+        "redis": {
+          "id": "L3M7sVsK0xWc3qf3",
+          "name": "redis_cloudfy"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ 'flor:last_question:' + $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}"
+      },
+      "id": "4286c915-1a08-4c50-8b25-ee46bd4a797c",
+      "name": "REDIS: DEL LAST QUESTION TESTE | S6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-11856, -1376],
+      "credentials": {
+        "redis": {
+          "id": "L3M7sVsK0xWc3qf3",
+          "name": "redis_cloudfy"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ 'flor:last_agent_output:' + $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}"
+      },
+      "id": "1bedd190-6d32-4562-8e60-a4b4c9b809a4",
+      "name": "REDIS: DEL LAST AGENT OUTPUT TESTE | S6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-11632, -1376],
+      "credentials": {
+        "redis": {
+          "id": "L3M7sVsK0xWc3qf3",
+          "name": "redis_cloudfy"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/flor_reset_conversation_for_testing",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Profile",
+              "value": "public"
+            },
+            {
+              "name": "Content-Profile",
+              "value": "public"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  p_phone_normalized: $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized,\n  p_channel: 'whatsapp',\n  p_reset_orders: true,\n  p_keep_customer: true\n}) }}",
+        "options": {}
+      },
+      "id": "b6aa10b7-722e-43e1-8d69-5f174b642e3c",
+      "name": "HTTP: RESET CONTEXTO SUPABASE TESTE | S6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-11408, -1376],
+      "credentials": {
+        "supabaseApi": {
+          "id": "r7bNEcAkh4eOhoad",
+          "name": "Supabase account"
+        }
+      },
+      "continueOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\n\nconst norm = $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json || {};\nconst resetResult = $json || {};\n\nconst hasError = Boolean(\n  resetResult.error ||\n  resetResult.message?.toLowerCase?.().includes('error') ||\n  resetResult.ok === false\n);\n\nconst reply = hasError\n  ? 'Limpei o contexto local do teste ✅\\n\\nObs.: o reset no Supabase pode não ter sido concluído. Verifique se a RPC flor_reset_conversation_for_testing já existe.'\n  : 'Contexto apagado com sucesso ✅\\n\\nPode iniciar um novo teste do zero.';\n\nreturn [{\n  json: {\n    phone_normalized: norm.phone_normalized,\n    push_name: norm.push_name || '',\n    agent_action: 'reset_context',\n    agent_stage: 'new',\n    agent_reply: reply,\n    reset_result: resetResult,\n    skip_normal_flow: true\n  }\n}];"
+      },
+      "id": "eb787b8f-e609-4122-a3cd-cf89ee5fa23d",
+      "name": "CODE: MONTA RESPOSTA RESET TESTE | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-11184, -1376]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://cheatingbat-evolution.cloudfy.live/message/sendText/julia",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "evolutionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  number: $json.phone_normalized,\n  text: $json.agent_reply,\n  options: {\n    delay: 300,\n    presence: 'composing'\n  }\n}) }}",
+        "options": {}
+      },
+      "id": "78743217-63a3-4b03-a341-199f0f720ee6",
+      "name": "ENVIA CONFIRMAÇÃO RESET EVOLUTION | S6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-10960, -1376],
+      "credentials": {
+        "evolutionApi": {
+          "id": "hUhH7ahIVjr2lysL",
+          "name": "evolution_cloudfy"
+        }
+      },
+      "continueOnFail": true
     }
   ],
   "connections": {
@@ -1503,6 +1630,13 @@
         [
           {
             "node": "REDIS: GET HUMAN LOCK | S6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF: COMANDO /DELETAR? | S6",
             "type": "main",
             "index": 0
           }
@@ -1754,6 +1888,17 @@
         ]
       ]
     },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "CODE: MERGE AUDIO | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "HTTP: SUPABASE GET CONTEXT | S6": {
       "main": [
         [
@@ -1791,6 +1936,17 @@
       "main": [
         [
           {
+            "node": "CODE: DETECTA ESCOLHA DE PRODUTO | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: DETECTA ESCOLHA DE PRODUTO | S6": {
+      "main": [
+        [
+          {
             "node": "SWITCH ACTION | S6",
             "type": "main",
             "index": 0
@@ -1809,7 +1965,7 @@
         ],
         [
           {
-            "node": "HTTP: CREATE ORDER DRAFT | S6",
+            "node": "CODE: PREPARA ORDER DRAFT | S6",
             "type": "main",
             "index": 0
           }
@@ -1844,7 +2000,7 @@
         ],
         [
           {
-            "node": "REDIS: SET SESSION | S6",
+            "node": "CODE: NORMALIZA SAÍDA FINAL | S6",
             "type": "main",
             "index": 0
           }
@@ -1866,7 +2022,76 @@
       "main": [
         [
           {
+            "node": "É PEDIDO RASCUNHO?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "É PEDIDO RASCUNHO?": {
+      "main": [
+        [
+          {
+            "node": "CODE: PREPARA ORDER DRAFT | S6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
             "node": "IF: ENVIA IMAGEM CATÁLOGO? | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: PREPARA ORDER DRAFT | S6": {
+      "main": [
+        [
+          {
+            "node": "IF: TEM ITEM PARA PEDIDO? | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: TEM ITEM PARA PEDIDO? | S6": {
+      "main": [
+        [
+          {
+            "node": "HTTP: CREATE ORDER DRAFT | S6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CODE: NORMALIZA SAÍDA FINAL | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: CREATE ORDER DRAFT | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: RESOLVE ORDER DRAFT REPLY | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: RESOLVE ORDER DRAFT REPLY | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: NORMALIZA SAÍDA FINAL | S6",
             "type": "main",
             "index": 0
           }
@@ -1906,29 +2131,7 @@
       "main": [
         [
           {
-            "node": "REDIS: SET SESSION | S6",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HTTP: CREATE ORDER DRAFT | S6": {
-      "main": [
-        [
-          {
-            "node": "CODE: MERGE CREATE ORDER | S6",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "CODE: MERGE CREATE ORDER | S6": {
-      "main": [
-        [
-          {
-            "node": "REDIS: SET SESSION | S6",
+            "node": "CODE: NORMALIZA SAÍDA FINAL | S6",
             "type": "main",
             "index": 0
           }
@@ -1950,7 +2153,7 @@
       "main": [
         [
           {
-            "node": "REDIS: SET SESSION | S6",
+            "node": "CODE: NORMALIZA SAÍDA FINAL | S6",
             "type": "main",
             "index": 0
           }
@@ -1972,7 +2175,7 @@
       "main": [
         [
           {
-            "node": "REDIS: SET SESSION | S6",
+            "node": "CODE: NORMALIZA SAÍDA FINAL | S6",
             "type": "main",
             "index": 0
           }
@@ -1994,7 +2197,7 @@
       "main": [
         [
           {
-            "node": "REDIS: SET SESSION | S6",
+            "node": "CODE: NORMALIZA SAÍDA FINAL | S6",
             "type": "main",
             "index": 0
           }
@@ -2024,6 +2227,17 @@
       ]
     },
     "CODE: MERGE HANDOFF | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: NORMALIZA SAÍDA FINAL | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: NORMALIZA SAÍDA FINAL | S6": {
       "main": [
         [
           {
@@ -2067,11 +2281,128 @@
         ]
       ]
     },
-    "Transcribe a recording": {
+    "IF: COMANDO /DELETAR? | S6": {
       "main": [
         [
           {
-            "node": "CODE: MERGE AUDIO | S6",
+            "node": "REDIS: DEL BUFFER TESTE | S6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "REDIS: GET HUMAN LOCK | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "REDIS: DEL BUFFER TESTE | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: DEL LAST MSG ID TESTE | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "REDIS: DEL LAST MSG ID TESTE | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: DEL SESSION TESTE | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "REDIS: DEL SESSION TESTE | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: DEL HUMAN LOCK TESTE | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "REDIS: DEL HUMAN LOCK TESTE | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: DEL CURRENT ORDER TESTE | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "REDIS: DEL CURRENT ORDER TESTE | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: DEL SENT PRODUCTS TESTE | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "REDIS: DEL SENT PRODUCTS TESTE | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: DEL LAST QUESTION TESTE | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "REDIS: DEL LAST QUESTION TESTE | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: DEL LAST AGENT OUTPUT TESTE | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "REDIS: DEL LAST AGENT OUTPUT TESTE | S6": {
+      "main": [
+        [
+          {
+            "node": "HTTP: RESET CONTEXTO SUPABASE TESTE | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: RESET CONTEXTO SUPABASE TESTE | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: MONTA RESPOSTA RESET TESTE | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: MONTA RESPOSTA RESET TESTE | S6": {
+      "main": [
+        [
+          {
+            "node": "ENVIA CONFIRMAÇÃO RESET EVOLUTION | S6",
             "type": "main",
             "index": 0
           }

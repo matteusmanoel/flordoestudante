@@ -44,7 +44,7 @@
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Sim | |
 | `SUPABASE_SERVICE_ROLE_KEY` | Sim | Só servidor. |
 | `NEXT_PUBLIC_SITE_URL` | **Sim após domínio próprio** | `https://loja.exemplo.com` sem barra final. Antes do domínio, na Vercel existe `VERCEL_URL`; após domínio custom, **deve** ser a URL pública final. |
-| `MERCADO_PAGO_ACCESS_TOKEN` | Se MP online | Prod ou `TEST-` sandbox. |
+| `MERCADO_PAGO_ACCESS_TOKEN` | Se MP online | Prod ou `TEST-` sandbox. **Usar exatamente este nome** (não `MERCADOPAGO_ACCESS_TOKEN`). |
 | `PAYMENT_SYNC_SECRET` | Recomendado | Sem ela, `/api/payments/sync` → **503**. |
 | `MERCADO_PAGO_WEBHOOK_SECRET` | Opcional | MVP não exige. |
 | `STRIPE_SECRET_KEY` | Se assinaturas ativas | `sk_live_...` ou `sk_test_...` |

@@ -1,7 +1,15 @@
 const TRUST_ITEMS = [
   {
     icon: (
-      <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        className="h-4 w-4 shrink-0"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
         <path d="M8 12l3 3 5-5" />
       </svg>
@@ -11,7 +19,15 @@ const TRUST_ITEMS = [
   },
   {
     icon: (
-      <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        className="h-4 w-4 shrink-0"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <rect x="1" y="3" width="15" height="13" rx="2" />
         <path d="M16 8h4l3 3v5h-7V8z" />
         <circle cx="5.5" cy="18.5" r="2.5" />
@@ -23,7 +39,15 @@ const TRUST_ITEMS = [
   },
   {
     icon: (
-      <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        className="h-4 w-4 shrink-0"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M20 12V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h8" />
         <path d="M16 2v4M8 2v4M4 10h16" />
         <path d="M16 19h6M19 16v6" />
@@ -34,7 +58,15 @@ const TRUST_ITEMS = [
   },
   {
     icon: (
-      <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        className="h-4 w-4 shrink-0"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
         <line x1="1" y1="10" x2="23" y2="10" />
       </svg>

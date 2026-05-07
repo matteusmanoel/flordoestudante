@@ -22,6 +22,19 @@ function getClientOrNull() {
   }
 }
 
+type ProductFilterRow = Pick<ProductRow, 'id' | 'category_id'>;
+
+async function getActiveProductsForFiltering(): Promise<ProductFilterRow[]> {
+  const client = getClientOrNull();
+  if (!client) return [];
+  const { data, error } = await client
+    .from('products')
+    .select('id, category_id')
+    .eq('is_active', true);
+  if (error) return [];
+  return (data ?? []) as ProductFilterRow[];
+}
+
 export async function getCategories(): Promise<CategoryCard[]> {
   const client = getClientOrNull();
   if (!client) return [];
@@ -32,16 +45,14 @@ export async function getCategories(): Promise<CategoryCard[]> {
     .order('sort_order', { ascending: true });
   if (error) return [];
   const rows = (data ?? []) as CategoryRow[];
-  const withCount = await Promise.all(
-    rows.map(async (row) => {
-      const { count } = await client
-        .from('products')
-        .select('*', { count: 'exact', head: true })
-        .eq('category_id', row.id)
-        .eq('is_active', true);
-      return mapCategoryToCard(row, count ?? 0);
+  const activeProducts = await getActiveProductsForFiltering();
+  const withCount = rows
+    .map((row) => {
+      const category = mapCategoryToCard(row, 0);
+      const count = activeProducts.filter((product) => product.category_id === category.id).length;
+      return { ...category, productCount: count };
     })
-  );
+    .filter((category) => (category.productCount ?? 0) > 0);
   return withCount;
 }
 
@@ -62,7 +73,7 @@ export async function getFeaturedProducts(limit = 8): Promise<ProductCardModel[]
   if (!client) return [];
   const { data, error } = await client
     .from('products')
-    .select('id, category_id, name, slug, short_description, description, price, compare_at_price, cover_image_url, is_active, is_featured, categories(name, slug)')
+    .select('id, category_id, name, slug, short_description, description, price, compare_at_price, cover_image_url, image_url, is_active, is_featured, categories(name, slug)')
     .eq('is_active', true)
     .order('is_featured', { ascending: false })
     .order('created_at', { ascending: false })
@@ -79,7 +90,7 @@ export async function getPromoProducts(limit = 8): Promise<ProductCardModel[]> {
   const sample = Math.min(60, Math.max(limit * 4, limit));
   const { data, error } = await client
     .from('products')
-    .select('id, category_id, name, slug, short_description, description, price, compare_at_price, cover_image_url, is_active, is_featured, categories(name, slug)')
+    .select('id, category_id, name, slug, short_description, description, price, compare_at_price, cover_image_url, image_url, is_active, is_featured, categories(name, slug)')
     .eq('is_active', true)
     .not('compare_at_price', 'is', null)
     .order('created_at', { ascending: false })
@@ -94,22 +105,48 @@ export async function getPromoProducts(limit = 8): Promise<ProductCardModel[]> {
 
 export async function getProducts(options?: {
   categorySlug?: string;
+  query?: string;
   limit?: number;
   offset?: number;
 }): Promise<{ products: ProductCardModel[]; total: number }> {
   const client = getClientOrNull();
   if (!client) return { products: [], total: 0 };
-  let query = client
-    .from('products')
-    .select('id, category_id, name, slug, short_description, description, price, compare_at_price, cover_image_url, is_active, is_featured, categories(name, slug)', { count: 'exact' })
-    .eq('is_active', true)
-    .order('name', { ascending: true });
-  if (options?.categorySlug) {
-    const { data: cat } = await client.from('categories').select('id').eq('slug', options.categorySlug).eq('is_active', true).single();
-    if (cat?.id) query = query.eq('category_id', cat.id);
-  }
   const limit = options?.limit ?? 50;
   const offset = options?.offset ?? 0;
+
+  let query = client
+    .from('products')
+    .select('id, category_id, name, slug, short_description, description, price, compare_at_price, cover_image_url, image_url, is_active, is_featured, categories(name, slug)', { count: 'exact' })
+    .eq('is_active', true)
+    .order('name', { ascending: true });
+
+  if (options?.categorySlug) {
+    const { data: cat } = await client
+      .from('categories')
+      .select('id')
+      .eq('slug', options.categorySlug)
+      .eq('is_active', true)
+      .single();
+    if (!cat?.id) return { products: [], total: 0 };
+    query = query.eq('category_id', cat.id);
+  }
+
+  const rawSearch = options?.query?.trim();
+  if (rawSearch) {
+    const safeSearch = rawSearch.replace(/[%_]/g, '').replace(/,/g, ' ').trim();
+    if (safeSearch) {
+      query = query.or(
+        [
+          `name.ilike.%${safeSearch}%`,
+          `slug.ilike.%${safeSearch}%`,
+          `short_description.ilike.%${safeSearch}%`,
+          `description.ilike.%${safeSearch}%`,
+          `search_keywords.ilike.%${safeSearch}%`,
+        ].join(',')
+      );
+    }
+  }
+
   const { data, error, count } = await query.range(offset, offset + limit - 1);
   if (error) return { products: [], total: 0 };
   const rows = (data ?? []) as ProductRow[];
@@ -121,7 +158,7 @@ export async function getProductBySlug(slug: string): Promise<ProductDetailViewM
   if (!client) return null;
   const { data: productData, error: productError } = await client
     .from('products')
-    .select('id, category_id, name, slug, short_description, description, price, compare_at_price, cover_image_url, is_active, is_featured, categories(name, slug)')
+    .select('id, category_id, name, slug, short_description, description, price, compare_at_price, cover_image_url, image_url, is_active, is_featured, categories(name, slug)')
     .eq('slug', slug)
     .eq('is_active', true)
     .single();
@@ -147,6 +184,17 @@ export async function getProductCountByCategory(categoryId: string): Promise<num
   return count ?? 0;
 }
 
+/** Total global de produtos ativos no catálogo, independente de filtros. */
+export async function getTotalActiveProductsCount(): Promise<number> {
+  const client = getClientOrNull();
+  if (!client) return 0;
+  const { count } = await client
+    .from('products')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_active', true);
+  return count ?? 0;
+}
+
 /** Produtos recomendados para "Complete seu presente" (por product_id). */
 export async function getRecommendedProductsForProduct(productId: string): Promise<ProductCardModel[]> {
   const client = getClientOrNull();
@@ -160,7 +208,7 @@ export async function getRecommendedProductsForProduct(productId: string): Promi
   const ids = links.map((r: { recommended_product_id: string }) => r.recommended_product_id);
   const { data: productsData, error } = await client
     .from('products')
-    .select('id, category_id, name, slug, short_description, description, price, compare_at_price, cover_image_url, is_active, is_featured, categories(name, slug)')
+    .select('id, category_id, name, slug, short_description, description, price, compare_at_price, cover_image_url, image_url, is_active, is_featured, categories(name, slug)')
     .in('id', ids)
     .eq('is_active', true);
   if (error || !productsData?.length) return [];
@@ -182,27 +230,22 @@ export async function getProductsByCategory(options?: {
   const client = getClientOrNull();
   if (!client) return [];
 
-  const { limitPerCategory = 10, maxCategories = 8 } = options ?? {};
+  const { limitPerCategory = 10, maxCategories } = options ?? {};
 
   const categories = await getCategories();
-  const topCategories = categories.slice(0, maxCategories);
+  const targetCategories = typeof maxCategories === 'number'
+    ? categories.slice(0, maxCategories)
+    : categories;
 
   const result = await Promise.all(
-    topCategories.map(async (cat) => {
-      const { data: catRow } = await client
-        .from('categories')
-        .select('id')
-        .eq('slug', cat.slug)
-        .single();
-      if (!catRow?.id) return { category: cat, products: [] };
-
+    targetCategories.map(async (cat) => {
       const { data, error } = await client
         .from('products')
         .select(
-          'id, category_id, name, slug, short_description, description, price, compare_at_price, cover_image_url, is_active, is_featured, categories(name, slug)'
+          'id, category_id, name, slug, short_description, description, price, compare_at_price, cover_image_url, image_url, is_active, is_featured, categories(name, slug)'
         )
         .eq('is_active', true)
-        .eq('category_id', catRow.id)
+        .eq('category_id', cat.id)
         .order('is_featured', { ascending: false })
         .order('created_at', { ascending: false })
         .limit(limitPerCategory);
@@ -229,7 +272,7 @@ export async function getRecommendedForCheckout(cartProductIds: string[]): Promi
   if (recommendedIds.length === 0) return [];
   const { data: productsData, error } = await client
     .from('products')
-    .select('id, category_id, name, slug, short_description, description, price, compare_at_price, cover_image_url, is_active, is_featured, categories(name, slug)')
+    .select('id, category_id, name, slug, short_description, description, price, compare_at_price, cover_image_url, image_url, is_active, is_featured, categories(name, slug)')
     .in('id', recommendedIds)
     .eq('is_active', true);
   if (error || !productsData?.length) return [];

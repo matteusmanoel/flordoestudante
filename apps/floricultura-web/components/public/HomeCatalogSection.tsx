@@ -3,8 +3,27 @@ import { getProductsByCategory } from '@/features/catalog/data';
 import { CategoryCarouselSection } from '@/features/catalog/components';
 import { Button } from '@flordoestudante/ui';
 
+const HOME_CATEGORY_ORDER = [
+  'girassois',
+  'rosas',
+  'cestas',
+  'pelucias',
+  'velas-e-presentes',
+  'chocolates',
+  'complementos',
+  'condolencias',
+] as const;
+
 export async function HomeCatalogSection() {
-  const categorySections = await getProductsByCategory({ limitPerCategory: 10, maxCategories: 8 });
+  const rawSections = await getProductsByCategory({ limitPerCategory: 10 });
+  const orderMap = new Map<string, number>(HOME_CATEGORY_ORDER.map((slug, index) => [slug, index]));
+  const categorySections = rawSections
+    .filter(({ category }) => orderMap.has(category.slug))
+    .sort(
+      (a, b) =>
+        (orderMap.get(a.category.slug) ?? Number.MAX_SAFE_INTEGER) -
+        (orderMap.get(b.category.slug) ?? Number.MAX_SAFE_INTEGER)
+    );
 
   if (categorySections.length === 0) {
     return (

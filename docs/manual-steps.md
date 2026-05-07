@@ -15,6 +15,10 @@ Ações **fora do repositório**. **Desenvolvimento local + seeds:** `docs/setup
    INSERT INTO public.admins (auth_user_id, email, full_name, role, is_active)
    VALUES ('<UUID>', 'admin@...', 'Nome', 'owner', true);
    ```
+4. **Redefinição de senha (e-mail grátis Supabase):**
+   - Dashboard → Authentication → URL Configuration → **Site URL** = `https://flordoestudante-floricultura-web.vercel.app` (ou domínio custom em produção). Adicionar a mesma URL e variantes (`http://localhost:3000`, preview Vercel) em **Redirect URLs**.
+   - Dashboard → Authentication → Email Templates → **Reset Password**: garantir que o template contém `{{ .ConfirmationURL }}`. O remetente padrão (`noreply@mail.app.supabase.io`) já vem ativo no plano gratuito; personalização SMTP é opcional.
+   - O fluxo no app fica em `/auth/reset?target=admin` (lojista) e `/auth/reset?target=customer` (cliente).
 
 ### Vercel
 - Importar o **mesmo repositório** do monorepo.
@@ -26,7 +30,7 @@ Ações **fora do repositório**. **Desenvolvimento local + seeds:** `docs/setup
 - Atualizar **`NEXT_PUBLIC_SITE_URL`** para `https://<domínio>` e **redploy**.
 
 ### Mercado Pago
-- **Token:** `MERCADO_PAGO_ACCESS_TOKEN` na Vercel (produção ou `TEST-` sandbox).
+- **Token:** `MERCADO_PAGO_ACCESS_TOKEN` na Vercel (produção ou `TEST-` sandbox). Não usar `MERCADOPAGO_ACCESS_TOKEN`.
 - **Webhook:** `https://<DOMÍNIO_PUBLICO>/api/webhooks/mercado-pago`
 - Corpo POST ou IPN GET (`topic=payment&id=...`). Logs: `[mercado-pago webhook]` na Vercel.
 - Requer `SUPABASE_SERVICE_ROLE_KEY` no servidor.

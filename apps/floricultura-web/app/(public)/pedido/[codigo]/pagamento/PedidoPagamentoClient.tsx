@@ -144,7 +144,7 @@ export function PedidoPagamentoClient({ initial }: Props) {
                 </a>
               </Button>
               <p className="text-center text-xs text-muted-foreground">
-                PIX, cartão e outros meios disponíveis no Mercado Pago.
+                Pagamento disponível via PIX e cartão.
               </p>
             </div>
           ) : (

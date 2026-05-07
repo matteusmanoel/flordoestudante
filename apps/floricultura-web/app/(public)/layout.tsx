@@ -5,6 +5,8 @@ import { WhatsAppFAB } from '@/components/shared/WhatsAppFAB';
 import { PageTransitionWrapper } from '@/components/shared/PageTransitionWrapper';
 import { getCategories } from '@/features/catalog/data';
 
+export const dynamic = 'force-dynamic';
+
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const categories = await getCategories();
 

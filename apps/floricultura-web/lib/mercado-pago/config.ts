@@ -2,8 +2,21 @@
  * Config Mercado Pago (server-only).
  */
 
+let warnedLegacyTokenEnv = false;
+
 export function getMercadoPagoAccessToken(): string | undefined {
-  const t = process.env.MERCADO_PAGO_ACCESS_TOKEN?.trim();
+  const canonical = process.env.MERCADO_PAGO_ACCESS_TOKEN?.trim();
+  if (canonical) return canonical;
+
+  const legacy = process.env.MERCADOPAGO_ACCESS_TOKEN?.trim();
+  if (legacy && !warnedLegacyTokenEnv) {
+    warnedLegacyTokenEnv = true;
+    console.warn(
+      '[mercado-pago] Variável legada MERCADOPAGO_ACCESS_TOKEN detectada. Migre para MERCADO_PAGO_ACCESS_TOKEN.'
+    );
+  }
+
+  const t = legacy;
   return t || undefined;
 }
 

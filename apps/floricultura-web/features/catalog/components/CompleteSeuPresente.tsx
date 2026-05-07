@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { Button, Price } from '@flordoestudante/ui';
@@ -16,6 +16,22 @@ type CompleteSeuPresenteProps = {
   variant?: 'navigate' | 'quickAdd';
 };
 
+const MAX_VISIBLE_ITEMS = 4;
+
+function pickRandomProducts(products: ProductCardModel[], count: number): ProductCardModel[] {
+  if (products.length <= count) return products;
+  const shuffled = [...products];
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const itemI = shuffled[i];
+    const itemJ = shuffled[j];
+    if (!itemI || !itemJ) continue;
+    shuffled[i] = itemJ;
+    shuffled[j] = itemI;
+  }
+  return shuffled.slice(0, count);
+}
+
 export function CompleteSeuPresente({
   products,
   title = 'Complete seu presente',
@@ -24,8 +40,17 @@ export function CompleteSeuPresente({
 }: CompleteSeuPresenteProps) {
   const { addItem } = useCart();
   const [addingId, setAddingId] = useState<string | null>(null);
+  const [visibleProducts, setVisibleProducts] = useState<ProductCardModel[]>(
+    products.slice(0, MAX_VISIBLE_ITEMS)
+  );
+
+  useEffect(() => {
+    setVisibleProducts(products.slice(0, MAX_VISIBLE_ITEMS));
+  }, [products]);
 
   if (!products.length) return null;
+
+  const canRandomize = products.length > MAX_VISIBLE_ITEMS;
 
   function scrollToCheckoutTop() {
     const anchor = document.getElementById('checkout-page-top');
@@ -66,9 +91,21 @@ export function CompleteSeuPresente({
 
   return (
     <section className={className}>
-      <h2 className="mb-4 font-serif text-xl font-medium text-foreground">{title}</h2>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h2 className="font-serif text-xl font-medium text-foreground">{title}</h2>
+        {canRandomize ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setVisibleProducts(pickRandomProducts(products, MAX_VISIBLE_ITEMS))}
+          >
+            Atualizar
+          </Button>
+        ) : null}
+      </div>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-        {products.map((product) => {
+        {visibleProducts.map((product) => {
           const rawUrl = product.coverImageUrl?.trim() || '';
           const busy = addingId === product.id;
 
@@ -76,7 +113,7 @@ export function CompleteSeuPresente({
             return (
               <div
                 key={product.id}
-                className="flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm"
+                className="flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm"
               >
                 <Link
                   href={`/produto/${product.slug}`}
@@ -93,7 +130,7 @@ export function CompleteSeuPresente({
                 <div className="flex flex-1 flex-col p-3">
                   <Link
                     href={`/produto/${product.slug}`}
-                    className="font-medium text-sm text-foreground line-clamp-2 hover:text-primary"
+                    className="min-h-[2.5rem] line-clamp-2 text-sm font-medium text-foreground hover:text-primary"
                   >
                     {product.name}
                   </Link>
@@ -101,7 +138,7 @@ export function CompleteSeuPresente({
                     value={product.price}
                     compareAt={product.compareAtPrice}
                     size="sm"
-                    className="mt-1"
+                    className="mt-auto pt-1"
                   />
                   <Button
                     type="button"
@@ -128,7 +165,7 @@ export function CompleteSeuPresente({
             <Link
               key={product.id}
               href={`/produto/${product.slug}`}
-              className="group block overflow-hidden rounded-lg border border-border bg-card transition-shadow hover:shadow-md"
+              className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card transition-shadow hover:shadow-md"
             >
               <div className="relative aspect-square overflow-hidden bg-muted/50">
                 <MediaThumb
@@ -139,11 +176,16 @@ export function CompleteSeuPresente({
                   imageClassName="transition-transform duration-300 group-hover:scale-[1.02]"
                 />
               </div>
-              <div className="p-3">
-                <h3 className="line-clamp-2 text-sm font-medium text-foreground group-hover:text-primary">
+              <div className="flex flex-1 flex-col p-3">
+                <h3 className="min-h-[2.5rem] line-clamp-2 text-sm font-medium text-foreground group-hover:text-primary">
                   {product.name}
                 </h3>
-                <Price value={product.price} compareAt={product.compareAtPrice} size="sm" className="mt-1" />
+                <Price
+                  value={product.price}
+                  compareAt={product.compareAtPrice}
+                  size="sm"
+                  className="mt-auto pt-1"
+                />
               </div>
             </Link>
           );

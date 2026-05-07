@@ -29,6 +29,10 @@ export async function createMercadoPagoPreference(
     back_urls: input.backUrls ?? {},
     auto_return: 'approved',
     payer: input.payerEmail ? { email: input.payerEmail } : undefined,
+    payment_methods: {
+      // Checkout Pro deve aceitar somente PIX e cartão.
+      excluded_payment_types: [{ id: 'ticket' }, { id: 'atm' }, { id: 'account_money' }],
+    },
   };
 
   const res = await fetch(`${MP_API}/checkout/preferences`, {

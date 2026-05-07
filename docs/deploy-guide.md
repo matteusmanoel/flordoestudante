@@ -252,6 +252,12 @@ https://<SEU_DOMÍNIO>/api/webhooks/mercado-pago
 
 Eventos: `payment` (obrigatório).
 
+Checklist mínimo do endpoint:
+- método: `POST` (IPN `GET` também é aceito pela rota)
+- URL: `https://<SEU_DOMÍNIO>/api/webhooks/mercado-pago`
+- ambiente do app MP deve corresponder ao token na Vercel (`APP_USR-...` produção ou `TEST-...` sandbox)
+- se houver token legado em env, migrar para `MERCADO_PAGO_ACCESS_TOKEN`
+
 > O webhook aceita POST e GET (IPN). Logs via `console.log('[mercado-pago webhook]')` visíveis nos logs da Vercel.
 
 ### 5.3 Testar com sandbox

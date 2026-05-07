@@ -1,5 +1,9 @@
 import { Suspense } from 'react';
-import { getCategories, getProducts, getPromoProducts } from '@/features/catalog/data';
+import {
+  getCategories,
+  getProducts,
+  getPromoProducts,
+} from '@/features/catalog/data';
 import {
   CategoryChip,
   CatalogSection,
@@ -13,16 +17,18 @@ export const metadata = {
 };
 
 type PageProps = {
-  searchParams: Promise<{ categoria?: string }>;
+  searchParams: Promise<{ categoria?: string; q?: string }>;
 };
 
 export default async function CatalogPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const categorySlug = params.categoria ?? undefined;
-  const [categories, { products, total }, promoProducts] = await Promise.all([
+  const searchQuery = params.q?.trim() || undefined;
+  const [categories, { products, total }, promoProducts, { total: totalAllProducts }] = await Promise.all([
     getCategories(),
-    getProducts({ categorySlug, limit: 50 }),
+    getProducts({ categorySlug, query: searchQuery, limit: 24, offset: 0 }),
     getPromoProducts(12),
+    getProducts({ query: searchQuery, limit: 1, offset: 0 }),
   ]);
 
   const allCategory = {
@@ -31,7 +37,7 @@ export default async function CatalogPage({ searchParams }: PageProps) {
     slug: '',
     description: null,
     imageUrl: null,
-    productCount: total,
+    productCount: totalAllProducts,
   };
 
   return (
@@ -55,10 +61,12 @@ export default async function CatalogPage({ searchParams }: PageProps) {
         </div>
         <Suspense fallback={<CatalogPageSkeleton />}>
           <CatalogPageClient
-            products={products}
+            initialProducts={products}
+            initialTotal={total}
             promoProducts={promoProducts}
             categories={categories}
             categorySlug={categorySlug}
+            searchQuery={searchQuery}
           />
         </Suspense>
       </CatalogSection>

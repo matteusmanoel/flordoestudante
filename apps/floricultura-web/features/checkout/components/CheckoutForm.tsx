@@ -14,6 +14,7 @@ import { useCart } from '@/features/cart/store';
 import { CheckoutContactSection } from './CheckoutContactSection';
 import { CheckoutFulfillmentSection } from './CheckoutFulfillmentSection';
 import { CheckoutAddressSection } from './CheckoutAddressSection';
+import { CheckoutPickupRecipientSection } from './CheckoutPickupRecipientSection';
 import { CheckoutNotesSection } from './CheckoutNotesSection';
 import { CheckoutSummary } from './CheckoutSummary';
 import { CheckoutSubmitButton } from './CheckoutSubmitButton';
@@ -69,6 +70,8 @@ export function CheckoutForm({
       gift_message: initialGiftMessage,
       payment_method: PAYMENT_METHOD.MERCADO_PAGO,
       shipping_rule_id: activeShippingRule?.id ?? null,
+      pickup_recipient_name: '',
+      pickup_phone: '',
     },
   });
 
@@ -122,8 +125,19 @@ export function CheckoutForm({
         ? activeShippingRule.amount
         : 0;
 
+    const pickupRecipient = data.pickup_recipient_name?.trim();
+    const pickupPhone = data.pickup_phone?.trim();
+    const pickupNote =
+      data.fulfillment_type === FULFILLMENT_TYPE.PICKUP && pickupRecipient && pickupPhone
+        ? `Retirada por ${pickupRecipient} (${pickupPhone})`
+        : null;
+    const customerNote = [data.customer_note?.trim(), pickupNote].filter(Boolean).join(' | ') || '';
+
     const result = await finalizeCheckout({
-      form: data,
+      form: {
+        ...data,
+        customer_note: customerNote,
+      },
       cart: cartPayload,
       shippingAmount: shipping,
       shippingRuleId,
@@ -197,6 +211,14 @@ export function CheckoutForm({
                     register={form.register}
                     errors={form.formState.errors}
                     setValue={form.setValue}
+                  />
+                </div>
+              )}
+              {fulfillmentType === FULFILLMENT_TYPE.PICKUP && (
+                <div className="mt-5 border-t border-border pt-5">
+                  <CheckoutPickupRecipientSection
+                    register={form.register}
+                    errors={form.formState.errors}
                   />
                 </div>
               )}

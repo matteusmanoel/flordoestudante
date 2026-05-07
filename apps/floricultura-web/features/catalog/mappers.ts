@@ -26,6 +26,7 @@ export interface ProductRow {
   price: number;
   compare_at_price: number | null;
   cover_image_url: string;
+  image_url?: string | null;
   is_active: boolean;
   is_featured: boolean;
   categories?: { name: string; slug: string } | { name: string; slug: string }[] | null;
@@ -62,6 +63,7 @@ export function mapCategoryToCard(row: CategoryRow, productCount?: number): Cate
 
 export function mapProductToCard(row: ProductRow): ProductCardModel {
   const category = Array.isArray(row.categories) ? row.categories[0] : row.categories;
+  const coverImageUrl = (row.cover_image_url ?? '').trim() || (row.image_url ?? '').trim() || '';
   return {
     id: row.id,
     name: row.name,
@@ -69,7 +71,7 @@ export function mapProductToCard(row: ProductRow): ProductCardModel {
     shortDescription: row.short_description ?? null,
     price: Number(row.price),
     compareAtPrice: row.compare_at_price != null ? Number(row.compare_at_price) : null,
-    coverImageUrl: row.cover_image_url,
+    coverImageUrl,
     isFeatured: row.is_featured ?? false,
     categorySlug: category?.slug ?? '',
     categoryName: category?.name ?? '',
@@ -102,6 +104,9 @@ export function mapProductToDetail(
     .sort((a, b) => a.sort_order - b.sort_order)
     .map(mapProductImageToViewModel);
   let coverImageUrl = (product.cover_image_url ?? '').trim();
+  if (!coverImageUrl) {
+    coverImageUrl = (product.image_url ?? '').trim();
+  }
   if (isPlaceholderMediaUrl(coverImageUrl) && viewImages.length > 0) {
     const firstUsable = viewImages.find((img) => !isPlaceholderMediaUrl(img.imageUrl));
     if (firstUsable) coverImageUrl = firstUsable.imageUrl.trim();

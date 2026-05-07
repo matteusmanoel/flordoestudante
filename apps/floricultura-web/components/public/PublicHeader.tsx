@@ -155,7 +155,7 @@ export function PublicHeader({ categories = [] }: PublicHeaderProps) {
         {visibleCategories.length > 0 && (
           <div className="hidden border-t border-border/40 md:block">
             <div className="container px-4">
-              <ul className="scrollbar-none flex gap-1 overflow-x-auto py-1.5">
+              <ul className="scrollbar-none flex justify-center gap-1 overflow-x-auto py-1.5">
                 {visibleCategories.map((cat) => (
                   <li key={cat.id}>
                     <Link

@@ -37,7 +37,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
     <Link
       href={`/produto/${product.slug}`}
       className={cn(
-        'group block overflow-hidden rounded-2xl border border-border/50 bg-card transition-all duration-300 hover:shadow-lg hover:shadow-primary/8 hover:-translate-y-0.5',
+        'group flex h-full flex-col overflow-hidden rounded-2xl border border-border/50 bg-card transition-all duration-300 hover:shadow-lg hover:shadow-primary/8 hover:-translate-y-0.5',
         className
       )}
     >
@@ -80,14 +80,14 @@ export function ProductCard({ product, className }: ProductCardProps) {
         </div>
       </div>
 
-      <div className="p-4">
-        {product.categoryName && (
-          <p className="editorial-label">{product.categoryName}</p>
-        )}
-        <h3 className="mt-1.5 font-display text-base font-medium leading-snug text-foreground transition-colors group-hover:text-primary sm:text-lg">
+      <div className="flex flex-1 flex-col p-4">
+        <p className="editorial-label min-h-4">
+          {product.categoryName || '\u00A0'}
+        </p>
+        <h3 className="mt-1.5 min-h-[3.25rem] line-clamp-2 font-display text-base font-medium leading-snug text-foreground transition-colors group-hover:text-primary sm:text-lg">
           {product.name}
         </h3>
-        <div className="mt-3">
+        <div className="mt-auto pt-3">
           <Price
             value={product.price}
             compareAt={product.compareAtPrice}

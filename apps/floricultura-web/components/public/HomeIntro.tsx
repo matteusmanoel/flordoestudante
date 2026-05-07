@@ -10,9 +10,9 @@ export function HomeIntro() {
             Feito para momentos especiais
           </h2>
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            Na Flor do Estudante você monta seu pedido com calma, escolhe entre retirada
-            na loja ou entrega, e pode escrever uma mensagem no cartão. Tudo simples,
-            seguro e feito com carinho.
+            Na Flor do Estudante você monta seu pedido com calma, escolhe entre retirada na loja ou
+            entrega, e pode escrever uma mensagem no cartão. Tudo simples, seguro e feito com
+            carinho.
           </p>
         </AnimatedSection>
       </div>

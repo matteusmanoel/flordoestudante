@@ -1,5 +1,12 @@
 # Progress
 
+## Reset de senha via Supabase Auth (mai/2026)
+
+- **API `POST /api/auth/reset-request`** valida e-mail com Zod e dispara `supabase.auth.resetPasswordForEmail` via cliente service role (`apps/floricultura-web/lib/supabase/server-service.ts`); resposta sempre 200 com mensagem neutra para preservar privacidade. `redirectTo` aponta para `${NEXT_PUBLIC_SITE_URL}/auth/reset?target=admin|customer`.
+- **Página `/auth/reset`** (Suspense + client) detecta `code` na query: sem code, mostra formulário de e-mail; com code, faz `exchangeCodeForSession` e abre form de nova senha (`updateUser({ password })`). Estados: validando, sucesso, link inválido/expirado (lê `error_code`/`error_description`).
+- **Login admin** ganhou link "Esqueci minha senha" → `/auth/reset?target=admin` em `apps/floricultura-web/components/admin/AdminLoginForm.tsx`.
+- **Manual steps** atualizados: Site URL/Redirect URLs no Supabase Auth e nota sobre o template "Reset Password" usar o remetente gratuito `noreply@mail.app.supabase.io` (`docs/manual-steps.md`).
+
 ## Upgrade UI/UX Premium — "O Melhor Site de Floricultura" (mai/2026)
 
 7 milestones implementados com TypeScript limpo (tsc --noEmit ✅):

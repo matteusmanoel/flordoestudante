@@ -7,9 +7,7 @@ export async function HomeBanners() {
 
   return (
     <section className="section-divider py-8 sm:py-12">
-      <div className="container px-4">
-        <HomeBannersCarousel banners={banners} />
-      </div>
+      <HomeBannersCarousel banners={banners} />
     </section>
   );
 }

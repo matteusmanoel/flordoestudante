@@ -145,8 +145,8 @@ function HeroText({ compact = false }: { compact?: boolean }) {
         )}
       >
         Flores que{' '}
-        <span className={compact ? 'text-emerald-100' : 'text-primary'}>abraçam por você</span> neste
-        Dia das Mães
+        <span className={compact ? 'text-emerald-100' : 'text-primary'}>abraçam por você</span>{' '}
+        neste Dia das Mães
       </h1>
       <p
         className={cn(

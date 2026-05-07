@@ -56,13 +56,11 @@ export function HomeBannersCarousel({ banners }: Props) {
       >
         {banners.map((banner) => {
           const src = resolvePublicImageUrl(banner.imageUrl);
-          const Wrapper = banner.ctaHref
-            ? ({ children }: { children: React.ReactNode }) => (
-                <Link href={banner.ctaHref!} className="block">
-                  {children}
-                </Link>
-              )
-            : ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
+          const Wrapper = ({ children }: { children: React.ReactNode }) => (
+            <Link href="/catalogo" className="block">
+              {children}
+            </Link>
+          );
 
           return (
             <div key={banner.id} className="relative min-w-full">
@@ -129,7 +127,16 @@ export function HomeBannersCarousel({ banners }: Props) {
             aria-label="Slide anterior"
             className="absolute left-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/30 text-white opacity-0 transition-opacity hover:bg-black/50 group-hover:opacity-100 focus:opacity-100 sm:opacity-0 [.group:hover_&]:opacity-100"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
@@ -139,7 +146,16 @@ export function HomeBannersCarousel({ banners }: Props) {
             aria-label="Próximo slide"
             className="absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/30 text-white opacity-0 transition-opacity hover:bg-black/50 [.group:hover_&]:opacity-100 focus:opacity-100"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M9 18l6-6-6-6" />
             </svg>
           </button>

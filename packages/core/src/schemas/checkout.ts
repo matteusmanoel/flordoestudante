@@ -7,6 +7,7 @@ import { FULFILLMENT_TYPE, PAYMENT_METHOD } from '../constants/domain';
 
 const phoneSchema = z.string().min(10, 'Telefone inválido').max(20).optional().or(z.literal(''));
 const emailSchema = z.string().email('E-mail inválido').optional().or(z.literal(''));
+const pickupPhoneSchema = z.string().min(10, 'Telefone do destinatário inválido').max(20).optional().or(z.literal(''));
 
 export const checkoutContactSchema = z
   .object({
@@ -52,6 +53,8 @@ export const checkoutFormSchema = z
       PAYMENT_METHOD.STRIPE,
     ]),
     shipping_rule_id: z.string().uuid().optional().nullable(),
+    pickup_recipient_name: z.string().max(200).optional().or(z.literal('')),
+    pickup_phone: pickupPhoneSchema,
   })
   .refine((data) => data.phone?.trim() || data.email?.trim(), {
     message: 'Informe telefone ou e-mail',
@@ -65,6 +68,30 @@ export const checkoutFormSchema = z
       return true;
     },
     { message: 'Endereço e taxa de entrega são obrigatórios para entrega', path: ['address'] }
+  )
+  .refine(
+    (data) => {
+      if (data.fulfillment_type === FULFILLMENT_TYPE.PICKUP) {
+        return Boolean(data.pickup_recipient_name?.trim());
+      }
+      return true;
+    },
+    {
+      message: 'Nome do destinatário é obrigatório para retirada',
+      path: ['pickup_recipient_name'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.fulfillment_type === FULFILLMENT_TYPE.PICKUP) {
+        return Boolean(data.pickup_phone?.trim());
+      }
+      return true;
+    },
+    {
+      message: 'Telefone do destinatário é obrigatório para retirada',
+      path: ['pickup_phone'],
+    }
   )
   .refine(
     (data) => {

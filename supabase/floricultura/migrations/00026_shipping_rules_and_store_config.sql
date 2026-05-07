@@ -4,14 +4,12 @@
 -- Ajusta taxa de entrega para R$20,00 e restringe área ao
 -- município de Capitão Leônidas Marques (PR, 85790-000).
 -- Adiciona coluna extra_metadata em settings para chave PIX.
+-- shipping_rule_type no MVP é apenas 'fixed' (ver 00001_enums.sql).
 -- ============================================================
 
--- 1. Coluna extra_metadata em settings (caso não exista)
 ALTER TABLE settings
   ADD COLUMN IF NOT EXISTS extra_metadata JSONB DEFAULT '{}';
 
--- 2. Upsert regra de entrega padrão
---    Se já existe uma linha, atualiza; caso não exista, insere.
 INSERT INTO shipping_rules (
   name,
   rule_type,
@@ -19,9 +17,9 @@ INSERT INTO shipping_rules (
   is_active,
   metadata_json
 )
-VALUES (
+SELECT
   'Entrega local — Capitão Leônidas Marques',
-  'flat',
+  'fixed'::shipping_rule_type,
   20.00,
   true,
   jsonb_build_object(
@@ -34,10 +32,11 @@ VALUES (
     'store_address', 'R. Demetrio Paulo Paini, 167 - Cap. Leônidas Marques, PR, 85790-000',
     'note', 'Taxa fixa — configuração de taxa por bairro prevista para sprint futuro.'
   )
-)
-ON CONFLICT DO NOTHING;
+WHERE NOT EXISTS (
+  SELECT 1 FROM shipping_rules sr
+  WHERE sr.name = 'Entrega local — Capitão Leônidas Marques'
+);
 
--- Se já existia uma linha com nome similar, atualiza o valor e o metadata
 UPDATE shipping_rules
 SET
   amount = 20.00,
@@ -54,9 +53,9 @@ SET
   ),
   updated_at = now()
 WHERE
-  rule_type IN ('flat', 'fixed', 'delivery')
+  rule_type = 'fixed'
   AND lower(name) LIKE '%capit%'
-  AND id != (
+  AND id NOT IN (
     SELECT id FROM shipping_rules
     WHERE name = 'Entrega local — Capitão Leônidas Marques'
     ORDER BY created_at

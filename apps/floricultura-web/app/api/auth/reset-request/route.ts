@@ -15,9 +15,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type ResetTarget = 'admin' | 'customer';
 
-function parseBody(value: unknown):
-  | { email: string; target: ResetTarget }
-  | { error: string } {
+function parseBody(value: unknown): { email: string; target: ResetTarget } | { error: string } {
   if (!value || typeof value !== 'object') {
     return { error: 'Dados inválidos.' };
   }
@@ -37,7 +35,7 @@ function getRedirectBase(request: Request): string {
     const url = new URL(request.url);
     return `${url.protocol}//${url.host}`;
   } catch {
-    return 'https://flordoestudante-floricultura-web.vercel.app';
+    return 'https://flordoestudante.vercel.app';
   }
 }
 

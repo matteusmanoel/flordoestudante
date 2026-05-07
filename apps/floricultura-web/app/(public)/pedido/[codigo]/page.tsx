@@ -7,6 +7,7 @@ import {
   OrderItemsList,
   OrderFinancialSummary,
   OrderTrackingEmptyState,
+  OrderProgressBar,
 } from '@/features/orders';
 import { PAYMENT_STATUS, ORDER_STATUS } from '@flordoestudante/core';
 import { WhatsAppCTA } from '@/components/shared/WhatsAppCTA';
@@ -71,16 +72,41 @@ export default async function PedidoPublicPage({ params }: Props) {
       )
     ) : null;
 
+  // Mostrar mensagem de boas-vindas para pedidos recém-criados
+  const isNewOrder =
+    order.status === ORDER_STATUS.PENDING_PAYMENT ||
+    order.status === ORDER_STATUS.PAID ||
+    order.status === ORDER_STATUS.AWAITING_APPROVAL;
+
   return (
     <div className="min-h-screen py-10 sm:py-16">
       <div className="container px-4">
+        {/* Mensagem de agradecimento para pedidos novos */}
+        {isNewOrder && (
+          <div className="mx-auto mb-8 max-w-2xl text-center">
+            <h1 className="font-display text-2xl font-medium text-foreground sm:text-3xl">
+              Seu pedido foi recebido com carinho
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Obrigada por escolher a Flor do Estudante! Estamos preparando tudo com muito cuidado para você.
+            </p>
+          </div>
+        )}
+
         <div className="mb-6">
           <Button asChild variant="ghost" size="sm">
             <Link href="/catalogo">← Ver catálogo</Link>
           </Button>
         </div>
+
         <div className="mx-auto flex max-w-5xl flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1.1fr)]">
           <div className="space-y-4">
+            {/* Barra de progresso */}
+            <OrderProgressBar
+              status={order.status}
+              fulfillmentType={order.fulfillmentType as 'delivery' | 'pickup'}
+            />
+
             <OrderTrackingHeader order={order} />
             <OrderItemsList order={order} />
             {order.customerNote && (
@@ -96,7 +122,7 @@ export default async function PedidoPublicPage({ params }: Props) {
               </div>
             )}
           </div>
-          <div className="space-y-4 lg:self-start">
+          <div className="space-y-4 lg:self-start lg:sticky lg:top-24">
             <OrderFinancialSummary order={order} paymentCta={paymentCta} />
             {(order.status === ORDER_STATUS.AWAITING_APPROVAL || order.status === ORDER_STATUS.PAID) && (
               <WhatsAppCTA
@@ -126,4 +152,3 @@ export default async function PedidoPublicPage({ params }: Props) {
     </div>
   );
 }
-

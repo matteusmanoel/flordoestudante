@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Source_Sans_3, Crimson_Pro } from 'next/font/google';
+import { Source_Sans_3, Crimson_Pro, Playfair_Display } from 'next/font/google';
 import { Toaster } from 'sonner';
 import './globals.css';
 
@@ -15,6 +15,12 @@ const crimsonPro = Crimson_Pro({
   display: 'swap',
 });
 
+const playfairDisplay = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-display',
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
   title: 'Flor do Estudante — Floricultura',
   description: 'Flores, buquês e presentes com entrega e retirada. Faça seu pedido online.',
@@ -26,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" className={`${sourceSans.variable} ${crimsonPro.variable}`}>
+    <html lang="pt-BR" className={`${sourceSans.variable} ${crimsonPro.variable} ${playfairDisplay.variable}`}>
       <body className="font-sans antialiased">
         {children}
         <Toaster richColors position="bottom-center" closeButton />

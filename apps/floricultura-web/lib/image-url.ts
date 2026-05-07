@@ -35,6 +35,11 @@ export function resolvePublicImageUrl(raw: string | null | undefined): string {
     return PLACEHOLDER_IMAGE;
   }
 
+  // Tratar casos de URLs mal formadas ou incompletas
+  if (s === 'null' || s === 'undefined') {
+    return '';
+  }
+
   if (s.startsWith('//')) {
     return `https:${s}`;
   }

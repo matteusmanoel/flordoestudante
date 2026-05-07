@@ -1,0 +1,324 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "085dc23c-f768-4f02-be5f-a6c4096de97b",
+      "name": "EXECUTE WORKFLOW TRIGGER",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [-256, 464]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "is-audio",
+              "leftValue": "={{ $json.message_type }}",
+              "rightValue": "audio",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "877e48fa-4caf-4b0c-90fc-a1f4c92f18a7",
+      "name": "IF: IS AUDIO?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-16, 464]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://cheatingbat-evolution.cloudfy.live/message/getBase64FromMediaMessage/julia",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "evolutionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ key: $('EXECUTE WORKFLOW TRIGGER').item.json.media_key_json || {}, convertToMp4: false }) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "a096a524-69e6-4613-9d67-28b5a33c6cec",
+      "name": "HTTP: GET AUDIO BASE64",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [224, 304],
+      "credentials": {
+        "evolutionApi": {
+          "id": "hUhH7ahIVjr2lysL",
+          "name": "evolution_cloudfy"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// @ts-nocheck\n// Converte base64 de áudio para binary para o node OpenAI Whisper\nconst trigger = $('EXECUTE WORKFLOW TRIGGER').item.json;\nconst b64response = $json;\n\nconst b64 = b64response.base64 || b64response.data || b64response.audio || null;\n\nif (!b64) {\n  return {\n    json: {\n      audio_binary: null,\n      audio_b64_missing: true,\n      agent_note: 'AUDIO_DOWNLOAD_FAILED'\n    },\n    binary: {}\n  };\n}\n\nconst mimeType = b64response.mimetype || 'audio/ogg';\nconst ext = mimeType.includes('mp4') ? 'mp4' : mimeType.includes('mpeg') ? 'mp3' : 'ogg';\nconst filename = `audio_${Date.now()}.${ext}`;\n\nreturn {\n  json: {\n    audio_binary: true,\n    audio_b64_missing: false,\n    filename: filename,\n    mimetype: mimeType\n  },\n  binary: {\n    data: {\n      data: b64,\n      mimeType: mimeType,\n      fileName: filename,\n      fileExtension: ext\n    }\n  }\n};"
+      },
+      "id": "45ef3f29-66f7-4e79-8900-20ba2b73924c",
+      "name": "CODE: AUDIO B64 TO BINARY",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [464, 304]
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {
+          "language": "pt",
+          "temperature": 0
+        }
+      },
+      "id": "23d3b8bf-be69-4368-ba6f-906ab12d47e5",
+      "name": "OPENAI: TRANSCRIBE AUDIO",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [704, 304],
+      "credentials": {
+        "openAiApi": {
+          "id": "RjXPvvZ9NBpReHAF",
+          "name": "OpenAi account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// @ts-nocheck\n// Merge do resultado de transcrição de áudio\nconst prev = $('CODE: AUDIO B64 TO BINARY').item.json;\n\nif (prev.audio_b64_missing) {\n  return {\n    json: {\n      media_ok: false,\n      transcription: null,\n      visual_description: null,\n      fallback_message: 'Recebi seu áudio, mas não consegui processá-lo agora. Pode digitar sua mensagem?',\n      agent_note: 'AUDIO_DOWNLOAD_FAILED'\n    }\n  };\n}\n\nconst text = $json.text || $json.transcription || null;\n\nif (!text) {\n  return {\n    json: {\n      media_ok: false,\n      transcription: null,\n      visual_description: null,\n      fallback_message: 'Recebi seu áudio, mas não consegui transcrever. Pode digitar sua mensagem?',\n      agent_note: 'AUDIO_TRANSCRIPTION_EMPTY'\n    }\n  };\n}\n\nreturn {\n  json: {\n    media_ok: true,\n    transcription: text.trim(),\n    visual_description: null,\n    fallback_message: null,\n    agent_note: null\n  }\n};"
+      },
+      "id": "6f16c57a-7925-43cf-b1c3-ee172f1039c4",
+      "name": "CODE: MERGE AUDIO RESULT",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [944, 304]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://cheatingbat-evolution.cloudfy.live/message/getBase64FromMediaMessage/julia",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "evolutionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ key: $('EXECUTE WORKFLOW TRIGGER').item.json.media_key_json || {}, convertToMp4: false }) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "2f1b241b-d682-4d8c-8fe6-b06fc1ce7508",
+      "name": "HTTP: GET IMAGE BASE64",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [224, 624],
+      "credentials": {
+        "evolutionApi": {
+          "id": "hUhH7ahIVjr2lysL",
+          "name": "evolution_cloudfy"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// @ts-nocheck\n// Prepara data URL da imagem para Vision (OpenRouter)\nconst trigger = $('EXECUTE WORKFLOW TRIGGER').item.json;\nconst b64response = $json;\n\nconst b64 = b64response.base64 || b64response.data || null;\nconst mimeType = b64response.mimetype || 'image/jpeg';\n\nlet imageUrl = trigger.media_url || null;\nlet usingBase64 = false;\n\nif (b64) {\n  imageUrl = `data:${mimeType};base64,${b64}`;\n  usingBase64 = true;\n} else if (!imageUrl) {\n  return {\n    json: {\n      image_data_url: null,\n      image_missing: true,\n      agent_note: 'IMAGE_DOWNLOAD_FAILED'\n    }\n  };\n}\n\nreturn {\n  json: {\n    image_data_url: imageUrl,\n    image_missing: false,\n    using_base64: usingBase64,\n    caption: trigger.message_text || ''\n  }\n};"
+      },
+      "id": "99682fbf-aaee-4e84-8fab-f1c1482d7f56",
+      "name": "CODE: PREP IMAGE DATA URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [464, 624]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://floricultura.vercel.app"
+            },
+            {
+              "name": "X-Title",
+              "value": "Flor do Estudante Agent"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: 'openai/gpt-4o-mini',\n  max_tokens: 400,\n  temperature: 0.1,\n  messages: [\n    {\n      role: 'user',\n      content: [\n        {\n          type: 'text',\n          text: 'Analise esta imagem enviada por um cliente de uma floricultura. Identifique: 1) É um comprovante de pagamento? 2) É uma foto de referência de buquê/arranjo floral? 3) É uma foto de planta/flor específica? 4) Outro. Descreva brevemente o conteúdo em português. Seja objetivo e útil para o atendimento. Máximo 3 frases. Comece com: [COMPROVANTE_PAGAMENTO], [REFERENCIA_FLORAL], [PLANTA], ou [OUTRO].'\n        },\n        {\n          type: 'image_url',\n          image_url: {\n            url: $json.image_data_url,\n            detail: 'low'\n          }\n        }\n      ]\n    }\n  ]\n}) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "f87ecbb2-df6e-4827-9d6a-7f4c9ec54071",
+      "name": "HTTP: OPENROUTER VISION",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [704, 624],
+      "credentials": {
+        "openRouterApi": {
+          "id": "4BdzzO60z91H2fqA",
+          "name": "openrouter_cloudfy"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// @ts-nocheck\n// Merge do resultado de análise de imagem Vision\nconst prepData = $('CODE: PREP IMAGE DATA URL').item.json;\n\nif (prepData.image_missing) {\n  return {\n    json: {\n      media_ok: false,\n      transcription: null,\n      visual_description: null,\n      fallback_message: 'Recebi sua imagem, mas não consegui visualizá-la. Pode descrever o que procura?',\n      agent_note: 'IMAGE_DOWNLOAD_FAILED'\n    }\n  };\n}\n\nconst choices = $json.choices || [];\nconst content = choices[0]?.message?.content || '';\n\nif (!content) {\n  return {\n    json: {\n      media_ok: false,\n      transcription: null,\n      visual_description: null,\n      fallback_message: 'Recebi sua imagem, mas não consegui analisá-la. Pode descrever o que procura?',\n      agent_note: 'IMAGE_VISION_EMPTY'\n    }\n  };\n}\n\nconst isPaymentReceipt = content.includes('[COMPROVANTE_PAGAMENTO]');\nconst isFloralRef = content.includes('[REFERENCIA_FLORAL]');\nconst isPlant = content.includes('[PLANTA]');\n\nlet agentNote = 'IMAGE_OTHER';\nif (isPaymentReceipt) agentNote = 'PAYMENT_RECEIPT';\nelse if (isFloralRef) agentNote = 'IMAGE_REFERENCE';\nelse if (isPlant) agentNote = 'PLANT_REFERENCE';\n\nreturn {\n  json: {\n    media_ok: true,\n    transcription: null,\n    visual_description: content.trim(),\n    is_payment_receipt: isPaymentReceipt,\n    is_floral_reference: isFloralRef,\n    fallback_message: null,\n    agent_note: agentNote\n  }\n};"
+      },
+      "id": "32fe28be-982e-4225-b8aa-4b0fc127dc0e",
+      "name": "CODE: MERGE IMAGE RESULT",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [944, 624]
+    }
+  ],
+  "connections": {
+    "EXECUTE WORKFLOW TRIGGER": {
+      "main": [
+        [
+          {
+            "node": "IF: IS AUDIO?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: IS AUDIO?": {
+      "main": [
+        [
+          {
+            "node": "HTTP: GET AUDIO BASE64",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP: GET IMAGE BASE64",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: GET AUDIO BASE64": {
+      "main": [
+        [
+          {
+            "node": "CODE: AUDIO B64 TO BINARY",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: AUDIO B64 TO BINARY": {
+      "main": [
+        [
+          {
+            "node": "OPENAI: TRANSCRIBE AUDIO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OPENAI: TRANSCRIBE AUDIO": {
+      "main": [
+        [
+          {
+            "node": "CODE: MERGE AUDIO RESULT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: GET IMAGE BASE64": {
+      "main": [
+        [
+          {
+            "node": "CODE: PREP IMAGE DATA URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: PREP IMAGE DATA URL": {
+      "main": [
+        [
+          {
+            "node": "HTTP: OPENROUTER VISION",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: OPENROUTER VISION": {
+      "main": [
+        [
+          {
+            "node": "CODE: MERGE IMAGE RESULT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "65bec8ad9af329e8a89b63d8b92d775bc3b982584190ebd2d881725c81277167"
+  }
+}

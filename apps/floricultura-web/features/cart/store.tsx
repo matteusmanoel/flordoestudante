@@ -19,6 +19,7 @@ import {
 } from './helpers';
 
 const CART_STORAGE_KEY = 'flor_cart';
+const FULFILLMENT_STORAGE_KEY = 'flor_fulfillment';
 
 function loadCartFromStorage(): CartItem[] {
   const raw = getLocalItem<CartItem[]>(CART_STORAGE_KEY);
@@ -36,17 +37,27 @@ function saveCartToStorage(items: CartItem[]): void {
   setLocalItem(CART_STORAGE_KEY, items);
 }
 
+function loadFulfillmentFromStorage(): 'delivery' | 'pickup' | undefined {
+  const raw = getLocalItem<string>(FULFILLMENT_STORAGE_KEY);
+  if (raw === 'delivery' || raw === 'pickup') return raw;
+  return undefined;
+}
+
 export interface CartStoreValue {
   items: CartItem[];
   hydrated: boolean;
   subtotal: number;
   totalItemCount: number;
-  /** Painel lateral do carrinho (ex.: abre após “Adicionar ao carrinho”). */
+  /** Painel lateral do carrinho (ex.: abre após "Adicionar ao carrinho"). */
   cartSheetOpen: boolean;
   setCartSheetOpen: (open: boolean) => void;
+  /** Preferência de entrega/retirada selecionada na PDP — persiste no localStorage. */
+  preferredFulfillment: 'delivery' | 'pickup' | undefined;
+  setPreferredFulfillment: (v: 'delivery' | 'pickup') => void;
   addItem: (
     product: Parameters<typeof createCartItem>[0],
     quantity?: number,
+    giftMessage?: string,
     options?: { openCartSheet?: boolean }
   ) => void;
   removeItem: (productId: string) => void;
@@ -62,9 +73,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
   const [cartSheetOpen, setCartSheetOpen] = useState(false);
+  const [preferredFulfillment, setPreferredFulfillmentState] = useState<
+    'delivery' | 'pickup' | undefined
+  >(undefined);
 
   useEffect(() => {
     setItems(loadCartFromStorage());
+    setPreferredFulfillmentState(loadFulfillmentFromStorage());
     setHydrated(true);
   }, []);
 
@@ -73,18 +88,25 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     saveCartToStorage(items);
   }, [items, hydrated]);
 
+  const setPreferredFulfillment = useCallback((v: 'delivery' | 'pickup') => {
+    setPreferredFulfillmentState(v);
+    setLocalItem(FULFILLMENT_STORAGE_KEY, v);
+  }, []);
+
   const addItem = useCallback(
     (
       product: Parameters<typeof createCartItem>[0],
       quantity = 1,
+      giftMessage?: string,
       options?: { openCartSheet?: boolean }
     ) => {
-      const newItem = createCartItem(product, quantity);
+      const newItem = createCartItem(product, quantity, giftMessage);
       setItems((prev) => mergeItemIntoCart(prev, newItem));
       if (options?.openCartSheet !== false) {
         setCartSheetOpen(true);
+      } else {
+        toast.success(`${product.name} adicionado ao carrinho`);
       }
-      toast.success(`${product.name} adicionado ao carrinho`);
     },
     []
   );
@@ -126,6 +148,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       totalItemCount,
       cartSheetOpen,
       setCartSheetOpen,
+      preferredFulfillment,
+      setPreferredFulfillment,
       addItem,
       removeItem,
       setQuantity,
@@ -139,6 +163,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       subtotal,
       totalItemCount,
       cartSheetOpen,
+      preferredFulfillment,
+      setPreferredFulfillment,
       addItem,
       removeItem,
       setQuantity,

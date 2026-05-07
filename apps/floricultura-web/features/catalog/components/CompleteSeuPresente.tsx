@@ -27,6 +27,24 @@ export function CompleteSeuPresente({
 
   if (!products.length) return null;
 
+  function scrollToCheckoutTop() {
+    const anchor = document.getElementById('checkout-page-top');
+    const run = () => {
+      if (anchor) {
+        anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+    // Mobile Safari / layout após setState: dois frames ajuda o scroll a aplicar.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(run);
+    });
+  }
+
   function handleQuickAdd(product: ProductCardModel) {
     setAddingId(product.id);
     addItem(
@@ -39,8 +57,10 @@ export function CompleteSeuPresente({
         price: product.price,
       },
       1,
+      undefined,
       { openCartSheet: false }
     );
+    scrollToCheckoutTop();
     setAddingId(null);
   }
 

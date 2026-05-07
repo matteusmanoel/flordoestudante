@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@flordoestudante/ui';
 import { Button, Input, Label, Textarea, Switch, Checkbox } from '@flordoestudante/ui';
 import { toast } from 'sonner';
-import { upsertProduct } from '@/features/admin/product-actions';
+import { upsertProduct, deleteProduct } from '@/features/admin/product-actions';
 import { resolvePublicImageUrl } from '@/lib/image-url';
 import { PRODUCT_KIND } from '@flordoestudante/core';
 
@@ -52,6 +52,8 @@ export function AdminProductModal({
   onSuccess,
 }: Props) {
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [coverPreview, setCoverPreview] = useState<string | null>(product?.cover_image_url ?? null);
   const [active, setActive] = useState(product?.is_active ?? true);
   const [featured, setFeatured] = useState(product?.is_featured ?? false);
@@ -59,7 +61,10 @@ export function AdminProductModal({
   const [recIds, setRecIds] = useState<string[]>(product?.recommended_product_ids ?? []);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setConfirmDelete(false);
+      return;
+    }
     setCoverPreview(product?.cover_image_url ?? null);
     setActive(product?.is_active ?? true);
     setFeatured(product?.is_featured ?? false);
@@ -109,6 +114,20 @@ export function AdminProductModal({
     }
   }
 
+  async function handleDelete() {
+    if (!product?.id) return;
+    setDeleting(true);
+    const result = await deleteProduct(product.id);
+    setDeleting(false);
+    if (result.success) {
+      toast.success('Produto excluído.');
+      onOpenChange(false);
+      onSuccess();
+    } else {
+      toast.error(result.message ?? 'Erro ao excluir produto.');
+    }
+  }
+
   const filteredProducts = products.filter((p) => p.id !== product?.id);
 
   function toggleAddon(id: string) {
@@ -121,178 +140,215 @@ export function AdminProductModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>{product?.id ? 'Editar produto' : 'Novo produto'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+
+        <form onSubmit={handleSubmit}>
           {product?.id && <input type="hidden" name="id" value={product.id} />}
 
-          <div className="space-y-2">
-            <Label htmlFor="name">Nome</Label>
-            <Input id="name" name="name" key={`name-${product?.id ?? 'new'}`} defaultValue={product?.name ?? ''} required />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="category_id">Categoria</Label>
-            <select
-              id="category_id"
-              name="category_id"
-              key={`cat-${product?.id ?? 'new'}`}
-              defaultValue={product?.category_id ?? ''}
-              required
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base md:text-sm"
-            >
-              <option value="">Selecione</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="price">Preço (R$)</Label>
-              <Input
-                id="price"
-                name="price"
-                type="number"
-                step="0.01"
-                min="0"
-                key={`price-${product?.id ?? 'new'}`}
-                defaultValue={product?.price ?? ''}
-                required
-              />
+          {/* Confirmação de exclusão */}
+          {confirmDelete && (
+            <div className="mb-4 rounded-lg border border-destructive/40 bg-destructive/10 p-4">
+              <p className="text-sm font-medium text-destructive">
+                Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita.
+              </p>
+              <div className="mt-3 flex gap-3">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  disabled={deleting}
+                  onClick={handleDelete}
+                >
+                  {deleting ? 'Excluindo...' : 'Confirmar exclusão'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setConfirmDelete(false)}
+                >
+                  Cancelar
+                </Button>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="compare_at_price">Preço original / De (R$)</Label>
-              <Input
-                id="compare_at_price"
-                name="compare_at_price"
-                type="number"
-                step="0.01"
-                min="0"
-                key={`compare-${product?.id ?? 'new'}`}
-                defaultValue={product?.compare_at_price ?? ''}
-                placeholder="Opcional — promoção"
-              />
-            </div>
-          </div>
+          )}
 
-          <div className="space-y-2">
-            <Label htmlFor="short_description">Descrição curta</Label>
-            <Input
-              id="short_description"
-              name="short_description"
-              key={`short-${product?.id ?? 'new'}`}
-              defaultValue={product?.short_description ?? ''}
-            />
-          </div>
+          {/* Grid 2 colunas: texto | imagem/switches */}
+          <div className="grid gap-6 sm:grid-cols-2">
+            {/* Coluna esquerda — campos de texto */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Nome *</Label>
+                <Input id="name" name="name" key={`name-${product?.id ?? 'new'}`} defaultValue={product?.name ?? ''} required />
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Descrição</Label>
-            <Textarea
-              id="description"
-              name="description"
-              rows={3}
-              key={`desc-${product?.id ?? 'new'}`}
-              defaultValue={product?.description ?? ''}
-            />
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="category_id">Categoria *</Label>
+                <select
+                  id="category_id"
+                  name="category_id"
+                  key={`cat-${product?.id ?? 'new'}`}
+                  defaultValue={product?.category_id ?? ''}
+                  required
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="">Selecione</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
 
-          <div className="space-y-2">
-            <Label>Imagem de capa</Label>
-            <Input
-              name="cover_image_file"
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/gif"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) setCoverPreview(URL.createObjectURL(f));
-              }}
-            />
-            {coverPreview && (
-              <div className="relative h-24 w-32 overflow-hidden rounded border">
-                <Image
-                  src={
-                    coverPreview.startsWith('blob:') || coverPreview.startsWith('data:')
-                      ? coverPreview
-                      : resolvePublicImageUrl(coverPreview)
-                  }
-                  alt="Preview"
-                  fill
-                  className="object-cover"
-                  unoptimized
-                  sizes="128px"
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="price">Preço (R$) *</Label>
+                  <Input
+                    id="price" name="price" type="number" step="0.01" min="0"
+                    key={`price-${product?.id ?? 'new'}`}
+                    defaultValue={product?.price ?? ''} required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="compare_at_price">De (R$)</Label>
+                  <Input
+                    id="compare_at_price" name="compare_at_price" type="number" step="0.01" min="0"
+                    key={`compare-${product?.id ?? 'new'}`}
+                    defaultValue={product?.compare_at_price ?? ''}
+                    placeholder="Opcional"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="short_description">Descrição curta</Label>
+                <Input
+                  id="short_description" name="short_description"
+                  key={`short-${product?.id ?? 'new'}`}
+                  defaultValue={product?.short_description ?? ''}
                 />
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Descrição completa</Label>
+                <Textarea
+                  id="description" name="description" rows={4}
+                  key={`desc-${product?.id ?? 'new'}`}
+                  defaultValue={product?.description ?? ''}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="product_kind">Tipo</Label>
+                <select
+                  id="product_kind" name="product_kind"
+                  key={`kind-${product?.id ?? 'new'}`}
+                  defaultValue={product?.product_kind ?? PRODUCT_KIND.REGULAR}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value={PRODUCT_KIND.REGULAR}>Regular</option>
+                  <option value={PRODUCT_KIND.CUSTOMIZABLE}>Customizável</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Coluna direita — imagem, switches, relações */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Imagem de capa</Label>
+                <Input
+                  name="cover_image_file"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) setCoverPreview(URL.createObjectURL(f));
+                  }}
+                />
+                {coverPreview && (
+                  <div className="relative h-32 w-full overflow-hidden rounded-lg border">
+                    <Image
+                      src={
+                        coverPreview.startsWith('blob:') || coverPreview.startsWith('data:')
+                          ? coverPreview
+                          : resolvePublicImageUrl(coverPreview)
+                      }
+                      alt="Preview"
+                      fill
+                      className="object-cover"
+                      unoptimized
+                      sizes="300px"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3 rounded-lg border border-border p-3">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="sw-active">Ativo</Label>
+                  <Switch id="sw-active" checked={active} onCheckedChange={setActive} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="sw-featured">Destaque</Label>
+                  <Switch id="sw-featured" checked={featured} onCheckedChange={setFeatured} />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Complementos (add-ons)</Label>
+                <p className="text-xs text-muted-foreground">Adicionados junto ao produto no pedido.</p>
+                <div className="max-h-28 space-y-2 overflow-y-auto rounded border p-2">
+                  {addons.map((a) => (
+                    <label key={a.id} className="flex items-center gap-2 text-sm">
+                      <Checkbox checked={addonIds.includes(a.id)} onCheckedChange={() => toggleAddon(a.id)} />
+                      {a.name}
+                    </label>
+                  ))}
+                  {addons.length === 0 && <p className="text-xs text-muted-foreground">Nenhum complemento.</p>}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Produtos recomendados</Label>
+                <p className="text-xs text-muted-foreground">Aparecem em &quot;Complete seu presente&quot;.</p>
+                <div className="max-h-28 space-y-2 overflow-y-auto rounded border p-2">
+                  {filteredProducts.map((p) => (
+                    <label key={p.id} className="flex items-center gap-2 text-sm">
+                      <Checkbox checked={recIds.includes(p.id)} onCheckedChange={() => toggleRec(p.id)} />
+                      {p.name}
+                    </label>
+                  ))}
+                  {filteredProducts.length === 0 && (
+                    <p className="text-xs text-muted-foreground">Nenhum produto para vincular.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer com ações */}
+          <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
+            {product?.id && !confirmDelete && (
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={() => setConfirmDelete(true)}
+              >
+                Excluir produto
+              </Button>
             )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="product_kind">Tipo</Label>
-            <select
-              id="product_kind"
-              name="product_kind"
-              key={`kind-${product?.id ?? 'new'}`}
-              defaultValue={product?.product_kind ?? PRODUCT_KIND.REGULAR}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base md:text-sm"
-            >
-              <option value={PRODUCT_KIND.REGULAR}>Regular</option>
-              <option value={PRODUCT_KIND.CUSTOMIZABLE}>Customizável</option>
-            </select>
-          </div>
-
-          <div className="space-y-3 rounded-lg border border-border p-3">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="sw-active">Ativo</Label>
-              <Switch id="sw-active" checked={active} onCheckedChange={setActive} />
+            {!product?.id && <div />}
+            <div className="flex gap-3">
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Salvando...' : product?.id ? 'Atualizar' : 'Criar'}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Cancelar
+              </Button>
             </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="sw-featured">Destaque</Label>
-              <Switch id="sw-featured" checked={featured} onCheckedChange={setFeatured} />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Complementos (add-ons)</Label>
-            <p className="text-xs text-muted-foreground">Produtos que podem ser adicionados junto a este item.</p>
-            <div className="max-h-32 space-y-2 overflow-y-auto rounded border p-2">
-              {addons.map((a) => (
-                <label key={a.id} className="flex items-center gap-2 text-sm">
-                  <Checkbox checked={addonIds.includes(a.id)} onCheckedChange={() => toggleAddon(a.id)} />
-                  {a.name}
-                </label>
-              ))}
-              {addons.length === 0 && <p className="text-xs text-muted-foreground">Nenhum complemento cadastrado.</p>}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Produtos recomendados</Label>
-            <p className="text-xs text-muted-foreground">Aparecem em &quot;Complete seu presente&quot;.</p>
-            <div className="max-h-32 space-y-2 overflow-y-auto rounded border p-2">
-              {filteredProducts.map((p) => (
-                <label key={p.id} className="flex items-center gap-2 text-sm">
-                  <Checkbox checked={recIds.includes(p.id)} onCheckedChange={() => toggleRec(p.id)} />
-                  {p.name}
-                </label>
-              ))}
-              {filteredProducts.length === 0 && (
-                <p className="text-xs text-muted-foreground">Nenhum outro produto para vincular.</p>
-              )}
-            </div>
-          </div>
-
-          <div className="flex gap-3 pt-4">
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Salvando...' : product?.id ? 'Atualizar' : 'Criar'}
-            </Button>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancelar
-            </Button>
           </div>
         </form>
       </DialogContent>

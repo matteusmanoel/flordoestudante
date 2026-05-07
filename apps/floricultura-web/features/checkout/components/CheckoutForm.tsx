@@ -1,16 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Loader2 } from 'lucide-react';
 import { useForm, type FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import {
-  FULFILLMENT_TYPE,
-  PAYMENT_METHOD,
-} from '@flordoestudante/core';
-import { Button } from '@flordoestudante/ui';
+import { FULFILLMENT_TYPE, PAYMENT_METHOD } from '@flordoestudante/core';
 import { checkoutFormSchema, type CheckoutFormValues } from '../schema';
 import type { ShippingRuleOption } from '../types';
 import { finalizeCheckout } from '../actions';
@@ -22,12 +17,7 @@ import { CheckoutAddressSection } from './CheckoutAddressSection';
 import { CheckoutNotesSection } from './CheckoutNotesSection';
 import { CheckoutSummary } from './CheckoutSummary';
 import { CheckoutSubmitButton } from './CheckoutSubmitButton';
-import { CheckoutStepper } from './CheckoutStepper';
-
-const STEPS = [
-  { id: 1, label: 'Contato e entrega' },
-  { id: 2, label: 'Pagamento e observações' },
-] as const;
+import { CheckoutRecommendedSection } from './CheckoutRecommendedSection';
 
 function firstNestedErrorMessage(errors: FieldErrors<CheckoutFormValues>): string | null {
   const walk = (v: unknown): string | null => {
@@ -46,14 +36,26 @@ function firstNestedErrorMessage(errors: FieldErrors<CheckoutFormValues>): strin
 
 type CheckoutFormProps = {
   activeShippingRule: ShippingRuleOption | null;
+  initialGiftMessage?: string;
+  initialFulfillment?: 'delivery' | 'pickup';
 };
 
-export function CheckoutForm({ activeShippingRule }: CheckoutFormProps) {
+export function CheckoutForm({
+  activeShippingRule,
+  initialGiftMessage = '',
+  initialFulfillment,
+}: CheckoutFormProps) {
   const router = useRouter();
   const { items, clear } = useCart();
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [step, setStep] = useState(1);
-  const [step1Busy, setStep1Busy] = useState(false);
+
+  const defaultFulfillment = initialFulfillment
+    ? initialFulfillment === 'delivery'
+      ? FULFILLMENT_TYPE.DELIVERY
+      : FULFILLMENT_TYPE.PICKUP
+    : activeShippingRule != null
+      ? FULFILLMENT_TYPE.DELIVERY
+      : FULFILLMENT_TYPE.PICKUP;
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutFormSchema),
@@ -61,11 +63,10 @@ export function CheckoutForm({ activeShippingRule }: CheckoutFormProps) {
       full_name: '',
       phone: '',
       email: '',
-      fulfillment_type:
-        activeShippingRule != null ? FULFILLMENT_TYPE.DELIVERY : FULFILLMENT_TYPE.PICKUP,
+      fulfillment_type: defaultFulfillment,
       address: undefined,
       customer_note: '',
-      gift_message: '',
+      gift_message: initialGiftMessage,
       payment_method: PAYMENT_METHOD.MERCADO_PAGO,
       shipping_rule_id: activeShippingRule?.id ?? null,
     },
@@ -104,11 +105,9 @@ export function CheckoutForm({ activeShippingRule }: CheckoutFormProps) {
   }, [form]);
 
   const onInvalid = (errors: FieldErrors<CheckoutFormValues>) => {
-    const msg =
-      firstNestedErrorMessage(errors) ?? 'Confira os dados nas etapas anteriores e tente novamente.';
+    const msg = firstNestedErrorMessage(errors) ?? 'Confira os dados e tente novamente.';
     setSubmitError(msg);
     toast.error(msg);
-    setStep(1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -137,130 +136,110 @@ export function CheckoutForm({ activeShippingRule }: CheckoutFormProps) {
     }
 
     clear();
-
-    router.push(`/pedido/${encodeURIComponent(result.publicCode)}/pagamento`);
+    router.push(`/pedido/${encodeURIComponent(result.publicCode)}`);
   };
 
-  async function goToStep2() {
-    setStep1Busy(true);
-    try {
-      const baseOk = await form.trigger(['full_name', 'phone', 'email', 'fulfillment_type']);
-      if (!baseOk) {
-        toast.error('Verifique os dados de contato e a forma de recebimento.');
-        return;
-      }
-      if (fulfillmentType === FULFILLMENT_TYPE.DELIVERY) {
-        if (!activeShippingRule) {
-          toast.error('Entrega indisponível no momento. Escolha retirada na loja ou tente mais tarde.');
-          return;
-        }
-        const addrOk = await form.trigger('address');
-        if (!addrOk) {
-          toast.error('Preencha o endereço de entrega para continuar.');
-          return;
-        }
-        form.setValue('shipping_rule_id', activeShippingRule.id);
-        const ruleOk = await form.trigger('shipping_rule_id');
-        if (!ruleOk) {
-          toast.error('Não foi possível validar a taxa de entrega.');
-          return;
-        }
-      }
-      setStep(2);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } finally {
-      setStep1Busy(false);
-    }
-  }
-
   return (
-    <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-8">
-      {submitError && (
-        <div className="rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {submitError}
-        </div>
-      )}
+    <>
+      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)}>
+        {submitError && (
+          <div className="mb-5 rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            {submitError}
+          </div>
+        )}
 
-      <section className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-6">
-        <h2 className="font-serif text-lg font-medium text-foreground">Resumo do pedido</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Confira itens e valores antes de preencher seus dados.
-        </p>
-        <div className="mt-4">
-          <CheckoutSummary
-            hideTitle
-            editable
-            items={items}
-            subtotal={cartPayload.subtotal}
-            shippingAmount={shippingAmount}
-            total={total}
-            fulfillmentType={fulfillmentType}
-          />
-        </div>
-      </section>
+        {/* Desktop: grid-cols-[1fr_380px]; Mobile: coluna única */}
+        <div className="gap-8 lg:grid lg:grid-cols-[1fr_380px] lg:items-start">
+          {/* Coluna esquerda — formulário */}
+          <div className="space-y-5">
+            {/* Resumo (mobile only, aparece acima do form) */}
+            <section className="rounded-xl border border-border bg-card p-4 shadow-sm lg:hidden">
+              <h2 className="mb-3 font-display text-base font-medium text-foreground">
+                Resumo do pedido
+              </h2>
+              <CheckoutSummary
+                hideTitle
+                editable
+                items={items}
+                subtotal={cartPayload.subtotal}
+                shippingAmount={shippingAmount}
+                total={total}
+                fulfillmentType={fulfillmentType}
+              />
+            </section>
 
-      <CheckoutStepper steps={[...STEPS]} currentStep={step} />
+            {/* Contato */}
+            <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
+              <CheckoutContactSection register={form.register} errors={form.formState.errors} />
+            </section>
 
-      {step === 1 && (
-        <div className="space-y-8 rounded-xl border border-border bg-card/40 p-4 sm:p-6">
-          <CheckoutContactSection
-            register={form.register}
-            errors={form.formState.errors}
-          />
-          <CheckoutFulfillmentSection
-            control={form.control}
-            errors={form.formState.errors}
-            activeShippingRule={activeShippingRule}
-            variant="delivery_only"
-          />
-          {fulfillmentType === FULFILLMENT_TYPE.DELIVERY && (
-            <CheckoutAddressSection
-              register={form.register}
-              errors={form.formState.errors}
-              setValue={form.setValue}
-            />
-          )}
-          <div className="flex justify-end pt-2">
-            <Button
-              type="button"
-              size="lg"
-              className="inline-flex items-center justify-center gap-2"
-              disabled={step1Busy}
-              onClick={() => void goToStep2()}
-            >
-              {step1Busy ? (
-                <>
-                  <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
-                  Validando…
-                </>
-              ) : (
-                'Continuar para pagamento'
+            {/* Pagamento */}
+            <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
+              <CheckoutFulfillmentSection
+                control={form.control}
+                errors={form.formState.errors}
+                activeShippingRule={activeShippingRule}
+                variant="payment_only"
+              />
+            </section>
+
+            {/* Entrega */}
+            <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
+              <CheckoutFulfillmentSection
+                control={form.control}
+                errors={form.formState.errors}
+                activeShippingRule={activeShippingRule}
+                variant="delivery_only"
+              />
+              {fulfillmentType === FULFILLMENT_TYPE.DELIVERY && (
+                <div className="mt-5 border-t border-border pt-5">
+                  <CheckoutAddressSection
+                    register={form.register}
+                    errors={form.formState.errors}
+                    setValue={form.setValue}
+                  />
+                </div>
               )}
-            </Button>
-          </div>
-        </div>
-      )}
+            </section>
 
-      {step === 2 && (
-        <div className="space-y-8 rounded-xl border border-border bg-card/40 p-4 sm:p-6">
-          <CheckoutFulfillmentSection
-            control={form.control}
-            errors={form.formState.errors}
-            activeShippingRule={activeShippingRule}
-            variant="payment_only"
-          />
-          <CheckoutNotesSection
-            register={form.register}
-            errors={form.formState.errors}
-          />
-          <div className="flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
-            <Button type="button" variant="outline" onClick={() => setStep(1)}>
-              Voltar
-            </Button>
-            <CheckoutSubmitButton isSubmitting={form.formState.isSubmitting} />
+            {/* Observações / mensagem */}
+            <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
+              <CheckoutNotesSection register={form.register} errors={form.formState.errors} />
+            </section>
+
+            {/* CTA mobile */}
+            <div className="pt-2 lg:hidden">
+              <CheckoutSubmitButton isSubmitting={form.formState.isSubmitting} />
+            </div>
           </div>
+
+          {/* Coluna direita — resumo sticky (desktop) */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-24 space-y-4 flex flex-col items-center justify-center w-full">
+              <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
+                <h2 className="mb-3 font-display text-base font-medium text-foreground">
+                  Resumo do pedido
+                </h2>
+                <CheckoutSummary
+                  hideTitle
+                  editable
+                  items={items}
+                  subtotal={cartPayload.subtotal}
+                  shippingAmount={shippingAmount}
+                  total={total}
+                  fulfillmentType={fulfillmentType}
+                />
+              </section>
+              <CheckoutSubmitButton isSubmitting={form.formState.isSubmitting} />
+            </div>
+          </aside>
         </div>
-      )}
-    </form>
+      </form>
+
+      {/* Produtos recomendados — abaixo do form */}
+      <div className="mt-8">
+        <CheckoutRecommendedSection variant="quickAdd" />
+      </div>
+    </>
   );
 }

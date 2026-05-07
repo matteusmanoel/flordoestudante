@@ -85,10 +85,10 @@ export function OrderAdminDetail({
     : '';
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8 p-6">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl font-medium">{publicCode}</h1>
+          <h1 className="font-display text-xl font-medium">{publicCode}</h1>
           <Link
             href={`/pedido/${encodeURIComponent(publicCode)}`}
             className="text-sm text-primary underline-offset-4 hover:underline"
@@ -98,12 +98,6 @@ export function OrderAdminDetail({
             Ver página pública ↗
           </Link>
         </div>
-        <Link
-          href="/admin/pedidos"
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          ← Lista
-        </Link>
       </div>
 
       {customerName && (

@@ -1,0 +1,2235 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "julia",
+        "options": {}
+      },
+      "id": "b44f3f64-3f1f-40f8-a830-c4e2800d7c2f",
+      "name": "WEBHOOK EVOLUTION | FLOR",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-14096, -1032],
+      "webhookId": "flor-whatsapp-inbound-s6"
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\n\nfunction firstNonEmpty() {\n  for (let i = 0; i < arguments.length; i++) {\n    const value = arguments[i];\n    if (value !== undefined && value !== null && String(value).trim() !== '') {\n      return value;\n    }\n  }\n  return '';\n}\n\nfunction onlyDigits(value) {\n  return String(value || '').replace(/\\D/g, '');\n}\n\nfunction getByPath(obj, path) {\n  try {\n    return path.split('.').reduce((cur, p) => {\n      if (cur === undefined || cur === null) return '';\n      return cur[p];\n    }, obj) ?? '';\n  } catch (e) {\n    return '';\n  }\n}\n\nfunction normalizeBrazilWhatsappPhone(value) {\n  let raw = String(value || '');\n  let digits = onlyDigits(raw.split('@')[0]);\n\n  if (!digits) return '';\n\n  digits = digits.replace(/^0+/, '');\n\n  // Se veio sem DDI, assume Brasil.\n  if (!digits.startsWith('55')) {\n    if (digits.length === 10 || digits.length === 11) {\n      digits = '55' + digits;\n    }\n  }\n\n  // Regra validada:\n  // 554588230845@s.whatsapp.net -> 5545988230845\n  // 55 + DDD + 8 dígitos iniciando em 6/7/8/9 -> inserir nono dígito.\n  if (digits.startsWith('55') && digits.length === 12) {\n    const ddd = digits.slice(2, 4);\n    const subscriber = digits.slice(4);\n\n    if (/^[6-9]/.test(subscriber)) {\n      digits = '55' + ddd + '9' + subscriber;\n    }\n  }\n\n  return digits;\n}\n\nfunction getMessageText(message) {\n  if (!message || typeof message !== 'object') return '';\n\n  const orderCount = getByPath(message, 'orderMessage.itemCount');\n  const orderFallback = orderCount ? 'Pedido/carrinho com ' + orderCount + ' itens' : '';\n\n  return firstNonEmpty(\n    getByPath(message, 'conversation'),\n    getByPath(message, 'extendedTextMessage.text'),\n    getByPath(message, 'imageMessage.caption'),\n    getByPath(message, 'videoMessage.caption'),\n    getByPath(message, 'documentMessage.caption'),\n    getByPath(message, 'buttonsResponseMessage.selectedDisplayText'),\n    getByPath(message, 'buttonsResponseMessage.selectedButtonId'),\n    getByPath(message, 'listResponseMessage.title'),\n    getByPath(message, 'listResponseMessage.singleSelectReply.selectedRowId'),\n    getByPath(message, 'templateButtonReplyMessage.selectedDisplayText'),\n    getByPath(message, 'templateButtonReplyMessage.selectedId'),\n    getByPath(message, 'orderMessage.orderTitle'),\n    orderFallback\n  );\n}\n\nfunction detectMessageType(data, message) {\n  const declared = firstNonEmpty(\n    getByPath(data, 'messageType'),\n    getByPath(data, 'type')\n  );\n\n  if (declared) {\n    const d = String(declared).toLowerCase();\n\n    if (d.includes('image')) return 'image';\n    if (d.includes('audio')) return 'audio';\n    if (d.includes('video')) return 'video';\n    if (d.includes('document')) return 'document';\n    if (d.includes('order')) return 'cart';\n    if (d.includes('cart')) return 'cart';\n    if (d.includes('location')) return 'location';\n    if (d.includes('contact')) return 'contact';\n    if (d.includes('conversation') || d.includes('text')) return 'text';\n  }\n\n  if (!message || typeof message !== 'object') return 'unknown';\n\n  if (message.conversation || message.extendedTextMessage) return 'text';\n  if (message.imageMessage) return 'image';\n  if (message.audioMessage || message.pttMessage) return 'audio';\n  if (message.videoMessage) return 'video';\n  if (message.documentMessage) return 'document';\n  if (message.orderMessage) return 'cart';\n  if (message.locationMessage) return 'location';\n  if (message.contactMessage || message.contactsArrayMessage) return 'contact';\n\n  return 'unknown';\n}\n\nfunction toIsoTimestamp(value) {\n  if (!value) return new Date().toISOString();\n\n  if (typeof value === 'number') {\n    if (value < 10000000000) {\n      return new Date(value * 1000).toISOString();\n    }\n\n    return new Date(value).toISOString();\n  }\n\n  const parsed = new Date(value);\n  if (!Number.isNaN(parsed.getTime())) return parsed.toISOString();\n\n  return new Date().toISOString();\n}\n\n// Ponto principal da correção:\n// o Webhook do n8n entrega a Evolution dentro de $json.body.\nconst envelope = $json || {};\nconst payload = envelope.body || envelope;\n\nconst data =\n  payload.data ||\n  payload.message ||\n  (payload.messages && payload.messages[0]) ||\n  payload;\n\nconst key = data.key || payload.key || {};\nconst message = data.message || payload.message || {};\n\nconst remoteJid = firstNonEmpty(\n  key.remoteJid,\n  key.remoteJidAlt,\n  data.remoteJid,\n  data.from,\n  data.chatId,\n  payload.remoteJid,\n  payload.from,\n  payload.chatId,\n  data.sender,\n  payload.sender\n);\n\nconst fromMe = Boolean(\n  key.fromMe !== undefined ? key.fromMe :\n  data.fromMe !== undefined ? data.fromMe :\n  payload.fromMe !== undefined ? payload.fromMe :\n  false\n);\n\nconst messageText = String(\n  firstNonEmpty(\n    getMessageText(message),\n    data.text,\n    payload.text,\n    data.body,\n    payload.body\n  )\n).trim();\n\nconst messageType = detectMessageType(data, message);\n\nconst pushName = String(firstNonEmpty(\n  data.pushName,\n  data.senderName,\n  payload.pushName,\n  payload.senderName,\n  data.notifyName,\n  'Cliente WhatsApp'\n)).trim();\n\nconst phoneNormalized = normalizeBrazilWhatsappPhone(remoteJid);\n\nconst messageId = firstNonEmpty(\n  key.id,\n  data.id,\n  payload.id,\n  data.messageId,\n  payload.messageId\n);\n\nconst instance = firstNonEmpty(\n  payload.instance,\n  data.instance,\n  payload.instanceName,\n  data.instanceName,\n  'julia'\n);\n\nconst event = firstNonEmpty(\n  payload.event,\n  data.event,\n  ''\n);\n\nlet mediaUrl = '';\nlet mediaKey = null;\n\nif (message.audioMessage || message.pttMessage) {\n  const audioMsg = message.audioMessage || message.pttMessage;\n  mediaUrl = firstNonEmpty(audioMsg.url, audioMsg.directPath);\n  mediaKey = key;\n}\n\nif (message.imageMessage) {\n  mediaUrl = firstNonEmpty(message.imageMessage.url, message.imageMessage.directPath);\n  mediaKey = key;\n}\n\nif (message.videoMessage) {\n  mediaUrl = firstNonEmpty(message.videoMessage.url, message.videoMessage.directPath);\n  mediaKey = key;\n}\n\nif (message.documentMessage) {\n  mediaUrl = firstNonEmpty(message.documentMessage.url, message.documentMessage.directPath);\n  mediaKey = key;\n}\n\nlet skip = false;\nlet reason = '';\n\nif (fromMe) {\n  skip = true;\n  reason = 'fromMe';\n}\n\nif (String(remoteJid || '').includes('@g.us')) {\n  skip = true;\n  reason = 'group';\n}\n\nif (String(remoteJid || '').includes('status@broadcast')) {\n  skip = true;\n  reason = 'status';\n}\n\nif (!phoneNormalized) {\n  skip = true;\n  reason = reason || 'phone_not_found';\n}\n\nconst textNorm = messageText\n  .toLowerCase()\n  .normalize('NFD')\n  .replace(/[\\u0300-\\u036f]/g, '')\n  .trim();\n\nconst rawPayload = {\n  event,\n  instance,\n  key,\n  pushName,\n  message_type: messageType,\n  messageTimestamp: firstNonEmpty(\n    data.messageTimestamp,\n    payload.messageTimestamp,\n    data.timestamp,\n    payload.timestamp\n  )\n};\n\nreturn [{\n  json: {\n    phone_normalized: phoneNormalized,\n    push_name: pushName,\n    instance,\n    message_id: messageId,\n    message_type: messageType,\n    message_text: messageText,\n    message_text_normalized: textNorm,\n    message_timestamp: toIsoTimestamp(firstNonEmpty(\n      data.messageTimestamp,\n      payload.messageTimestamp,\n      data.timestamp,\n      payload.timestamp\n    )),\n    media_url: mediaUrl,\n    media_key_json: mediaKey || null,\n    raw_payload: rawPayload,\n    full_payload: payload,\n    remote_jid: remoteJid,\n    external_contact_id: remoteJid,\n    channel: 'whatsapp',\n    from_me: fromMe,\n    event,\n    skip\n  }\n}];"
+      },
+      "id": "8b44f477-778b-486c-8a1e-ff00b472e7b8",
+      "name": "NORMALIZA PAYLOAD WHATSAPP | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-13872, -1032]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "skip-check",
+              "leftValue": "={{ $json.skip }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "phone-check",
+              "leftValue": "={{ $json.phone_normalized }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "7c73d883-99d7-487c-8125-df8e4c82cd18",
+      "name": "DEVE PROCESSAR? | S6",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-13648, -1032]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "key": "={{ 'flor:human_lock:' + $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}",
+        "options": {}
+      },
+      "id": "0f1e25f3-13c7-4682-b190-0d550e3dce2b",
+      "name": "REDIS: GET HUMAN LOCK | S6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-13424, -1032],
+      "credentials": {
+        "redis": {
+          "id": "L3M7sVsK0xWc3qf3",
+          "name": "redis_cloudfy"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "lock-check",
+              "leftValue": "={{ $json.value || $json.propertyName || '' }}",
+              "rightValue": "1",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "053ae9a8-ec01-4478-8120-9c7469addac7",
+      "name": "HUMAN TAKEOVER ATIVO? | S6",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-13200, -1032]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "key": "={{ 'flor:buffer:' + $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}",
+        "options": {}
+      },
+      "id": "d948c11c-2a21-411f-8679-a8f964e4b88f",
+      "name": "REDIS: GET BUFFER ATUAL | S6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-12976, -1032],
+      "credentials": {
+        "redis": {
+          "id": "L3M7sVsK0xWc3qf3",
+          "name": "redis_cloudfy"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\nconst norm = $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json;\nconst bufRaw = $json.value || $json.propertyName || '';\n\nlet existing = [];\ntry {\n  if (bufRaw && typeof bufRaw === 'string' && bufRaw.startsWith('[')) {\n    existing = JSON.parse(bufRaw) || [];\n  }\n} catch (_) {}\n\nconst newMsg = {\n  message_id: norm.message_id,\n  message_text: norm.message_text || '',\n  message_type: norm.message_type || 'text',\n  media_url: norm.media_url || '',\n  ts: Date.now()\n};\n\nexisting.push(newMsg);\n\n// Keep last 10 messages max\nif (existing.length > 10) existing = existing.slice(-10);\n\nreturn [{ json: { ...norm, buffer: existing, buffer_json: JSON.stringify(existing) } }];"
+      },
+      "id": "f9dddb38-de82-4f0b-bfc4-d9cfb7a5f280",
+      "name": "CODE: ATUALIZA BUFFER | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-12752, -1032]
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ 'flor:buffer:' + $json.phone_normalized }}",
+        "value": "={{ $json.buffer_json }}",
+        "expire": true,
+        "ttl": 120
+      },
+      "id": "30701a6f-4f5d-4abf-8d31-2de1c53b371f",
+      "name": "REDIS: SET BUFFER | S6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-12528, -1032],
+      "credentials": {
+        "redis": {
+          "id": "L3M7sVsK0xWc3qf3",
+          "name": "redis_cloudfy"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ 'flor:last_msg_id:' + $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}",
+        "value": "={{ $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.message_id }}",
+        "expire": true,
+        "ttl": 120
+      },
+      "id": "c4d8950a-1fd6-4347-a187-2b0a2675a4e7",
+      "name": "REDIS: SET LAST MSG ID | S6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-12304, -1032],
+      "credentials": {
+        "redis": {
+          "id": "L3M7sVsK0xWc3qf3",
+          "name": "redis_cloudfy"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "seconds"
+      },
+      "id": "5a774e8e-a621-4b26-8875-6217a5744f2f",
+      "name": "WAIT 2S | S6",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [-12080, -1032],
+      "webhookId": "36f6329c-0792-420b-8506-e4bdfc90b7e0"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "key": "={{ 'flor:last_msg_id:' + $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}",
+        "options": {}
+      },
+      "id": "a5adf31f-ff54-420a-bfc5-f88ed5a7ab1f",
+      "name": "REDIS: GET LAST MSG ID | S6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-11856, -1032],
+      "credentials": {
+        "redis": {
+          "id": "L3M7sVsK0xWc3qf3",
+          "name": "redis_cloudfy"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "msgid-check",
+              "leftValue": "={{ $json.value || $json.propertyName || '' }}",
+              "rightValue": "={{ $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.message_id }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "73b5a0d6-0264-402c-9f2e-1152c4e9b036",
+      "name": "AINDA É O MAIS RECENTE? | S6",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-11632, -1032]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "key": "={{ 'flor:buffer:' + $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}",
+        "options": {}
+      },
+      "id": "1ad0ad1d-0331-41ff-9a5e-32d91791cad5",
+      "name": "REDIS: GET BUFFER FINAL | S6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-11408, -1032],
+      "credentials": {
+        "redis": {
+          "id": "L3M7sVsK0xWc3qf3",
+          "name": "redis_cloudfy"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\n// Monta contexto final a partir do buffer acumulado\nconst norm = $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json;\nlet buffer = [];\ntry {\nconst raw = $json.value || $json.propertyName || '';\n  if (raw && typeof raw === 'string' && raw.startsWith('[')) {\n    buffer = JSON.parse(raw) || [];\n  }\n} catch (_) {}\n\nif (buffer.length === 0) {\n  buffer = [{\n    message_id: norm.message_id || '',\n    message_text: norm.message_text || '',\n    message_type: norm.message_type || 'text',\n    media_url: norm.media_url || '',\n    ts: Date.now()\n  }];\n}\n\n// Merge text messages\nconst mergedText = buffer\n  .map(m => (m.message_text || '').trim())\n  .filter(Boolean)\n  .join('\\n');\n\nconst mergedTextNorm = mergedText.toLowerCase()\n  .normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').trim();\n\n// Detect special types in buffer (priority: cart > audio > image > text)\nconst hasCart = buffer.some(m => m.message_type === 'cart');\nconst hasAudio = buffer.some(m => m.message_type === 'audio');\nconst hasImage = buffer.some(m => m.message_type === 'image');\n\nlet effectiveType = 'text';\nif (hasCart) effectiveType = 'cart';\nelse if (hasAudio) effectiveType = 'audio';\nelse if (hasImage) effectiveType = 'image';\nelse if (buffer.length === 1) effectiveType = norm.message_type;\n\n// Get media URL/key from the relevant buffer message\nconst mediaMsg = buffer.find(m => ['audio', 'image', 'video'].includes(m.message_type));\nconst mediaUrl = mediaMsg?.media_url || norm.media_url || '';\n\nreturn [{\n  json: {\n    ...norm,\n    message_text: mergedText || norm.message_text || '',\n    message_text_normalized: mergedTextNorm || norm.message_text_normalized || '',\n    message_type: effectiveType,\n    buffer_count: buffer.length,\n    buffer_messages: buffer,\n    has_audio: hasAudio,\n    has_image: hasImage,\n    has_cart: hasCart,\n    media_url: mediaUrl,\n    transcription: null,\n    visual_description: null\n  }\n}];"
+      },
+      "id": "64a324f2-3aae-4cc7-a32d-f40accecf6be",
+      "name": "CODE: MONTA CONTEXTO | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-11184, -1032]
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "={{ 'flor:buffer:' + $json.phone_normalized }}"
+      },
+      "id": "03d780f9-b73c-49b4-8967-bdfd804dbefa",
+      "name": "REDIS: DEL BUFFER | S6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-10960, -1032],
+      "credentials": {
+        "redis": {
+          "id": "L3M7sVsK0xWc3qf3",
+          "name": "redis_cloudfy"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "audio-check",
+              "leftValue": "={{ $('CODE: MONTA CONTEXTO | S6').item.json.has_audio }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "685a018a-52a1-4b6a-a7b4-60d9660a09b2",
+      "name": "IF: HAS AUDIO? | S6",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-10736, -1032]
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\n// Prepara parâmetros para download de áudio via Evolution\nconst norm = $('CODE: MONTA CONTEXTO | S6').item.json;\nconst fullPayload = norm.full_payload || {};\nconst data = fullPayload.data || fullPayload;\nconst key = data.key || {};\n\n// Tenta extrair URL do media direto do payload\nconst message = data.message || {};\nconst audioMsg = message.audioMessage || message.pttMessage || {};\nconst directUrl = audioMsg.url || norm.media_url || '';\n\nreturn [{\n  json: {\n    ...norm,\n    audio_direct_url: directUrl,\n    evolution_key: key,\n    instance: norm.instance || '',\n    needs_evolution_download: !directUrl || directUrl.includes('whatsapp.net')\n  }\n}];"
+      },
+      "id": "8676e18f-2397-4cef-ba0e-00bc9ff46807",
+      "name": "CODE: PREP AUDIO | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-10512, -1104]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://cheatingbat-evolution.cloudfy.live/message/getBase64FromMediaMessage/julia",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "evolutionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "={{ $json.evolution_key }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "id": "48206b5d-8faf-42ab-a701-6c8456938dd0",
+      "name": "HTTP: EVOLUTION GET AUDIO | S6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-10288, -1104],
+      "credentials": {
+        "evolutionApi": {
+          "id": "hUhH7ahIVjr2lysL",
+          "name": "evolution_cloudfy"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\n// Converte base64 do Evolution para binary data do n8n\nconst norm = $('CODE: MONTA CONTEXTO | S6').item.json;\nconst evolutionResp = $json;\n\nconst b64 = evolutionResp.base64 || evolutionResp.media || evolutionResp.data || '';\n\nif (!b64 || evolutionResp.error) {\n  // Evolution download failed — return flag for fallback\n  return [{ json: { ...norm, audio_b64_missing: true, audio_error: evolutionResp.error || 'No base64 from Evolution' } }];\n}\n\nconst ext = evolutionResp.ext || evolutionResp.mediaType?.split('/')[1] || 'ogg';\nconst mimeMap = { ogg: 'audio/ogg', mp4: 'audio/mp4', mp3: 'audio/mpeg', m4a: 'audio/mp4', wav: 'audio/wav', opus: 'audio/ogg' };\nconst mime = mimeMap[ext] || 'audio/ogg';\n\nconst buf = Buffer.from(b64, 'base64');\nconst binaryData = await $helpers.prepareBinaryData(buf, 'audio.' + ext, mime);\n\nreturn [{\n  json: { ...norm, audio_mime: mime, audio_ext: ext, audio_size: buf.length, audio_b64_missing: false },\n  binary: { data: binaryData }\n}];"
+      },
+      "id": "be2591b1-54f9-449e-bbaf-c9fb8b9d54a4",
+      "name": "CODE: AUDIO TO BINARY | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-10064, -1104],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\n// Merge transcription result. Handles success and all failure modes.\nconst norm = $('CODE: MONTA CONTEXTO | S6').item.json;\nconst current = $json;\n\n// Check if previous steps failed\nif (norm.audio_b64_missing) {\n  return [{ json: {\n    ...norm,\n    message_text: norm.message_text || '🎙️ [Áudio recebido — não foi possível transcrever]',\n    transcription: null,\n    audio_processed: false,\n    agent_note: 'AUDIO_DOWNLOAD_FAILED'\n  }}];\n}\n\n// Check OpenAI transcription result\nconst transcription = current.text || current.transcription || '';\n\nif (!transcription && current.error) {\n  return [{ json: {\n    ...norm,\n    message_text: norm.message_text || '🎙️ [Áudio recebido — transcrição indisponível]',\n    transcription: null,\n    audio_processed: false,\n    agent_note: 'TRANSCRIPTION_FAILED'\n  }}];\n}\n\nreturn [{ json: {\n  ...norm,\n  message_text: transcription || norm.message_text || '',\n  transcription: transcription,\n  audio_processed: true,\n  agent_note: transcription ? 'AUDIO_TRANSCRIBED' : 'AUDIO_EMPTY'\n}}];"
+      },
+      "id": "47ca4dd6-f085-4635-b189-aa64bb252a0a",
+      "name": "CODE: MERGE AUDIO | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-9616, -1104]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "image-check",
+              "leftValue": "={{ $('CODE: MONTA CONTEXTO | S6').item.json.has_image }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "eba7efc6-96ae-4549-99a5-78ce0a61d0da",
+      "name": "IF: HAS IMAGE? | S6",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-9392, -1032]
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\n// Extrai URL da imagem do payload Evolution\nconst norm = $('CODE: MONTA CONTEXTO | S6').item.json;\nconst fullPayload = norm.full_payload || {};\nconst data = fullPayload.data || fullPayload;\nconst message = data.message || {};\nconst imgMsg = message.imageMessage || {};\n\n// Use direct URL if available and not ephemeral whatsapp URL\nlet imageUrl = imgMsg.url || norm.media_url || '';\n\n// If it's an ephemeral WA URL, use thumbnail base64 as data URL fallback\nif (!imageUrl || imageUrl.includes('whatsapp.net') || imageUrl.includes('enc')) {\n  const thumb = imgMsg.jpegThumbnail;\n  if (thumb) {\n    imageUrl = 'data:image/jpeg;base64,' + thumb;\n  }\n}\n\nreturn [{\n  json: {\n    ...norm,\n    image_url: imageUrl,\n    image_caption: imgMsg.caption || norm.message_text || ''\n  }\n}];"
+      },
+      "id": "a88cdea1-6e00-465f-93e9-6f134ac1e87b",
+      "name": "CODE: PREP IMAGE | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-9168, -1104]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://flordoestudante.com.br"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "openai/gpt-4o-mini"
+            },
+            {
+              "name": "max_tokens",
+              "value": "400"
+            },
+            {
+              "name": "messages",
+              "value": "={{ JSON.stringify([{\"role\":\"user\",\"content\":[{\"type\":\"text\",\"text\":\"Você é um assistente de floricultura. Analise esta imagem e responda em português:\\n1. O que aparece na imagem? (tipo de flor, arranjo, buquê, planta, produto, pessoa, comprovante de pagamento)\\n2. Se for arranjo/flor: descreva estilo, cores predominantes e ocasião sugerida.\\n3. Se for comprovante de pagamento: confirme que parece ser um comprovante.\\n4. Se for outra coisa: descreva brevemente.\\nSeja conciso (máx 3 frases).\"},{\"type\":\"image_url\",\"image_url\":{\"url\":$json.image_url}}]}]) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "94d1ff98-1b4a-4d5b-9ba8-472c16e4fbca",
+      "name": "HTTP: OPENAI VISION | S6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-8944, -1104],
+      "credentials": {
+        "openRouterApi": {
+          "id": "4BdzzO60z91H2fqA",
+          "name": "openrouter_cloudfy"
+        }
+      },
+      "continueOnFail": true,
+      "notes": "Uses OpenRouter for vision — more reliable for URL-based image content than native n8n OpenAI node. Native node doesn't support image_url content type in current n8n 2.13.2."
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\n// Merge image vision result\nconst norm = $('CODE: MONTA CONTEXTO | S6').item.json;\nconst current = $json;\n\nlet visualDesc = '';\ntry {\n  visualDesc = current.choices?.[0]?.message?.content || current.error?.message || '';\n} catch (_) { visualDesc = ''; }\n\nif (!visualDesc || current.error) {\n  return [{ json: {\n    ...norm,\n    visual_description: null,\n    image_processed: false,\n    agent_note: (norm.agent_note || '') + ' IMAGE_ANALYSIS_FAILED'\n  }}];\n}\n\n// Detect payment receipt\nconst isPaymentReceipt = /comprovante|pagamento|pix|transferencia|receipt/i.test(visualDesc);\n\nreturn [{ json: {\n  ...norm,\n  visual_description: visualDesc,\n  image_processed: true,\n  is_payment_receipt: isPaymentReceipt,\n  message_text: norm.message_text || ('[Imagem: ' + visualDesc.substring(0, 100) + ']'),\n  agent_note: (norm.agent_note || '') + (isPaymentReceipt ? ' PAYMENT_RECEIPT' : ' IMAGE_REFERENCE')\n}}];"
+      },
+      "id": "10e91dee-5c07-4d8f-aa99-9e71815d9c8f",
+      "name": "CODE: MERGE IMAGE | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-8720, -1104]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/flor_get_conversation_context",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Profile",
+              "value": "public"
+            },
+            {
+              "name": "Content-Profile",
+              "value": "public"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "p_phone_normalized",
+              "value": "={{ $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}"
+            },
+            {
+              "name": "p_channel",
+              "value": "whatsapp"
+            },
+            {
+              "name": "p_recent_limit",
+              "value": "10"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "859feb34-49b7-412d-8f36-932417f08542",
+      "name": "HTTP: SUPABASE GET CONTEXT | S6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-8496, -1032],
+      "credentials": {
+        "supabaseApi": {
+          "id": "r7bNEcAkh4eOhoad",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\n// Prepara prompt completo para o agente IA com contexto de Dia das Mães\nconst norm = $('CODE: MONTA CONTEXTO | S6').item.json;\nconst ctx = $json;\n\nconst customer = ctx.customer || {};\nconst conversation = ctx.conversation || {};\nconst recentMessages = ctx.recent_messages || [];\nconst currentOrder = ctx.current_order || {};\nconst currentItems = ctx.current_order_items || [];\n\nconst phone = norm.phone_normalized;\nconst customerName = customer.full_name || norm.push_name || 'cliente';\nconst isExisting = customer.is_existing_customer;\nconst convStage = conversation.stage || 'new';\nconst humanLock = conversation.human_takeover || false;\nconst conversationId = ctx.conversation_id || null;\nconst customerId = ctx.customer_id || null;\n\n// Build recent messages history\nconst historyText = recentMessages.slice(-8).map(m => {\n  const who = m.sender_type === 'agent' ? '🤖 Agente' : '👤 Cliente';\n  return `${who}: ${(m.body || '').substring(0, 200)}`;\n}).join('\\n');\n\n// Build current order context\nlet orderContext = '';\nif (currentOrder.order_id) {\n  orderContext = `Pedido atual: ${currentOrder.public_code} (${currentOrder.status})\\n`;\n  orderContext += `  Total: R$ ${currentOrder.total_amount || '?'}\\n`;\n  orderContext += `  Entrega: ${currentOrder.fulfillment_type || '?'}\\n`;\n  if (currentItems.length > 0) {\n    orderContext += `  Itens: ${currentItems.map(i => `${i.product_name} x${i.quantity}`).join(', ')}\\n`;\n  }\n}\n\n// Input enrichment (transcription/vision)\nlet enrichedInput = norm.message_text || '';\nif (norm.transcription) {\n  enrichedInput = `[Áudio transcrito]: ${norm.transcription}`;\n}\nif (norm.visual_description) {\n  enrichedInput += (enrichedInput ? '\\n' : '') + `[Imagem analisada]: ${norm.visual_description}`;\n}\nif (norm.agent_note?.includes('PAYMENT_RECEIPT')) {\n  enrichedInput += '\\n[SISTEMA: Cliente enviou o que parece ser comprovante de pagamento]';\n}\n\nconst SYSTEM_PROMPT = `Você é Ana, atendente virtual da Flor do Estudante 🌸 — floricultura especializada em flores, arranjos, buquês, cestas e presentes.\n\nDATA DE HOJE: ${new Date().toLocaleDateString('pt-BR')} — A 4 dias do Dia das Mães 💐\n\nREGRAS COMERCIAIS:\n1. Priorize SEMPRE o Dia das Mães. Se o cliente não especificar ocasião, pergunte.\n2. Finalize vendas de forma autônoma — não transfira para humano apenas para fechar pedido/pagamento.\n3. NUNCA invente produtos ou preços. Use apenas dados do catálogo fornecido.\n4. Não bloqueie por disponibilidade de estoque — diga \"posso montar esse pedido para você\".\n5. Faça UMA pergunta por resposta. Seja objetivo e caloroso.\n6. Quando sugerir produto com slug, inclua o link: ${norm.full_payload ? '$vars.CATALOG_BASE_URL' : '[CATALOG_BASE_URL]'}/produto/{slug}\n7. Para pagamento: aceite PIX, cartão ou pagamento na entrega/retirada conforme disponível.\n8. Se o cliente informar preferência clara como “flores do campo”, “rosas”, “girassol”, “cesta”, “buquê” ou orçamento, use action=search_catalog imediatamente.\n\n\nACTIONS DISPONÍVEIS (retorne SEMPRE JSON válido com action):\n- ask_info: fazer pergunta ou dar resposta de texto\n- search_catalog: buscar produtos no catálogo (sempre antes de sugerir)\n- create_order_draft: criar novo pedido rascunho\n- update_order_draft: atualizar pedido existente (itens, entrega, destinatário, mensagem)\n- prepare_checkout: finalizar pedido e gerar link de pagamento (quando cliente confirmar)\n- parse_whatsapp_cart: processar carrinho do WhatsApp\n- handoff_human: transferir para humano (APENAS para: reclamação grave, pedido explícito de atendente, erro técnico impossível de resolver)\n\nQuando action=search_catalog:\n- agent_reply deve ser uma frase curta de transição, não uma pergunta.\n- Exemplo: \"Perfeito, vou separar algumas opções nesse estilo para você 🌸\"\n- A resposta final com produtos será montada após a busca no catálogo.\n\nFLUXO SUGERIDO PARA DIA DAS MÃES:\n1. Saudar → perguntar se é para Dia das Mães ou outra ocasião\n2. Entender orçamento/preferência → buscar catálogo\n3. Sugerir 2-3 opções com link e preço\n4. Confirmar escolha → criar/atualizar pedido\n5. Confirmar: destinatário, entrega/retirada, mensagem no cartão\n6. Gerar checkout → enviar link de pagamento\n\nPARA IMAGENS RECEBIDAS:\n- Se for referência visual (buquê, arranjo): use como inspiração, busque similar no catálogo\n- Se for comprovante: registre e avance para confirmação do pedido\n\nFORMATO DE RESPOSTA — SEMPRE JSON VÁLIDO:\n{\n  \"action\": \"search_catalog\",\n  \"agent_reply\": \"Texto da resposta para o cliente (use emojis com moderação)\",\n  \"agent_stage\": \"identificando_necessidade | buscando_opcoes | confirmando_pedido | finalizando_pagamento\",\n  \"search_query\": \"(se action=search_catalog) termo de busca\",\n  \"occasion_filter\": \"(opcional) dia_das_maes | aniversario | presente\",\n  \"order_id\": \"(se relevante) UUID do pedido\",\n  \"order_data\": {\n    \"(se create/update_order_draft)\": \"...\"\n  },\n  \"checkout_data\": {\n    \"payment_method\": \"(se prepare_checkout) mercado_pago | pay_on_delivery | pay_on_pickup\"\n  }\n}`;\n\nconst USER_CONTEXT = `CONTEXTO DO ATENDIMENTO:\nCliente: ${customerName} | Telefone: ${phone} | ${isExisting ? 'Cliente cadastrado' : 'Novo cliente'}\nEstágio conversa: ${convStage}\n${orderContext}\nHistórico recente:\\n${historyText || '(primeira mensagem)'}\n\nMENSAGEM ATUAL DO CLIENTE:\n${enrichedInput || '(sem texto)'}`;\n\nreturn [{\n  json: {\n    ...norm,\n    system_prompt: SYSTEM_PROMPT,\n    user_context: USER_CONTEXT,\n    conversation_id: conversationId,\n    customer_id: customerId,\n    ctx_stage: convStage,\n    transcription: norm.transcription || null,\n    visual_description: norm.visual_description || null\n  }\n}];"
+      },
+      "id": "af796cc8-cbb6-4c0f-bb11-ed16106928ba",
+      "name": "CODE: PREPARA PROMPT | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-8272, -1032]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://flordoestudante.com.br"
+            },
+            {
+              "name": "X-Title",
+              "value": "Flor do Estudante Agent"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: 'google/gemini-2.5-flash',\n  temperature: 0.3,\n  max_tokens: 800,\n  response_format: { type: 'json_object' },\n  messages: [\n    {\n      role: 'system',\n      content: $json.system_prompt || 'Você é uma atendente virtual da Flor do Estudante. Responda sempre em JSON válido.'\n    },\n    {\n      role: 'user',\n      content: $json.user_context || 'Cliente enviou uma mensagem sem contexto.'\n    }\n  ]\n}) }}",
+        "options": {}
+      },
+      "id": "55ed6b7c-f356-4f06-94af-40fd26487d52",
+      "name": "HTTP: OPENROUTER CHAT | S6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-8048, -1032],
+      "credentials": {
+        "openRouterApi": {
+          "id": "4BdzzO60z91H2fqA",
+          "name": "openrouter_cloudfy"
+        }
+      },
+      "notes": "Uses OpenRouter HTTP for chat completions — maintains JSON mode stability. OpenRouter HTTP chosen over native OpenAI node for reliable JSON schema enforcement."
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\n// Parse e valida resposta JSON do agente\nconst norm = $('CODE: PREPARA PROMPT | S6').item.json;\nconst llmResp = $json;\n\nconst VALID_ACTIONS = [\n  'ask_info', 'search_catalog', 'create_order_draft', 'update_order_draft',\n  'prepare_checkout', 'parse_whatsapp_cart', 'handoff_human'\n];\n\nconst VALID_STAGES = [\n  'new',\n  'smalltalk',\n  'identificando_necessidade',\n  'coletando_ocasiao',\n  'coletando_preferencia',\n  'coletando_orcamento',\n  'consultando_catalogo',\n  'buscando_opcoes',\n  'apresentando_opcoes',\n  'pedido_em_montagem',\n  'confirmando_pedido',\n  'coletando_entrega_ou_retirada',\n  'coletando_destinatario',\n  'coletando_mensagem_cartao',\n  'finalizando_pagamento',\n  'aguardando_pagamento',\n  'aguardando_confirmacao_humana',\n  'handoff',\n  'human_takeover',\n  'finalizado',\n  'erro'\n];\n\nlet parsed = null;\nlet rawContent = '';\n\ntry {\n  rawContent = llmResp.choices?.[0]?.message?.content || '{}';\n  // Try direct parse\n  try { parsed = JSON.parse(rawContent); } catch (_) {}\n  // Try extracting JSON from markdown block\n  if (!parsed) {\n    const m = rawContent.match(/```(?:json)?\\s*([\\s\\S]+?)```/);\n    if (m) { try { parsed = JSON.parse(m[1]); } catch (_) {} }\n  }\n  // Try extracting first {...}\n  if (!parsed) {\n    const m2 = rawContent.match(/\\{[\\s\\S]+\\}/);\n    if (m2) { try { parsed = JSON.parse(m2[0]); } catch (_) {} }\n  }\n} catch (e) {\n  parsed = null;\n}\n\n// Fallback if parsing failed\nif (!parsed || typeof parsed !== 'object') {\n  return [{ json: {\n    ...norm,\n    agent_action: 'ask_info',\n    agent_reply: 'Desculpe, tive um pequeno problema. Pode repetir sua mensagem? 🌸',\n    agent_stage: norm.ctx_stage || 'identificando_necessidade',\n    parse_error: true,\n    raw_content: rawContent.substring(0, 500)\n  }}];\n}\n\n// Validate and sanitize\nconst action = VALID_ACTIONS.includes(parsed.action) ? parsed.action : 'ask_info';\nconst stage = VALID_STAGES.includes(parsed.agent_stage) ? parsed.agent_stage : (norm.ctx_stage || 'identificando_necessidade');\nconst reply = (parsed.agent_reply || '').toString().trim();\n\nif (!reply && action === 'ask_info') {\n  return [{ json: {\n    ...norm,\n    agent_action: 'ask_info',\n    agent_reply: 'Olá! 🌸 Como posso te ajudar hoje?',\n    agent_stage: stage,\n    parse_error: false\n  }}];\n}\n\nreturn [{ json: {\n  ...norm,\n  agent_action: action,\n  agent_reply: reply || '(aguardando dados)',\n  agent_stage: stage,\n  search_query: parsed.search_query || '',\n  occasion_filter: parsed.occasion_filter || '',\n  order_id: parsed.order_id || norm.current_order_id || null,\n  order_data: parsed.order_data || null,\n  checkout_data: parsed.checkout_data || null,\n  parse_error: false\n}}];"
+      },
+      "id": "68ba8489-36cf-4f5d-ba39-105d09d2b656",
+      "name": "CODE: PARSE JSON AGENTE | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-7824, -1032]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.agent_action }}",
+                    "rightValue": "search_catalog",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "1d5f2d07-ce46-49ef-8f9f-72545724a2f2"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.agent_action }}",
+                    "rightValue": "create_order_draft",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "6eb49c6f-42ed-464d-aa0d-b6f6576f64a5"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.agent_action }}",
+                    "rightValue": "update_order_draft",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "da0badae-3c2e-4252-8a19-b05da4bbe921"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.agent_action }}",
+                    "rightValue": "parse_whatsapp_cart",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "6256f50c-640a-4a0a-b384-950f96b08d41"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.agent_action }}",
+                    "rightValue": "prepare_checkout",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "64ad045c-58a3-4a99-a15d-64b7058da0f1"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.agent_action }}",
+                    "rightValue": "handoff_human",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "167a7f23-7ade-4ef7-8a49-a1f2cce9d533"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "72d03c78-26b5-4bda-9298-2d9791b168a7",
+      "name": "SWITCH ACTION | S6",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [-7600, -1112]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/search_ready_catalog_for_agent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Profile",
+              "value": "public"
+            },
+            {
+              "name": "Content-Profile",
+              "value": "public"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "p_query",
+              "value": "={{ $json.search_query || $json.message_text || '' }}"
+            },
+            {
+              "name": "p_occasion",
+              "value": "={{ $json.occasion_filter || 'dia_das_maes' }}"
+            },
+            {
+              "name": "p_limit",
+              "value": "5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fba95bf4-cc92-4750-b9c3-ebd9a1a159e8",
+      "name": "HTTP: SEARCH CATALOG | S6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-7376, -1608],
+      "credentials": {
+        "supabaseApi": {
+          "id": "r7bNEcAkh4eOhoad",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\n// Formata resultado do catálogo com links e imagens\nconst agentCtx = $('CODE: PARSE JSON AGENTE | S6').item.json;\nconst catalogResp = $json;\n\nconst catalogBase = $vars.CATALOG_BASE_URL || 'https://floricultura.vercel.app';\n\nlet products = [];\nif (Array.isArray(catalogResp)) products = catalogResp;\nelse if (Array.isArray(catalogResp.items)) products = catalogResp.items;\nelse if (Array.isArray(catalogResp.products)) products = catalogResp.products;\n\nif (products.length === 0) {\n  return [{ json: {\n    ...agentCtx,\n    agent_reply: 'Não encontrei produtos específicos para essa busca agora. Posso sugerir alguns dos nossos arranjos mais pedidos para o Dia das Mães? 🌸',\n    catalog_results: [],\n    has_catalog_images: false\n  }}];\n}\n\n// Build catalog reply text\nlet replyText = agentCtx.agent_reply || 'Veja as opções que encontrei:\\n';\nconst imageProducts = products.filter(p => p.cover_image_url);\n\nif (!replyText.includes('R$') && products.length > 0) {\n  const lines = products.slice(0, 3).map((p, i) => {\n    const url = `${catalogBase}/produto/${p.slug || ''}`;\n    const price = p.price ? `R$ ${parseFloat(p.price).toFixed(2).replace('.', ',')}` : '';\n    const label = i === 0 ? '🌸' : i === 1 ? '💐' : '🌺';\n    return `${label} *${p.name}*${price ? ' — ' + price : ''}\\n${p.short_description || ''}\\n${url}`;\n  });\n  replyText = (agentCtx.agent_reply || 'Encontrei estas opções para você:') + '\\n\\n' + lines.join('\\n\\n');\n}\n\nreturn [{ json: {\n  ...agentCtx,\n  agent_reply: replyText,\n  catalog_results: products,\n  has_catalog_images: imageProducts.length > 0,\n  first_image_product: imageProducts[0] || null,\n  catalog_base: catalogBase\n}}];"
+      },
+      "id": "cf75d853-8f07-4592-89b5-d30ac0d8ed8f",
+      "name": "CODE: FORMATA CATÁLOGO | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-7152, -1608]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "has-image",
+              "leftValue": "={{ $json.has_catalog_images }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "aa35ff19-b147-42f9-9860-835c07cb614a",
+      "name": "IF: ENVIA IMAGEM CATÁLOGO? | S6",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-6928, -1608]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://cheatingbat-evolution.cloudfy.live/message/sendImage/julia",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "evolutionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{}]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $json.phone_normalized }}"
+            },
+            {
+              "name": "mediatype",
+              "value": "image"
+            },
+            {
+              "name": "mimetype",
+              "value": "image/jpeg"
+            },
+            {
+              "name": "media",
+              "value": "={{ $json.first_image_product.cover_image_url }}"
+            },
+            {
+              "name": "caption",
+              "value": "={{ $json.agent_reply }}"
+            },
+            {
+              "name": "fileName",
+              "value": "produto.jpg"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "78759c0c-9ef7-4c30-81a2-e4b2202af3bc",
+      "name": "HTTP: EVOLUTION SEND IMAGE | S6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-6704, -1680],
+      "credentials": {
+        "evolutionApi": {
+          "id": "hUhH7ahIVjr2lysL",
+          "name": "evolution_cloudfy"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\nconst src = $('CODE: FORMATA CATÁLOGO | S6').item.json;\nreturn [{ json: { ...src, image_sent: true } }];"
+      },
+      "id": "4e2ac40f-61ec-4f31-bd61-041b01790f9b",
+      "name": "CODE: MERGE CATALOG | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-6480, -1608]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/flor_create_order_draft",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Profile",
+              "value": "public"
+            },
+            {
+              "name": "Content-Profile",
+              "value": "public"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "p_customer_id",
+              "value": "={{ $json.customer_id }}"
+            },
+            {
+              "name": "p_conversation_id",
+              "value": "={{ $json.conversation_id }}"
+            },
+            {
+              "name": "p_fulfillment_type",
+              "value": "={{ $json.order_data?.fulfillment_type || 'pickup' }}"
+            },
+            {
+              "name": "p_occasion",
+              "value": "={{ $json.order_data?.occasion || 'dia_das_maes' }}"
+            },
+            {
+              "name": "p_items",
+              "value": "={{ JSON.stringify($json.order_data?.items || []) }}"
+            },
+            {
+              "name": "p_recipient_name",
+              "value": "={{ $json.order_data?.recipient_name || '' }}"
+            },
+            {
+              "name": "p_is_gift",
+              "value": "={{ $json.order_data?.is_gift || false }}"
+            },
+            {
+              "name": "p_gift_message",
+              "value": "={{ $json.order_data?.gift_message || '' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "399cede5-7ebd-40a2-b8a7-b9bb34fd4512",
+      "name": "HTTP: CREATE ORDER DRAFT | S6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-6704, -1368],
+      "credentials": {
+        "supabaseApi": {
+          "id": "r7bNEcAkh4eOhoad",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: PARSE JSON AGENTE | S6').item.json;\nconst result = $json;\nconst catalogBase = $vars.CATALOG_BASE_URL || 'https://floricultura.vercel.app';\n\nlet reply = agentCtx.agent_reply;\nif (result.ok && result.public_code) {\n  const orderUrl = `${catalogBase}/pedido/${result.public_code}`;\n  reply += `\\n\\n🛒 Pedido criado! Código: *${result.public_code}*\\nAcompanhe aqui: ${orderUrl}`;\n}\n\nreturn [{ json: {\n  ...agentCtx,\n  agent_reply: reply,\n  created_order_id: result.order_id || null,\n  created_order_code: result.public_code || null\n}}];"
+      },
+      "id": "15f26295-25f0-4cbe-bce6-c12dc1579631",
+      "name": "CODE: MERGE CREATE ORDER | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-6480, -1368]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/search_ready_catalog_for_agent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Profile",
+              "value": "public"
+            },
+            {
+              "name": "Content-Profile",
+              "value": "public"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "p_order_id",
+              "value": "={{ $json.order_id }}"
+            },
+            {
+              "name": "p_fulfillment_type",
+              "value": "={{ $json.order_data?.fulfillment_type || null }}"
+            },
+            {
+              "name": "p_recipient_name",
+              "value": "={{ $json.order_data?.recipient_name || null }}"
+            },
+            {
+              "name": "p_is_gift",
+              "value": "={{ $json.order_data?.is_gift || null }}"
+            },
+            {
+              "name": "p_gift_message",
+              "value": "={{ $json.order_data?.gift_message || null }}"
+            },
+            {
+              "name": "p_occasion",
+              "value": "={{ $json.order_data?.occasion || null }}"
+            },
+            {
+              "name": "p_desired_date",
+              "value": "={{ $json.order_data?.desired_date || null }}"
+            },
+            {
+              "name": "p_add_items",
+              "value": "={{ JSON.stringify($json.order_data?.add_items || null) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "959dfa29-92be-4f74-91dc-fae0cdd70c79",
+      "name": "HTTP: UPDATE ORDER DRAFT | S6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-6704, -1176],
+      "credentials": {
+        "supabaseApi": {
+          "id": "r7bNEcAkh4eOhoad",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: PARSE JSON AGENTE | S6').item.json;\nconst result = $json;\nreturn [{ json: {\n  ...agentCtx,\n  agent_reply: result.ok === false\n    ? agentCtx.agent_reply + '\\n_(houve um problema ao atualizar o pedido, vamos continuar)_'\n    : agentCtx.agent_reply\n}}];"
+      },
+      "id": "fd301937-73ad-49f6-9246-3f079448de1f",
+      "name": "CODE: MERGE UPDATE ORDER | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-6480, -1176]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/search_ready_catalog_for_agent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Profile",
+              "value": "public"
+            },
+            {
+              "name": "Content-Profile",
+              "value": "public"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "p_phone_normalized",
+              "value": "={{ $json.phone_normalized }}"
+            },
+            {
+              "name": "p_cart_payload",
+              "value": "={{ JSON.stringify($json.full_payload?.data?.message?.orderMessage || $json.full_payload?.data?.message || {}) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b4e8f81a-085f-4e89-bc27-d09b7df064dc",
+      "name": "HTTP: PARSE CART | S6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-6704, -888],
+      "credentials": {
+        "supabaseApi": {
+          "id": "r7bNEcAkh4eOhoad",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: PARSE JSON AGENTE | S6').item.json;\nconst result = $json;\nconst matchedCount = result.items?.filter(i => i.matched)?.length || 0;\nconst totalCount = result.item_count || 0;\nreturn [{ json: {\n  ...agentCtx,\n  cart_batch_id: result.batch_id || null,\n  cart_matched: matchedCount,\n  cart_total: totalCount,\n  agent_reply: matchedCount > 0\n    ? agentCtx.agent_reply\n    : agentCtx.agent_reply + '\\n\\nIdentifiquei os itens do seu carrinho. Posso confirmar o pedido?'\n}}];"
+      },
+      "id": "ca31f871-d0ac-425d-b016-6e1dac71b606",
+      "name": "CODE: MERGE CART | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-6480, -888]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/search_ready_catalog_for_agent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Profile",
+              "value": "public"
+            },
+            {
+              "name": "Content-Profile",
+              "value": "public"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "p_order_id",
+              "value": "={{ $json.order_id }}"
+            },
+            {
+              "name": "p_payment_method",
+              "value": "={{ $json.checkout_data?.payment_method || null }}"
+            },
+            {
+              "name": "p_catalog_base_url",
+              "value": "={{ $vars.CATALOG_BASE_URL }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c5559ca2-69d1-44e0-976d-fa5d4c3b956d",
+      "name": "HTTP: PREPARE CHECKOUT | S6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-6704, -696],
+      "credentials": {
+        "supabaseApi": {
+          "id": "r7bNEcAkh4eOhoad",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: PARSE JSON AGENTE | S6').item.json;\nconst result = $json;\n\nif (!result.ok) {\n  return [{ json: {\n    ...agentCtx,\n    agent_reply: agentCtx.agent_reply + '\\n\\n_(Houve um erro ao gerar o link de pagamento. Entre em contato conosco.)_',\n    checkout_ok: false\n  }}];\n}\n\nconst checkoutUrl = result.checkout_url || '';\nconst summary = result.order_summary_text || '';\n\nconst replyLines = [\n  agentCtx.agent_reply || summary,\n  '',\n  summary !== agentCtx.agent_reply ? summary : '',\n  '',\n  `💳 *Link de pagamento:*\\n${checkoutUrl}`,\n  '',\n  'Após o pagamento, seu pedido será confirmado. Qualquer dúvida, é só chamar! 🌸'\n].filter(l => l !== null && l !== undefined);\n\nreturn [{ json: {\n  ...agentCtx,\n  agent_reply: replyLines.join('\\n').replace(/\\n{3,}/g, '\\n\\n').trim(),\n  checkout_url: checkoutUrl,\n  checkout_ok: true,\n  agent_stage: 'finalizando_pagamento'\n}}];"
+      },
+      "id": "bbd4281a-1279-4921-ada7-b0a79a7d37b8",
+      "name": "CODE: MERGE CHECKOUT | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-6480, -696]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/search_ready_catalog_for_agent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Profile",
+              "value": "public"
+            },
+            {
+              "name": "Content-Profile",
+              "value": "public"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "p_conversation_id",
+              "value": "={{ $json.conversation_id }}"
+            },
+            {
+              "name": "p_reason",
+              "value": "={{ $json.agent_action === 'handoff_human' ? 'requested_by_customer' : 'agent_decision' }}"
+            },
+            {
+              "name": "p_agent_note",
+              "value": "={{ $json.agent_reply?.substring(0, 200) || '' }}"
+            },
+            {
+              "name": "p_customer_id",
+              "value": "={{ $json.customer_id || null }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "86644f64-18f1-4f81-b23d-e4fdab647d6d",
+      "name": "HTTP: TRIGGER HANDOFF | S6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-6928, -504],
+      "credentials": {
+        "supabaseApi": {
+          "id": "r7bNEcAkh4eOhoad",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ 'flor:human_lock:' + $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}",
+        "value": "1",
+        "expire": true,
+        "ttl": 3600
+      },
+      "id": "cd30dd60-a1e3-45b2-8a17-c579da885b96",
+      "name": "REDIS: SET HUMAN LOCK | S6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-6704, -504],
+      "credentials": {
+        "redis": {
+          "id": "L3M7sVsK0xWc3qf3",
+          "name": "redis_cloudfy"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\nconst agentCtx = $('CODE: PARSE JSON AGENTE | S6').item.json;\nreturn [{ json: { ...agentCtx, human_lock_set: true, agent_stage: 'handoff' } }];"
+      },
+      "id": "6417db77-111e-4614-a4d3-fffb73b1ccf2",
+      "name": "CODE: MERGE HANDOFF | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-6480, -504]
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ 'flor:session:' + $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}",
+        "value": "={{ JSON.stringify({ stage: $json.agent_stage, last_action: $json.agent_action, agent_reply: $json.agent_reply, ts: Date.now() }) }}",
+        "expire": true,
+        "ttl": 86400
+      },
+      "id": "2b087a60-868e-46ae-a496-b3e16e88a5a6",
+      "name": "REDIS: SET SESSION | S6",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-6256, -1032],
+      "credentials": {
+        "redis": {
+          "id": "L3M7sVsK0xWc3qf3",
+          "name": "redis_cloudfy"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/flor_register_agent_exchange",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Profile",
+              "value": "public"
+            },
+            {
+              "name": "Content-Profile",
+              "value": "public"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "p_phone_normalized",
+              "value": "={{ $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized }}"
+            },
+            {
+              "name": "p_push_name",
+              "value": "={{ $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.push_name }}"
+            },
+            {
+              "name": "p_channel",
+              "value": "whatsapp"
+            },
+            {
+              "name": "p_external_contact_id",
+              "value": "={{ $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized + '@s.whatsapp.net' }}"
+            },
+            {
+              "name": "p_instance",
+              "value": "={{ $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.instance }}"
+            },
+            {
+              "name": "p_message_type",
+              "value": "={{ $('CODE: MONTA CONTEXTO | S6').item.json.message_type }}"
+            },
+            {
+              "name": "p_message_body",
+              "value": "={{ $('CODE: MONTA CONTEXTO | S6').item.json.message_text }}"
+            },
+            {
+              "name": "p_media_url",
+              "value": "={{ $('CODE: MONTA CONTEXTO | S6').item.json.media_url || '' }}"
+            },
+            {
+              "name": "p_raw_payload",
+              "value": "={{ JSON.stringify($('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.raw_payload) }}"
+            },
+            {
+              "name": "p_agent_reply",
+              "value": "={{ $('REDIS: SET SESSION | S6').item.json.agent_reply }}"
+            },
+            {
+              "name": "p_agent_action",
+              "value": "={{ $('CODE: PARSE JSON AGENTE | S6').item.json.agent_action }}"
+            },
+            {
+              "name": "p_agent_stage",
+              "value": "={{ $('CODE: PARSE JSON AGENTE | S6').item.json.agent_stage }}"
+            },
+            {
+              "name": "p_customer_id",
+              "value": "={{ $('CODE: PREPARA PROMPT | S6').item.json.customer_id || null }}"
+            },
+            {
+              "name": "p_conversation_id",
+              "value": "={{ $('CODE: PREPARA PROMPT | S6').item.json.conversation_id || null }}"
+            },
+            {
+              "name": "p_transcription",
+              "value": "={{ $('CODE: MONTA CONTEXTO | S6').item.json.transcription || null }}"
+            },
+            {
+              "name": "p_visual_description",
+              "value": "={{ $('CODE: MONTA CONTEXTO | S6').item.json.visual_description || null }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2c04f86c-d819-45db-93e3-1dda44500e54",
+      "name": "HTTP: REGISTRA EXCHANGE | S6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-6032, -1032],
+      "credentials": {
+        "supabaseApi": {
+          "id": "r7bNEcAkh4eOhoad",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\n// FIX: Resolve agent_reply de forma confiável para ENVIA EVOLUTION\n// Redis SET passa o item de entrada como output, mas após HTTP REGISTRA EXCHANGE\n// o $json é a resposta da RPC. Buscamos agent_reply de forma robusta.\n\n// Prioridade: valor que entrou no REDIS SET SESSION (tem agent_reply no input)\nconst sessionInput = $('REDIS: SET SESSION | S6').item.json;\nconst parseOut = $('CODE: PARSE JSON AGENTE | S6').item.json;\n\nconst agentReply = \n  sessionInput?.agent_reply ||\n  parseOut?.agent_reply ||\n  'Olá! 🌸 Tive um probleminha técnico. Pode repetir sua mensagem?';\n\nconst phoneNorm = $('NORMALIZA PAYLOAD WHATSAPP | S6').item.json.phone_normalized;\n\nreturn [{ json: { agent_reply: agentReply, phone_normalized: phoneNorm } }];"
+      },
+      "id": "cefba0cf-235c-4f68-bfe3-a4cc123f6e32",
+      "name": "CODE: RESOLVE REPLY | S6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-5808, -1032]
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [-9840, -1104],
+      "id": "d8028afd-c87b-4ba9-8492-bec239564b55",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "openAiApi": {
+          "id": "RjXPvvZ9NBpReHAF",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://cheatingbat-evolution.cloudfy.live/message/sendText/julia",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "evolutionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  number: $json.phone_normalized,\n  text: $json.agent_reply,\n  options: {\n    delay: 500,\n    presence: 'composing'\n  }\n}) }}",
+        "options": {}
+      },
+      "id": "d3b38821-2a6a-4c9c-a626-46c9058c09c9",
+      "name": "ENVIA RESPOSTA EVOLUTION | S6",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-5584, -1032],
+      "credentials": {
+        "evolutionApi": {
+          "id": "hUhH7ahIVjr2lysL",
+          "name": "evolution_cloudfy"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "WEBHOOK EVOLUTION | FLOR": {
+      "main": [
+        [
+          {
+            "node": "NORMALIZA PAYLOAD WHATSAPP | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NORMALIZA PAYLOAD WHATSAPP | S6": {
+      "main": [
+        [
+          {
+            "node": "DEVE PROCESSAR? | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DEVE PROCESSAR? | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: GET HUMAN LOCK | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "REDIS: GET HUMAN LOCK | S6": {
+      "main": [
+        [
+          {
+            "node": "HUMAN TAKEOVER ATIVO? | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HUMAN TAKEOVER ATIVO? | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: GET BUFFER ATUAL | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "REDIS: GET BUFFER ATUAL | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: ATUALIZA BUFFER | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: ATUALIZA BUFFER | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: SET BUFFER | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "REDIS: SET BUFFER | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: SET LAST MSG ID | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "REDIS: SET LAST MSG ID | S6": {
+      "main": [
+        [
+          {
+            "node": "WAIT 2S | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WAIT 2S | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: GET LAST MSG ID | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "REDIS: GET LAST MSG ID | S6": {
+      "main": [
+        [
+          {
+            "node": "AINDA É O MAIS RECENTE? | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AINDA É O MAIS RECENTE? | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: GET BUFFER FINAL | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "REDIS: GET BUFFER FINAL | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: MONTA CONTEXTO | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: MONTA CONTEXTO | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: DEL BUFFER | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "REDIS: DEL BUFFER | S6": {
+      "main": [
+        [
+          {
+            "node": "IF: HAS AUDIO? | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: HAS AUDIO? | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: PREP AUDIO | S6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF: HAS IMAGE? | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: PREP AUDIO | S6": {
+      "main": [
+        [
+          {
+            "node": "HTTP: EVOLUTION GET AUDIO | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: EVOLUTION GET AUDIO | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: AUDIO TO BINARY | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: AUDIO TO BINARY | S6": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: MERGE AUDIO | S6": {
+      "main": [
+        [
+          {
+            "node": "IF: HAS IMAGE? | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: HAS IMAGE? | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: PREP IMAGE | S6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP: SUPABASE GET CONTEXT | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: PREP IMAGE | S6": {
+      "main": [
+        [
+          {
+            "node": "HTTP: OPENAI VISION | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: OPENAI VISION | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: MERGE IMAGE | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: MERGE IMAGE | S6": {
+      "main": [
+        [
+          {
+            "node": "HTTP: SUPABASE GET CONTEXT | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: SUPABASE GET CONTEXT | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: PREPARA PROMPT | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: PREPARA PROMPT | S6": {
+      "main": [
+        [
+          {
+            "node": "HTTP: OPENROUTER CHAT | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: OPENROUTER CHAT | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: PARSE JSON AGENTE | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: PARSE JSON AGENTE | S6": {
+      "main": [
+        [
+          {
+            "node": "SWITCH ACTION | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SWITCH ACTION | S6": {
+      "main": [
+        [
+          {
+            "node": "HTTP: SEARCH CATALOG | S6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP: CREATE ORDER DRAFT | S6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP: UPDATE ORDER DRAFT | S6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP: PARSE CART | S6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP: PREPARE CHECKOUT | S6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP: TRIGGER HANDOFF | S6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "REDIS: SET SESSION | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: SEARCH CATALOG | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: FORMATA CATÁLOGO | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: FORMATA CATÁLOGO | S6": {
+      "main": [
+        [
+          {
+            "node": "IF: ENVIA IMAGEM CATÁLOGO? | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: ENVIA IMAGEM CATÁLOGO? | S6": {
+      "main": [
+        [
+          {
+            "node": "HTTP: EVOLUTION SEND IMAGE | S6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CODE: MERGE CATALOG | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: EVOLUTION SEND IMAGE | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: MERGE CATALOG | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: MERGE CATALOG | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: SET SESSION | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: CREATE ORDER DRAFT | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: MERGE CREATE ORDER | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: MERGE CREATE ORDER | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: SET SESSION | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: UPDATE ORDER DRAFT | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: MERGE UPDATE ORDER | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: MERGE UPDATE ORDER | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: SET SESSION | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: PARSE CART | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: MERGE CART | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: MERGE CART | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: SET SESSION | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: PREPARE CHECKOUT | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: MERGE CHECKOUT | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: MERGE CHECKOUT | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: SET SESSION | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: TRIGGER HANDOFF | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: SET HUMAN LOCK | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "REDIS: SET HUMAN LOCK | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: MERGE HANDOFF | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: MERGE HANDOFF | S6": {
+      "main": [
+        [
+          {
+            "node": "REDIS: SET SESSION | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "REDIS: SET SESSION | S6": {
+      "main": [
+        [
+          {
+            "node": "HTTP: REGISTRA EXCHANGE | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: REGISTRA EXCHANGE | S6": {
+      "main": [
+        [
+          {
+            "node": "CODE: RESOLVE REPLY | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CODE: RESOLVE REPLY | S6": {
+      "main": [
+        [
+          {
+            "node": "ENVIA RESPOSTA EVOLUTION | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "CODE: MERGE AUDIO | S6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "WEBHOOK EVOLUTION | FLOR": [
+      {
+        "headers": {
+          "host": "cheatingbat-n8n.cloudfy.live",
+          "user-agent": "axios/1.13.2",
+          "content-length": "1686",
+          "accept": "application/json, text/plain, */*",
+          "accept-encoding": "gzip, br",
+          "cdn-loop": "cloudflare; loops=1",
+          "cf-connecting-ip": "65.21.145.101",
+          "cf-ipcountry": "FI",
+          "cf-ray": "9f7bb0967c2b45e1-FRA",
+          "cf-visitor": "{\"scheme\":\"https\"}",
+          "content-type": "application/json",
+          "x-forwarded-for": "172.70.251.2",
+          "x-forwarded-host": "cheatingbat-n8n.cloudfy.live",
+          "x-forwarded-port": "443",
+          "x-forwarded-proto": "https",
+          "x-forwarded-server": "ff0c05b4ce47",
+          "x-real-ip": "172.70.251.2"
+        },
+        "params": {},
+        "query": {},
+        "body": {
+          "event": "messages.upsert",
+          "instance": "julia",
+          "data": {
+            "key": {
+              "remoteJid": "554588230845@s.whatsapp.net",
+              "remoteJidAlt": "554588230845@s.whatsapp.net",
+              "fromMe": false,
+              "id": "3A698636A23E94D50EE7",
+              "participant": "",
+              "addressingMode": "lid"
+            },
+            "pushName": "Mateus Manoel",
+            "status": "DELIVERY_ACK",
+            "message": {
+              "messageContextInfo": {
+                "threadId": [],
+                "deviceListMetadata": {
+                  "senderKeyIndexes": [],
+                  "recipientKeyIndexes": [],
+                  "senderKeyHash": {
+                    "0": 117,
+                    "1": 107,
+                    "2": 38,
+                    "3": 187,
+                    "4": 66,
+                    "5": 5,
+                    "6": 158,
+                    "7": 130,
+                    "8": 15,
+                    "9": 194
+                  },
+                  "senderTimestamp": {
+                    "low": 1778070354,
+                    "high": 0,
+                    "unsigned": true
+                  },
+                  "recipientKeyHash": {
+                    "0": 149,
+                    "1": 173,
+                    "2": 114,
+                    "3": 170,
+                    "4": 201,
+                    "5": 59,
+                    "6": 152,
+                    "7": 121,
+                    "8": 96,
+                    "9": 25
+                  },
+                  "recipientTimestamp": {
+                    "low": 1777074705,
+                    "high": 0,
+                    "unsigned": true
+                  }
+                },
+                "deviceListMetadataVersion": 2,
+                "messageSecret": {
+                  "0": 188,
+                  "1": 20,
+                  "2": 114,
+                  "3": 168,
+                  "4": 100,
+                  "5": 66,
+                  "6": 17,
+                  "7": 112,
+                  "8": 208,
+                  "9": 0,
+                  "10": 87,
+                  "11": 62,
+                  "12": 92,
+                  "13": 23,
+                  "14": 244,
+                  "15": 64,
+                  "16": 189,
+                  "17": 105,
+                  "18": 81,
+                  "19": 251,
+                  "20": 85,
+                  "21": 111,
+                  "22": 120,
+                  "23": 221,
+                  "24": 119,
+                  "25": 204,
+                  "26": 253,
+                  "27": 249,
+                  "28": 22,
+                  "29": 231,
+                  "30": 168,
+                  "31": 225
+                }
+              },
+              "conversation": "Ela adora flores do campo"
+            },
+            "contextInfo": {
+              "mentionedJid": [],
+              "groupMentions": [],
+              "statusAttributions": [],
+              "expiration": 0,
+              "ephemeralSettingTimestamp": {
+                "low": 1776854751,
+                "high": 0,
+                "unsigned": false
+              },
+              "disappearingMode": {
+                "initiator": 0,
+                "trigger": 1,
+                "initiatedByMe": true
+              }
+            },
+            "messageType": "conversation",
+            "messageTimestamp": 1778109356,
+            "instanceId": "6224e364-e93d-41c9-ad2f-2640c75c8882",
+            "source": "ios"
+          },
+          "destination": "https://cheatingbat-n8n.cloudfy.live/webhook/julia",
+          "date_time": "2026-05-06T20:15:56.470Z",
+          "sender": "554599029116@s.whatsapp.net",
+          "server_url": "https://cheatingbat-evolution.cloudfy.live",
+          "apikey": "142076B8F6DE-4EFF-A90A-A8EE05103C63"
+        },
+        "webhookUrl": "https://cheatingbat-n8n.cloudfy.live/webhook/julia",
+        "executionMode": "production"
+      }
+    ]
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "65bec8ad9af329e8a89b63d8b92d775bc3b982584190ebd2d881725c81277167"
+  }
+}

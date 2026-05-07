@@ -11,7 +11,8 @@ type CheckoutPageClientProps = {
 };
 
 export function CheckoutPageClient({ activeShippingRule }: CheckoutPageClientProps) {
-  const { items, hydrated } = useCart();
+  const { items, hydrated, preferredFulfillment } = useCart();
+  const firstGiftMessage = items.find((i) => i.giftMessage)?.giftMessage ?? '';
 
   if (!hydrated) {
     return (
@@ -31,5 +32,11 @@ export function CheckoutPageClient({ activeShippingRule }: CheckoutPageClientPro
     return <CheckoutEmptyState />;
   }
 
-  return <CheckoutForm activeShippingRule={activeShippingRule} />;
+  return (
+    <CheckoutForm
+      activeShippingRule={activeShippingRule}
+      initialGiftMessage={firstGiftMessage}
+      initialFulfillment={preferredFulfillment}
+    />
+  );
 }

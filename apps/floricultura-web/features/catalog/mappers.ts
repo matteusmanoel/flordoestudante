@@ -3,6 +3,7 @@
  */
 
 import { isPlaceholderMediaUrl } from '@/lib/constants';
+import { resolvePublicImageUrl } from '@/lib/image-url';
 import type { CategoryCard, ProductCardModel, ProductDetailViewModel, ProductImageViewModel, BannerViewModel } from './types';
 
 export interface CategoryRow {
@@ -84,6 +85,13 @@ export function mapProductImageToViewModel(row: ProductImageRow): ProductImageVi
   };
 }
 
+function sameResolvedImageUrl(a: string, b: string): boolean {
+  const ra = resolvePublicImageUrl(a).trim();
+  const rb = resolvePublicImageUrl(b).trim();
+  if (ra && rb && ra === rb) return true;
+  return a.trim() === b.trim();
+}
+
 export function mapProductToDetail(
   product: ProductRow,
   images: ProductImageRow[]
@@ -95,10 +103,10 @@ export function mapProductToDetail(
     .map(mapProductImageToViewModel);
   let coverImageUrl = (product.cover_image_url ?? '').trim();
   if (isPlaceholderMediaUrl(coverImageUrl) && viewImages.length > 0) {
-    const first = viewImages[0]!.imageUrl.trim();
-    if (!isPlaceholderMediaUrl(first)) coverImageUrl = first;
+    const firstUsable = viewImages.find((img) => !isPlaceholderMediaUrl(img.imageUrl));
+    if (firstUsable) coverImageUrl = firstUsable.imageUrl.trim();
   }
-  const imagesDeduped = viewImages.filter((img) => img.imageUrl.trim() !== coverImageUrl.trim());
+  const imagesDeduped = viewImages.filter((img) => !sameResolvedImageUrl(img.imageUrl, coverImageUrl));
   return {
     id: product.id,
     name: product.name,

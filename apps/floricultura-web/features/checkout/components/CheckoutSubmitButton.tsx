@@ -1,6 +1,6 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
+import { Loader2, HeartHandshake } from 'lucide-react';
 import { Button } from '@flordoestudante/ui';
 
 type Props = {
@@ -12,16 +12,23 @@ export function CheckoutSubmitButton({ disabled, isSubmitting }: Props) {
   return (
     <Button
       type="submit"
+      size="lg"
       disabled={disabled || isSubmitting}
-      className="inline-flex w-full min-w-[200px] items-center justify-center gap-2 sm:w-auto"
+      className="group w-full rounded-full transition-all hover:scale-[1.02] active:scale-[0.98] sm:w-auto sm:min-w-[240px]"
     >
       {isSubmitting ? (
         <>
           <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
-          Finalizando…
+          Finalizando com carinho…
         </>
       ) : (
-        'Finalizar pedido'
+        <>
+          <HeartHandshake
+            className="h-4 w-4 shrink-0 transition-transform group-hover:scale-110"
+            aria-hidden
+          />
+          Confirmar pedido com carinho
+        </>
       )}
     </Button>
   );

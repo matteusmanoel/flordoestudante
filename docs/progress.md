@@ -1,5 +1,47 @@
 # Progress
 
+## Upgrade UI/UX Premium — "O Melhor Site de Floricultura" (mai/2026)
+
+7 milestones implementados com TypeScript limpo (tsc --noEmit ✅):
+
+- **M1 — Fundação Visual:** Playfair Display adicionada como `--font-display` / `font-display`; paleta refinada com rose/blush accent (`--accent: 348 55% 94%`); fundo mais quente (`--background: 38 40% 98%`); `tailwind.config.ts` com `fontFamily.display`, `borderRadius.2xl`, animações `fade-up / scale-in / slide-in-right`; utilitários `.scrollbar-none`, `.bg-floral-gradient`, `.editorial-label`, `.section-divider` em `globals.css`.
+
+- **M2 — ProductCard v2:** Aspect ratio `4/3` → `3/4` (portrait); nome usa `font-display`; hover overlay com botão circular de quick-add; badges "Destaque" e "Promoção"; sombra suave no hover; `ProductCardSkeleton` atualizado; short description removida do card.
+
+- **M3 — Carrosséis por Categoria:** `CategoryCarousel.tsx` — carrossel com `scroll-snap`, setas prev/next no desktop, `ResizeObserver` para estado dos botões; `CategoryCarouselSection.tsx` — seção com título da categoria e "Ver todos →"; `HomeCatalogSection.tsx` reescrito para usar `getProductsByCategory()`; nova função `getProductsByCategory()` em `features/catalog/data.ts` (agrupada por categoria, máx. 10 itens/cat, máx. 8 categorias).
+
+- **M4 — Homepage Editorial:** `HomeHero.tsx` — layout 2 colunas assimétricas (imagem editorial esquerda, texto direita), mobile com overlay, fallback com SVG botânico; `HomeTrustBar.tsx` — barra de confiança com 4 trust signals; `HomeOccasionTiles.tsx` — 6 tiles por ocasião com emoji e cor temática; `HomeBanners.tsx` — aspect 16/7, overlay gradiente bottom-to-top, `font-display`; `HomeIntro.tsx` — editorial label + display font; `page.tsx` reordenado com novas seções.
+
+- **M5 — PDP Premium:** `ProductSummary.tsx` — textarea de gift message (fundo accent/blush, ícone Gift, contador 200 chars) antes do CTA; seletor visual entrega/retirada (radio cards com ícone); CTA principal "Enviar este presente" com ícone; seção de descrição com título editorial; `ProductGallery.tsx` — thumbnails 80×80 com border-primary selecionado e opacidade reduzida, dots indicator mobile.
+
+- **M6 — Navegação:** `app/(public)/layout.tsx` — busca categorias no servidor e passa ao header; `PublicHeader.tsx` reescrito com: sub-nav de categorias em desktop, barra de busca toggle (expand/collapse), menu mobile com grid 2 colunas de categorias + link WhatsApp + Área do lojista; aceita `categories: CategoryCard[]` como prop.
+
+- **M7 — Checkout & WhatsApp:** `CartItem.giftMessage?: string` adicionado ao tipo; `createCartItem` aceita `giftMessage`; `mergeItemIntoCart` preserva/atualiza gift message; `addItem(product, qty, giftMessage?, options?)` — store atualizado; `CartItemRow` mostra preview itálico da mensagem com ícone de presente; `CheckoutNotesSection` — gift message elevado com painel accent/blush e ícone Gift; `WhatsAppFAB.tsx` — FAB flutuante verde `#25D366`, aparece após 1.2s com animação, hover scale; adicionado ao layout público; `CompleteSeuPresente` corrigido para nova assinatura do `addItem`.
+
+## UX Polish Sprint (mai/2026)
+
+9 grupos implementados com TypeScript limpo (tsc --noEmit ✅):
+
+- **G1 — CheckoutAddressSection:** Accordion pós-CEP — campos CEP/Número sempre visíveis; campos de endereço completo (Rua|UF, Bairro|Cidade, Complemento|Referência em grid-cols-2) expandem automaticamente ao preencher CEP com 8 dígitos. Hint "Preencher manualmente" para acesso manual.
+
+- **G2 — CartSheet:** Substituição completa por portal React personalizado (sem Radix Sheet). Overlay suave `bg-black/25 backdrop-blur-[2px]`. Painel animado com `framer-motion` (spring `x: 100% → 0`, mass 0.85). `body.overflow: hidden` durante abertura. Botão fechar no header do painel.
+
+- **G3 — ProductSummary CTA:** Botão "Adicionar Carinho" com ícone `HeartPlus` do lucide-react, `rounded-full`, grupo hover com escala 125% no ícone. Quantidade + CTA em `grid-cols-2` com selector pill-shaped (`rounded-full border`).
+
+- **G4 — CheckoutForm:** Removido `CheckoutStepper` e botão "Voltar ao carrinho". Headline editorial "Preparando algo especial" na página. Layout desktop `grid-cols-[1fr_380px]` com summary sticky na coluna direita. Espaçamento reduzido (`space-y-5`). Resumo mobile acima do form. Seções individuais em cards `p-4`. `CheckoutRecommendedSection` abaixo do form.
+
+- **G5 — Persistência de estado:** `preferredFulfillment` adicionado ao `CartStore` com persistência `localStorage ('flor_fulfillment')`. `setPreferredFulfillment` chamado no `ProductSummary` ao escolher entrega/retirada. `CheckoutPageClient` extrai `firstGiftMessage` + `preferredFulfillment` do store e passa como `initialGiftMessage`/`initialFulfillment` para `CheckoutForm`. `defaultValues` do form pré-preenchidos.
+
+- **G6 — Payment Tabs:** `CheckoutFulfillmentSection` redesenhado com tabs custom (sem RadioGroup). Indicador deslizante `motion.div` com `layoutId="payment-tab-indicator"` e spring animation. Background verde suave (`bg-green-50 border-green-200`) na tab selecionada. Texto verde (`text-green-700`).
+
+- **G7 — HomeBanners Carrossel:** `HomeBanners.tsx` virou server component que passa todos os banners para `HomeBannersCarousel.tsx` (client). Carrossel com `translateX` CSS, auto-advance a cada 4.5s com pause on hover, dots de navegação animated (pill ativo, círculo inativo), botões prev/next. Banners clicáveis via `ctaHref`.
+
+- **G8 — Header + Transições:** `usePathname` adicionado ao `PublicHeader` para detectar rota ativa. Links ativos com `font-medium text-foreground` + `motion.span` animado (`layoutId="nav-active-indicator"`) como underline. Mobile: link ativo com `bg-muted/60`. `PageTransitionWrapper.tsx` criado com `AnimatePresence mode="wait"` + `motion.div` (opacity + y). Integrado no `app/(public)/layout.tsx`.
+
+- **G9 — Admin:** `AdminProductModal` expandido para `sm:max-w-3xl`, form em `grid grid-cols-2` (campos à esquerda, imagem/switches/relações à direita). Botão "Excluir produto" (vermelho) com confirmação inline (`confirmDelete` state). Chama `deleteProduct` server action. Pedido: `app/admin/pedidos/[id]/page.tsx` renderiza `OrderAdminDetailModal.tsx` (client) que abre `Dialog` automaticamente; fechar navega para `/admin/pedidos`. `OrderAdminDetail` removeu link "← Lista" (desnecessário na modal).
+
+---
+
 ## UX pública (mar/2026)
 
 - **Mídia portável + admin mobile (mar/2026):** persistência preferencial `bucket/path` no Storage; `resolvePublicImageUrl` reescreve URLs antigas do Storage com `NEXT_PUBLIC_SUPABASE_URL` atual; `MediaThumb` com fallback em erro; `/api/upload` retorna `{ path, url }`; migration `00011_normalize_storage_paths.sql`. Admin: em `< md`, listagens de produtos/planos/complementos/banners/pedidos em **cards** com menu **⋮**; desktop mantém tabelas. Checkout: `CheckoutSummary` com `hideTitle` para evitar título duplicado. Doc: teste em celular vs Supabase local em `docs/manual-steps.md`.
@@ -219,15 +261,321 @@ Varredura completa identificou e corrigiu 13 pontos antes do go-live:
 - `docs/progress.md`: esta seção com changelog completo da transformação SaaS.
 - `docs/runbook-mvp-tests.md`: pendente atualização com novos cenários (importar planilha válida/inválida, adicionar fotos, fluxo pedidos com WhatsApp e link público).
 
-## Próximos passos
-1. Executar `pnpm --filter floricultura-web run build` e `pnpm --filter floricultura-web run lint` para validar todas as alterações SaaS.
-2. Testar fluxo completo de importação de produtos via planilha (download template, preencher, upload, revisar erros).
-3. Testar filtros de pedidos, ações de WhatsApp e cópia de link público.
-4. Atualizar `docs/runbook-mvp-tests.md` com novos cenários de teste SaaS.
-5. Desenvolvedor: rodar `pnpm dev`, acessar `/admin/login` com credenciais de teste, testar fluxos de assinatura, pedidos e importação.
-6. Configurar `STRIPE_WEBHOOK_SECRET` com `stripe listen --forward-to` em dev ou via Dashboard em produção.
-7. Definir `NEXT_PUBLIC_STORE_WHATSAPP` com o número real da loja.
-8. Cliente: seguir `docs/client-cutover-plan.md` para produção.
+## Agente WhatsApp — Implementação Completa (mai/2026)
+
+Implementação de ponta a ponta do agente conversacional WhatsApp/Instagram
+sobre n8n + Redis + Supabase + OpenAI/OpenRouter. Cobre Sprints 4–13.
+
+### Credenciais expostas — AÇÃO URGENTE
+- Supabase service_role JWT e Evolution API key estavam hardcoded no Sprint 3A.json
+- Documento de rotação criado em `docs/SECRETS-ROTATION-REQUIRED.md`
+- Sprint 4A em diante usa apenas placeholders `COLE_AQUI_*`
+
+### Migrations backfill (Sprints 1–3) — 00013 a 00017
+- `00013_agent_conversations.sql`: tabelas `conversations`, `conversation_messages`, `agent_events`; campos de canal em `customers` e `orders`; RLS + triggers
+- `00014_agent_product_fields.sql`: campos de busca/disponibilidade/tags em `products` e `addons`
+- `00015_catalog_agent_views.sql`: views `vw_agent_catalog_products`, `vw_agent_addons`, `vw_agent_catalog_items`, `vw_agent_catalog_readiness`; funções `search_full_catalog_for_agent`, `search_ready_catalog_for_agent`, `match_catalog_item_for_agent`; tabelas `catalog_item_aliases`, `catalog_import_batches`, `catalog_import_items`
+- `00016_inbound_sprint3_rpc.sql`: RPC `flor_register_inbound_sprint3` (upsert customer/conversation, reply determinístico)
+- `00017_agent_context_rpc.sql`: RPCs `flor_get_conversation_context` e `flor_register_agent_exchange` (para Sprint 5+)
+
+### Migrations Sprint 8–11 — 00018 a 00020
+- `00018_flor_order_draft_tools.sql`: relaxa `NOT NULL` em `fulfillment_type`/`payment_method`; RPCs `flor_create_order_draft` e `flor_update_order_draft`
+- `00019_flor_cart_parser.sql`: RPC `flor_parse_whatsapp_cart` (match catalog, catalog_import_batches)
+- `00020_flor_handoff_tools.sql`: RPC `flor_trigger_handoff`; views `vw_admin_conversations` e `vw_admin_whatsapp_orders`; RPCs `flor_admin_assume_conversation` e `flor_admin_release_conversation`
+
+### Workflows n8n
+- `Sprint 4A Redis Buffer.json`: responseMode onReceived, Redis buffer+anti-duplicidade+human_lock, wait 2s debounce, graceful fallback se Redis fora, placeholders para todos os secrets
+- `Sprint 5A IA Agent.json`: tudo do 4A + contexto Supabase + prompt Julia + OpenAI/OpenRouter (json_object) + parse/fallback + Switch de 6 actions (search_catalog, create_order_draft, update_order_draft, parse_whatsapp_cart, handoff_human, default) + envio de imagem Evolution + Redis session
+
+### Documentação
+- `docs/SECRETS-ROTATION-REQUIRED.md`: checklist de rotação de credenciais e configuração n8n
+- `docs/agent-crm-queries.md`: queries SQL, RPCs e endpoints Next.js para CRM mínimo (Sprint 12)
+- `docs/agent-test-matrix.md`: 25 cenários de teste de regressão com checklist detalhado (Sprint 13)
+
+### Decisões técnicas
+- Buffer debounce de 2s via Redis (flor:buffer, flor:last_msg_id) — evita resposta múltipla por mensagem fragmentada
+- human_lock Redis (flor:human_lock) — bloqueia agente durante atendimento humano; TTL 8h
+- Switch n8n com convergência: todos os branches do action router convergem para o mesmo nó REDIS SET SESSION sem Merge node (n8n permite múltiplas entradas em um único nó)
+- RPC SECURITY DEFINER para todas as operações privilegiadas
+- Prompt sistema com schema JSON forçado e 10 regras absolutas; fallback seguro se parse falhar
+
+### Próximos passos (pós Sprint 5A — substituídos por Sprint 6A)
+
+**URGENTE**: Rotacionar Supabase service_role key e Evolution API key (ver `docs/SECRETS-ROTATION-REQUIRED.md`)
+
+---
+
+## Sprint 6A — Multimodal Mothers Day Sales Agent (mai/2026)
+
+### Status: IMPLEMENTADO — aguardando deploy e teste
+
+### Problema raiz resolvido: Schema Drift
+
+As migrations `00013–00020` criadas durante Sprints 4-13 descrevem um schema que **nunca foi aplicado** ao banco de produção atual. O banco live (`nldwghtcewsgrzkbxcyx`) mantém o schema original da Sprint 3, com colunas divergentes:
+
+| Tabela | Migrations 00013-00020 assumiam | Schema real no banco |
+|---|---|---|
+| `conversation_messages` | `message_text`, `sent_at`, `customer_id` | `body`, `created_at`, `sender_type` |
+| `agent_events` | `payload_json`, `stage_before/after` | `input_json`, `output_json`, `error_json` |
+| `conversations` | `remote_jid`, `context_json` | `external_contact_id`, `metadata_json` |
+
+**Decisão**: `00013–00020` permanecem intactas no repositório mas **NÃO DEVEM SER APLICADAS** ao banco atual. As migrations válidas são `00021–00023`.
+
+### Migrations criadas (aplicar em ordem)
+
+| Migration | Conteúdo | Aplicar? |
+|---|---|---|
+| `00021_flor_core_agent_rpcs_v2.sql` | `flor_get_conversation_context`, `flor_register_agent_exchange`, `flor_log_media_event` — schema real, SECURITY DEFINER | ✅ SIM |
+| `00022_flor_order_and_sales_rpcs_v2.sql` | `flor_create_order_draft`, `flor_update_order_draft`, `flor_prepare_checkout`, `flor_parse_whatsapp_cart`, `flor_trigger_handoff` — corrigidas | ✅ SIM |
+| `00023_flor_media_and_mothers_day.sql` | ADD COLUMN `transcription`/`visual_description` em `conversation_messages`; tags `dia_das_maes`; settings agent | ✅ SIM |
+| `00024_security_rls_policies.sql` | Políticas RLS propostas — comentadas | ⏸️ NÃO (revisar antes) |
+| `00013–00020` | Schemas divergentes do estado atual | ❌ NÃO APLICAR |
+
+### Workflows criados
+
+- `Sprint 6A Multimodal Mothers Day Sales.json` — **50 nodes**, importar como principal
+  - Todos os secrets via `$vars.*` — zero hardcode
+  - Buffer Redis idêntico ao Sprint 4A (anti-duplicidade, human_lock, onReceived)
+  - Branch de áudio: Evolution getBase64 → n8n native OpenAI Transcribe (typeVersion 1.7)
+  - Branch de imagem: extração URL → OpenRouter Vision HTTP (URL-based, mais estável que native)
+  - Prompt Dia das Mães, venda autônoma, `prepare_checkout` como action oficial
+  - Fix bug Sprint 5A: `CODE: RESOLVE REPLY` lê `agent_reply` de forma explícita antes de ENVIA EVOLUTION
+  - `flor_register_agent_exchange` passa `p_agent_action = prepare_checkout` para rastreabilidade completa
+- `FLOR | Tool Search Catalog.json` — subworkflow standalone (para modularização futura)
+- `FLOR | Tool Media Process.json` — subworkflow standalone (áudio + imagem, para modularização futura)
+
+### Decisões técnicas Sprint 6A
+
+- **Node OpenAI nativo para áudio**: `n8n-nodes-base.openAi` typeVersion 1.7 com `audio:transcribe` — suportado em n8n Cloud 2.13.2. Requer binary data da etapa anterior.
+- **Vision via HTTP OpenRouter**: Vision com `image_url` content type é mais estável via HTTP do que pelo node nativo OpenAI em 2.13.2 (node nativo não tem suporte a image_url content type na versão atual).
+- **Chat completions via HTTP OpenRouter**: mantido por estabilidade do JSON mode.
+- **Subworkflows inline**: media e catálogo ficam inline no workflow principal para evitar dependência de IDs de workflow em ambiente cloud.
+- **`prepare_checkout`**: presente em prompt, schema JSON, Switch, parser/validator, test matrix e `flor_register_agent_exchange`.
+- **RLS separado**: `00024` gerado mas com tudo comentado — aplicar só após validação completa do admin/CRM.
+
+### Checklist de configuração para deploy
+
+1. **Rotacionar credenciais** (ver `docs/SECRETS-ROTATION-REQUIRED.md`)
+2. **Aplicar migrations em ordem**: `00021` → `00022` → `00023` via Supabase Dashboard SQL Editor
+3. **Configurar variáveis de workflow no n8n** (Settings > Variables):
+   - `SUPABASE_URL` = `https://nldwghtcewsgrzkbxcyx.supabase.co`
+   - `SUPABASE_SERVICE_ROLE_KEY` = nova key após rotação
+   - `EVOLUTION_BASE_URL` = `https://cheatingbat-evolution.cloudfy.live`
+   - `EVOLUTION_INSTANCE` = nome da instância
+   - `EVOLUTION_API_KEY` = nova key após rotação
+   - `OPENAI_API_KEY` = chave OpenAI (para Whisper nativo)
+   - `OPENROUTER_API_KEY` = chave OpenRouter (para chat + vision)
+   - `CATALOG_BASE_URL` = URL do app (ex: `https://flordoestudante.vercel.app`)
+4. **Configurar credencial OpenAI** no n8n (para o node nativo de transcription): nome `"OpenAI Flor (configurar)"`, tipo `OpenAI API`
+5. **Importar Sprint 6A** no n8n (não deletar 3A/4A/5A — manter histórico)
+6. **Testar** com os 15 cenários do Sprint 6A em `docs/agent-test-matrix.md` (cenários 26–40)
+
+### Rotas Next.js confirmadas
+
+- `/produto/[slug]` ✅ `app/(public)/produto/[slug]/page.tsx`
+- `/pedido/[codigo]` ✅ `app/(public)/pedido/[codigo]/page.tsx`
+- `/pedido/[codigo]/pagamento` ✅ `app/(public)/pedido/[codigo]/pagamento/page.tsx`
+- `flor_prepare_checkout` gera URL: `{CATALOG_BASE_URL}/pedido/{public_code}/pagamento`
+
+### Riscos remanescentes
+
+| Risco | Mitigação |
+|---|---|
+| Whisper nativo exige credential OpenAI configurada no n8n | Criar e configurar antes do teste |
+| Evolution `getBase64FromMediaMessage` pode retornar formato inesperado | `continueOnFail` + fallback em `CODE: MERGE AUDIO` |
+| `search_ready_catalog_for_agent` pode não existir ou ter assinatura diferente | Validar via Supabase MCP antes de aplicar; ajustar parâmetros se necessário |
+| `flor_prepare_checkout` usa enum `payment_method` — valor deve estar no enum | Verificar enum no banco antes de chamar com `mercado_pago`/`pay_on_delivery` |
+| Catálogo sem occasion_tags dia_das_maes impacta busca | Migração 00023 faz UPDATE nos produtos ativos existentes |
 
 ## Histórico resumido (fases anteriores)
 Monorepo floricultura: catálogo, carrinho, checkout, MP/offline, webhook, sync, pedido público, admin (login, pedidos, status, itens), Docker Compose, documentação de deploy/handoff/smoke test. Home-decor mínimo.
+
+---
+
+## Sprint MVP Ready — Conclusão técnica do agente (06/05/2026)
+
+### Status: MVP TÉCNICO COMPLETO — Aguardando deploy e testes
+
+### O que foi feito
+
+#### Diagnóstico MCP (live DB)
+- Validado schema real via Supabase MCP (project `nldwghtcewsgrzkbxcyx`)
+- Confirmado: apenas migrations 00001–00008 aplicadas; 00009–00024 nunca aplicadas
+- Todas as 8 RPCs do agente estavam ausentes no banco
+- Identificados 4 bugs críticos de nomes de coluna no migration 00022:
+  - `orders.conversation_id` → `source_conversation_id`
+  - `orders.notes` → `customer_note`
+  - `shipping_rules.fixed_amount` → `amount`
+  - `conversations.status = 'waiting_human'` → `'pending'` (valor válido)
+- Identificado bug no migration 00023: `INSERT INTO settings (key, value, description)` — settings não tem coluna `key`
+- Confirmada assinatura real de `search_ready_catalog_for_agent`
+- Confirmadas rotas Next.js: `/produto/[slug]`, `/pedido/[codigo]`, `/pedido/[codigo]/pagamento`
+
+#### Arquivos criados/alterados
+
+| Arquivo | Tipo | Descrição |
+|---|---|---|
+| `supabase/floricultura/migrations/00025_flor_mvp_agent_rpcs.sql` | NOVO | Migration consolidada com todas as 8 RPCs corrigidas + colunas de mídia |
+| `workflows/FLOR \| WhatsApp Inbound Principal \| MVP Ready.json` | NOVO | Workflow principal 50 nodes, normalizer S3A robusto, todas branches convergindo |
+| `workflows/FLOR \| Tool Search Catalog \| MVP.json` | NOVO | Subworkflow catálogo com assinatura real da RPC |
+| `workflows/FLOR \| Tool Media Process \| MVP.json` | NOVO | Subworkflow Whisper (áudio) + OpenRouter Vision (imagem) |
+| `docs/agent-test-matrix.md` | ATUALIZADO | Cenários 14/15 corrigidos + 20 novos cenários MVP (M01–M20) |
+| `docs/progress.md` | ATUALIZADO | Este documento |
+| `docs/mvp-agent-deploy-checklist.md` | NOVO | Checklist completo de deploy |
+| `docs/SECRETS-ROTATION-REQUIRED.md` | ATUALIZADO | Service_role key hardcoded no Sprint 3A |
+
+#### Correções aplicadas na Migration 00025
+- `flor_get_conversation_context` — correto do 00021, aplicado
+- `flor_register_agent_exchange` — correto do 00021, persistência de transcription/visual_description adicionada
+- `flor_log_media_event` — correto do 00021, aplicado
+- `flor_create_order_draft` — corrigido: `source_conversation_id`, `customer_note`, `amount`
+- `flor_update_order_draft` — corrigido: `customer_note`, `amount`
+- `flor_prepare_checkout` — correto do 00022, aplicado
+- `flor_parse_whatsapp_cart` — correto do 00022, aplicado
+- `flor_trigger_handoff` — corrigido: `status = 'pending'` (não `'waiting_human'`)
+- Adicionado: `ALTER TABLE conversation_messages ADD COLUMN IF NOT EXISTS transcription, visual_description`
+- Adicionado: tag dia_das_maes em produtos ativos (idempotente)
+- Removido: bug de `INSERT INTO settings (key, value, description)` do 00023
+
+#### Correções aplicadas no Workflow MVP Ready
+- Normalizer: `const payload = $json.body || $json` (bug S6A corrigido)
+- Phone normalization: função robusta `normalizeBrazilWhatsappPhone` do Sprint 3A restaurada
+- `continueOnFail: true` em todos os nodes Redis e Evolution
+- Todas as 7 branches do SWITCH ACTION convergem para `CODE: NORMALIZA SAÍDA FINAL | MVP`
+- `agent_reply` sempre sourced de `CODE: NORMALIZA SAÍDA FINAL | MVP` (não do Redis SET SESSION)
+- Supabase HTTP Requests com headers `Accept-Profile: public` e `Content-Profile: public`
+- `search_ready_catalog_for_agent` com assinatura real correta
+- `flor_register_agent_exchange` com parâmetros corretos (`p_message_body`, não `p_message_text`)
+- Human lock TTL: 28800 (8h), não 3600
+
+### O que resta fazer antes de ir para produção
+
+1. **Aplicar migration 00025** via Supabase MCP ou Dashboard SQL Editor
+2. **Rotacionar credenciais** (ver `docs/SECRETS-ROTATION-REQUIRED.md`)
+3. **Configurar no n8n:**
+   - Variáveis: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `EVOLUTION_BASE_URL`, `EVOLUTION_INSTANCE`, `CATALOG_BASE_URL`, `OPENROUTER_API_KEY`
+   - Credential Redis: `redis_cloudfy`
+   - Credential OpenAI: `OpenAI Flor` (para Whisper)
+   - Credential Evolution: header auth com `apikey`
+4. **Importar workflows** na ordem: Tool Search Catalog MVP → Tool Media Process MVP → MVP Ready
+5. **Ativar** apenas o MVP Ready; manter 3A/4A/5A/6A desativados como histórico
+6. **Executar matriz de testes** (cenários M01–M20 + cenários 32–40)
+
+### Riscos remanescentes
+
+| Risco | Impacto | Mitigação |
+|---|---|---|
+| `flor_prepare_checkout` não cria registro em `payments` | Pagamento não rastreado no banco | MVP manual OK; criar payment após webhook MP pagar |
+| OpenRouter Vision com base64 inline pode ser limitado | Imagens não analisadas | `continueOnFail` + fallback pede descrição |
+| Evolution `getBase64FromMediaMessage` formato variável | Áudio/imagem não processa | `continueOnFail` + fallback em ambos os branches |
+| Catálogo com 3 produtos no banco (seed mínimo) | Poucas opções para cliente | Adicionar produtos reais antes dos testes |
+| `CATALOG_BASE_URL` precisa ser URL final após deploy | Links incorretos em testes locais | Configurar via `$vars` no n8n |
+| RLS desativado em conversations/messages/agent_events | Exposição de dados via anon key | Revisar e aplicar 00024 com policies corretas antes de expor publicamente |
+
+---
+
+## UX Polish Sprint 2 (mai/2026)
+
+Segundo ciclo de refinamentos de UX focado em microinterações de clique, checkout, página pública de pedido, imagens quebradas e campanha de Dia das Mães.
+
+### Grupos implementados
+
+#### G1: Cursor pointer em todas as áreas clicáveis
+- Adicionado CSS global para garantir `cursor: pointer` em botões, links e elementos interativos
+- Aplicado em `apps/floricultura-web/app/globals.css`
+
+#### G2: CTA "Finalizar Pedido" — copy e estilização
+- Atualizado texto para "Confirmar pedido com carinho"
+- Adicionado ícone `HeartHandshake` com animação
+- Tamanho `lg`, `rounded-full`
+- Microanimação `hover:scale-[1.02]`
+- Estado de loading: "Finalizando com carinho…"
+
+#### G3: Alinhamento do topo Resumo do Pedido com Contato no checkout
+- Aplicado `lg:items-start` no grid do checkout
+- Resumo e form agora alinham no mesmo nível Y no desktop
+
+#### G4: Redirecionamento pós-compra e otimização da página pública de pedido
+- `CheckoutForm` agora redireciona para `/pedido/[code]` (não `/pagamento`)
+- **Novo componente**: `OrderProgressBar` com barra de progresso horizontal
+  - 5 etapas: Aguardando aprovação → Aprovado → Sendo preparado → Pronto/Saiu → Concluído
+  - Etapa atual com `animate-pulse` e `shadow-lg shadow-primary/40`
+  - Etapas completadas com checkmark verde
+- `OrderItemsList` agora exibe fotos dos produtos
+  - Query de `getOrderPaymentView` atualizada para buscar `product_id` e `cover_image_url`
+  - Fallback visual com ícone para produtos sem imagem
+- Página pública agora mostra:
+  - Mensagem de agradecimento para pedidos novos
+  - Barra de progresso destacada
+  - Lista de itens com foto, nome, quantidade e preço
+  - Resumo financeiro sticky no desktop
+
+#### G5: Investigação e correção das imagens ausentes na PDP/miniaturas
+- Adicionado tratamento para strings vazias ou inválidas (`'null'`, `'undefined'`) em `resolvePublicImageUrl`
+- `ProductGallery` refatorado:
+  - Filtra imagens vazias da lista
+  - Garante fallback para placeholder se não houver imagens válidas
+  - Evita duplicação entre cover e galeria
+- `MediaThumb` já possui `onError` para fallback automático em caso de falha de carregamento
+
+#### G6: Hero — Headline, subheadline e CTAs para Dia das Mães
+- Atualizada label para "Dia das Mães 2026"
+- Nova headline: "Flores que **abraçam por você** neste Dia das Mães"
+- Subheadline focada em entrega cuidadosa, mensagem personalizada e facilidade
+- CTA primária: "Escolher presente agora" → `/catalogo`
+- CTA secundária: "Ver sugestões especiais" → `/catalogo?destaque=dia-das-maes`
+- Microanimações `hover:scale-[1.02]` nos botões
+
+### Decisões técnicas
+
+| Decisão | Justificativa |
+|---|---|
+| CSS global para cursor pointer em vez de classes individuais | Garante consistência em toda a aplicação sem precisar adicionar classe em cada botão/link |
+| `OrderProgressBar` com 5 etapas fixas | Fluxo operacional da floricultura não varia; etapas hardcoded simplificam manutenção |
+| Barra pulsante no step atual | Feedback visual claro do status em tempo real, alinhado com identidade acolhedora |
+| Fetch de `cover_image_url` via `product_id` em orders | Melhora consistência visual entre catálogo e página de pedido |
+| Filtro de imagens vazias no `ProductGallery` | Evita renderizar slots de thumbnail vazios ou com URLs inválidas |
+| Redirecionamento direto pós-checkout | Melhora experiência pós-compra ao direcionar usuário para página de acompanhamento rica |
+
+### O que mudou desde UX Polish Sprint 1
+
+- Checkout agora redireciona para página pública em vez de `/pagamento`
+- Página pública de pedido ganhou:
+  - Mensagem de boas-vindas emocional
+  - Barra de progresso visual com animações
+  - Fotos dos itens do pedido
+  - Layout otimizado para mobile e desktop
+- Hero principal agora está alinhada com campanha de Dia das Mães
+- Todas as áreas clicáveis têm cursor pointer via CSS global
+
+### Arquivos criados
+
+| Arquivo | Propósito |
+|---|---|
+| `features/orders/components/OrderProgressBar.tsx` | Barra de progresso horizontal com 5 etapas e animação pulsante |
+
+### Arquivos modificados
+
+| Arquivo | Mudanças |
+|---|---|
+| `app/globals.css` | CSS global para cursor pointer em elementos interativos |
+| `features/checkout/components/CheckoutSubmitButton.tsx` | Nova copy, ícone HeartHandshake, microanimação |
+| `features/checkout/components/CheckoutForm.tsx` | Alinhamento grid com `items-start`, redirecionamento para `/pedido/[code]` |
+| `features/payments/data-order.ts` | Query estendida para buscar `product_id` e `cover_image_url`, tipo `OrderItemView` agora inclui `imageUrl` |
+| `features/orders/components/OrderItemsList.tsx` | Exibe fotos dos produtos com MediaThumb, fallback visual |
+| `features/orders/components/index.ts` | Exporta `OrderProgressBar` |
+| `app/(public)/pedido/[codigo]/page.tsx` | Mensagem de boas-vindas, barra de progresso, layout otimizado |
+| `lib/image-url.ts` | Tratamento para strings vazias/inválidas (`'null'`, `'undefined'`) |
+| `features/catalog/components/ProductGallery.tsx` | Filtra imagens vazias, fallback robusto |
+| `components/public/HomeHero.tsx` | Copy atualizada para Dia das Mães, novos CTAs, microanimações |
+
+### Validação final
+
+- ✅ TypeScript compila sem erros (`npx tsc --noEmit`)
+- ✅ Linter não reporta problemas críticos nos arquivos alterados
+- 🔄 Teste manual pendente:
+  - Fluxo completo: home → catálogo → PDP → checkout → `/pedido/[code]`
+  - Verificar barra de progresso com diferentes status de pedido
+  - Confirmar carregamento de imagens em pedidos
+  - Validar Hero com copy de Dia das Mães no mobile e desktop
+  - Verificar cursor pointer em cards, botões, links

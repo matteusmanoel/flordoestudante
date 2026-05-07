@@ -12,6 +12,8 @@ export interface CartItem {
   unitPrice: number;
   quantity: number;
   lineTotal: number;
+  /** Mensagem para cartão/presente — opcional, digitada na PDP */
+  giftMessage?: string;
 }
 
 export interface Cart {

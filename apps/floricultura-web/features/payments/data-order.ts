@@ -9,6 +9,7 @@ export interface OrderItemView {
   name: string;
   quantity: number;
   lineTotal: number;
+  imageUrl?: string;
 }
 
 export interface OrderPaymentView {
@@ -92,8 +93,29 @@ export async function getOrderPaymentView(publicCode: string): Promise<OrderPaym
 
   const { data: itemsData } = await supabase
     .from('order_items')
-    .select('product_name_snapshot, quantity, line_total')
+    .select('product_name_snapshot, quantity, line_total, product_id')
     .eq('order_id', o.id);
+
+  // Buscar cover_image_url para os produtos
+  const productIds = (itemsData ?? [])
+    .map((i) => (i as { product_id: string | null }).product_id)
+    .filter((id): id is string => typeof id === 'string' && id.length > 0);
+
+  const productImages: Record<string, string> = {};
+  if (productIds.length > 0) {
+    const { data: products } = await supabase
+      .from('products')
+      .select('id, cover_image_url')
+      .in('id', productIds);
+    if (products) {
+      for (const p of products) {
+        const prod = p as { id: string; cover_image_url: string | null };
+        if (prod.cover_image_url) {
+          productImages[prod.id] = prod.cover_image_url;
+        }
+      }
+    }
+  }
 
   const items: OrderItemView[] =
     (itemsData ?? []).map((row) => {
@@ -101,11 +123,13 @@ export async function getOrderPaymentView(publicCode: string): Promise<OrderPaym
         product_name_snapshot: string;
         quantity: number;
         line_total: number;
+        product_id: string | null;
       };
       return {
         name: r.product_name_snapshot,
         quantity: r.quantity,
         lineTotal: Number(r.line_total),
+        imageUrl: r.product_id ? productImages[r.product_id] : undefined,
       };
     }) ?? [];
 

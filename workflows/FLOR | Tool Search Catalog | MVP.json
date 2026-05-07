@@ -1,0 +1,95 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "e9668f7a-3399-4db1-b89b-9eedc3bc1ae9",
+      "name": "EXECUTE WORKFLOW TRIGGER",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [-688, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://nldwghtcewsgrzkbxcyx.supabase.co/rest/v1/rpc/search_ready_catalog_for_agent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Profile",
+              "value": "public"
+            },
+            {
+              "name": "Content-Profile",
+              "value": "public"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  q_text: $json.q_text || '',\n  occasion_filter: $json.occasion_filter || '',\n  category_slug_filter: $json.category_slug_filter || '',\n  max_budget_filter: $json.max_budget_filter || null,\n  same_day_filter: $json.same_day_filter || null,\n  item_type_filter: $json.item_type_filter || 'all',\n  limit_count: $json.limit_count || 5,\n  include_text_only: true\n}) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "24401f62-ab01-4c6c-8885-b09400c07b8c",
+      "name": "HTTP: SEARCH CATALOG RPC",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-448, 0],
+      "credentials": {
+        "supabaseApi": {
+          "id": "r7bNEcAkh4eOhoad",
+          "name": "Supabase account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// @ts-nocheck\n// Formata resultados da RPC search_ready_catalog_for_agent para o agente IA.\n// Assinatura real: q_text, occasion_filter, category_slug_filter, max_budget_filter,\n// same_day_filter, item_type_filter, limit_count, include_text_only\n// Retorna: item_type, item_id, name, slug, price, cover_image_url, occasion_tags,\n// availability_status, requires_confirmation, agent_readiness_status, match_score, ...\n\nconst catalogBase = $vars.CATALOG_BASE_URL || 'https://floricultura.vercel.app';\n\nconst items = $input.all();\nlet rawResults = [];\n\nfor (const item of items) {\n  const d = item.json;\n  if (Array.isArray(d)) {\n    rawResults = d;\n    break;\n  }\n  if (d && typeof d === 'object' && !d.error) {\n    rawResults.push(d);\n  }\n}\n\nif (rawResults.length === 0) {\n  return [{\n    json: {\n      has_results: false,\n      catalog_items: [],\n      catalog_text: 'Não encontrei produtos disponíveis para essa busca no momento.',\n      item_count: 0\n    }\n  }];\n}\n\nconst formatted = rawResults.map(p => {\n  const itemType = p.item_type || 'product';\n  const slug = p.slug || '';\n  const url = itemType === 'product'\n    ? `${catalogBase}/produto/${slug}`\n    : null;\n  const priceNum = parseFloat(p.price) || 0;\n  const priceFormatted = priceNum.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });\n  return {\n    item_type: itemType,\n    item_id: p.item_id || p.id || null,\n    name: p.name || '',\n    slug: slug,\n    short_description: p.short_description || '',\n    price: priceNum,\n    price_formatted: priceFormatted,\n    cover_image_url: p.cover_image_url || null,\n    availability_status: p.availability_status || 'available',\n    requires_confirmation: Boolean(p.requires_confirmation),\n    same_day_available: Boolean(p.same_day_available),\n    occasion_tags: p.occasion_tags || [],\n    agent_readiness_status: p.agent_readiness_status || 'ready',\n    agent_notes: p.agent_notes || null,\n    match_score: p.match_score || 0,\n    catalog_url: url\n  };\n});\n\n// Build text summary for IA reply\nconst lines = formatted.map((p, i) => {\n  const num = i + 1;\n  const urlPart = p.catalog_url ? `\\n   🔗 ${p.catalog_url}` : '';\n  const confirmPart = p.requires_confirmation ? ' *(disponibilidade sob consulta)*' : '';\n  return `${num}. *${p.name}* — ${p.price_formatted}${confirmPart}${p.short_description ? '\\n   ' + p.short_description : ''}${urlPart}`;\n});\n\nconst catalogText = lines.join('\\n\\n');\n\nreturn [{\n  json: {\n    has_results: formatted.length > 0,\n    catalog_items: formatted,\n    catalog_text: catalogText,\n    item_count: formatted.length\n  }\n}];"
+      },
+      "id": "7a7037e2-3c8d-49c8-880d-f367d8d4fd39",
+      "name": "CODE: FORMAT CATALOG RESULTS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-208, 0]
+    }
+  ],
+  "connections": {
+    "EXECUTE WORKFLOW TRIGGER": {
+      "main": [
+        [
+          {
+            "node": "HTTP: SEARCH CATALOG RPC",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP: SEARCH CATALOG RPC": {
+      "main": [
+        [
+          {
+            "node": "CODE: FORMAT CATALOG RESULTS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "65bec8ad9af329e8a89b63d8b92d775bc3b982584190ebd2d881725c81277167"
+  }
+}

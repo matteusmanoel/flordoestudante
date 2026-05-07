@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { requireAdminSession } from '@/features/admin/session';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { OrderAdminDetail } from '@/features/admin/OrderAdminDetail';
+import { OrderAdminDetailModal } from './OrderAdminDetailModal';
 
 export default async function AdminPedidoDetailPage({
   params,
@@ -50,7 +50,7 @@ export default async function AdminPedidoDetailPage({
     .limit(200);
 
   return (
-    <OrderAdminDetail
+    <OrderAdminDetailModal
       orderId={o.id}
       publicCode={o.public_code}
       initialStatus={o.status}

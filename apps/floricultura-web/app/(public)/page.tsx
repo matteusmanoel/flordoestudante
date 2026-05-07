@@ -1,5 +1,7 @@
 import { HomeHero } from '@/components/public/HomeHero';
+import { HomeTrustBar } from '@/components/public/HomeTrustBar';
 import { HomeBanners } from '@/components/public/HomeBanners';
+import { HomeOccasionTiles } from '@/components/public/HomeOccasionTiles';
 import { HomeIntro } from '@/components/public/HomeIntro';
 import { HomePromosSection } from '@/components/public/HomePromosSection';
 import { HomeCatalogSection } from '@/components/public/HomeCatalogSection';
@@ -9,10 +11,12 @@ export default function PublicHomePage() {
   return (
     <>
       <HomeHero />
+      <HomeTrustBar />
+      <HomeOccasionTiles />
       <HomeBanners />
-      <HomeIntro />
       <HomePromosSection />
       <HomeCatalogSection />
+      <HomeIntro />
       <HomeSubscriptions />
     </>
   );

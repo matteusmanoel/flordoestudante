@@ -1,30 +1,21 @@
 import Link from 'next/link';
-import { getCategories, getFeaturedProducts } from '@/features/catalog/data';
-import {
-  CategoryChip,
-  ProductGrid,
-} from '@/features/catalog/components';
+import { getProductsByCategory } from '@/features/catalog/data';
+import { CategoryCarouselSection } from '@/features/catalog/components';
 import { Button } from '@flordoestudante/ui';
 
 export async function HomeCatalogSection() {
-  const [categories, featuredProducts] = await Promise.all([
-    getCategories(),
-    getFeaturedProducts(8),
-  ]);
+  const categorySections = await getProductsByCategory({ limitPerCategory: 10, maxCategories: 8 });
 
-  const hasCategories = categories.length > 0;
-  const hasProducts = featuredProducts.length > 0;
-  const isEmpty = !hasCategories && !hasProducts;
-
-  if (isEmpty) {
+  if (categorySections.length === 0) {
     return (
-      <section id="destaques" className="border-b border-border/60 bg-gradient-to-b from-emerald-50/30 via-background to-green-50/20 py-16 sm:py-24">
+      <section id="destaques" className="section-divider py-16 sm:py-24">
         <div className="container px-4">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="font-serif text-2xl font-medium text-foreground sm:text-3xl">
-              Destaques
+            <p className="editorial-label">Catálogo</p>
+            <h2 className="mt-2 font-display text-2xl font-medium text-foreground sm:text-3xl">
+              Flores e presentes
             </h2>
-            <p className="mt-2 text-muted-foreground">
+            <p className="mt-3 text-muted-foreground">
               Em breve: buquês, cestas e presentes para você escolher.
             </p>
           </div>
@@ -39,39 +30,30 @@ export async function HomeCatalogSection() {
   }
 
   return (
-    <section id="destaques" className="border-b border-border/60 bg-gradient-to-b from-emerald-50/30 via-background to-green-50/20 py-16 sm:py-24">
-      <div className="container px-4">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-serif text-2xl font-medium text-foreground sm:text-3xl">
-            Destaques
+    <section id="destaques" className="section-divider py-16 sm:py-24">
+      <div className="container">
+        <div className="mx-auto max-w-2xl px-4 text-center">
+          <p className="editorial-label">Catálogo</p>
+          <h2 className="mt-2 font-display text-2xl font-medium text-foreground sm:text-3xl">
+            Flores e presentes para todos os momentos
           </h2>
-          <p className="mt-2 text-muted-foreground">
-            Flores, buquês e presentes para todos os momentos.
-          </p>
         </div>
-        {hasCategories && (
-          <div className="mt-8 flex flex-wrap justify-center gap-2">
-            {categories.slice(0, 6).map((cat) => (
-              <CategoryChip key={cat.id} category={cat} />
-            ))}
-          </div>
-        )}
-        {hasProducts ? (
-          <div className="mt-10">
-            <ProductGrid products={featuredProducts} />
-            <div className="mt-10 flex justify-center">
-              <Button asChild variant="outline" size="lg">
-                <Link href="/catalogo">Ver todo o catálogo</Link>
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="mt-10 flex justify-center">
-            <Button asChild variant="outline" size="lg">
-              <Link href="/catalogo">Ver catálogo</Link>
-            </Button>
-          </div>
-        )}
+
+        <div className="mt-12 space-y-14">
+          {categorySections.map(({ category, products }) => (
+            <CategoryCarouselSection
+              key={category.id}
+              category={category}
+              products={products}
+            />
+          ))}
+        </div>
+
+        <div className="mt-12 flex justify-center px-4">
+          <Button asChild variant="outline" size="lg">
+            <Link href="/catalogo">Ver todo o catálogo</Link>
+          </Button>
+        </div>
       </div>
     </section>
   );

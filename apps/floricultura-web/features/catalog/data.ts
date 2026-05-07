@@ -171,6 +171,49 @@ export async function getRecommendedProductsForProduct(productId: string): Promi
   return rows.map(mapProductToCard);
 }
 
+/**
+ * Busca produtos agrupados por categoria para exibição em carrosséis na homepage.
+ * Retorna no máximo `limitPerCategory` produtos por categoria, ordenados por destaque e data.
+ */
+export async function getProductsByCategory(options?: {
+  limitPerCategory?: number;
+  maxCategories?: number;
+}): Promise<{ category: CategoryCard; products: ProductCardModel[] }[]> {
+  const client = getClientOrNull();
+  if (!client) return [];
+
+  const { limitPerCategory = 10, maxCategories = 8 } = options ?? {};
+
+  const categories = await getCategories();
+  const topCategories = categories.slice(0, maxCategories);
+
+  const result = await Promise.all(
+    topCategories.map(async (cat) => {
+      const { data: catRow } = await client
+        .from('categories')
+        .select('id')
+        .eq('slug', cat.slug)
+        .single();
+      if (!catRow?.id) return { category: cat, products: [] };
+
+      const { data, error } = await client
+        .from('products')
+        .select(
+          'id, category_id, name, slug, short_description, description, price, compare_at_price, cover_image_url, is_active, is_featured, categories(name, slug)'
+        )
+        .eq('is_active', true)
+        .eq('category_id', catRow.id)
+        .order('is_featured', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(limitPerCategory);
+      if (error) return { category: cat, products: [] };
+      return { category: cat, products: (data as ProductRow[]).map(mapProductToCard) };
+    })
+  );
+
+  return result.filter((r) => r.products.length > 0);
+}
+
 /** Recomendados para exibir no checkout: produtos recomendados por qualquer item do carrinho, excluindo os já no carrinho. */
 export async function getRecommendedForCheckout(cartProductIds: string[]): Promise<ProductCardModel[]> {
   const client = getClientOrNull();

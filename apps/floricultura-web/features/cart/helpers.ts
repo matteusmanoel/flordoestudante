@@ -44,7 +44,8 @@ export function createCartItem(
     coverImageUrl?: string;
     price: number;
   },
-  quantity: number
+  quantity: number,
+  giftMessage?: string
 ): CartItem {
   const qty = sanitizeQuantity(quantity);
   const unitPrice = roundCurrency(Number(product.price));
@@ -58,6 +59,7 @@ export function createCartItem(
     unitPrice,
     quantity: qty,
     lineTotal,
+    ...(giftMessage?.trim() ? { giftMessage: giftMessage.trim() } : {}),
   };
 }
 
@@ -84,11 +86,28 @@ export function updateItemQuantity(
 /**
  * Adiciona ou atualiza item no carrinho (merge por productId).
  */
+/**
+ * Adiciona ou atualiza item no carrinho (merge por productId).
+ * Se o novo item tem gift message, prevalece sobre o existente.
+ */
 export function mergeItemIntoCart(items: CartItem[], newItem: CartItem): CartItem[] {
   const existing = findItemByProductId(items, newItem.productId);
   if (!existing) {
     return [...items, newItem];
   }
   const mergedQty = sanitizeQuantity(existing.quantity + newItem.quantity);
-  return updateItemQuantity(items, newItem.productId, mergedQty);
+  const mergedLineTotal = calculateLineTotal(existing.unitPrice, mergedQty);
+  return items.map((item) => {
+    if (item.productId !== newItem.productId) return item;
+    const imageUrl =
+      newItem.imageUrl.trim().length > 0 ? newItem.imageUrl : item.imageUrl;
+    return {
+      ...item,
+      quantity: mergedQty,
+      lineTotal: mergedLineTotal,
+      imageUrl,
+      // se nova mensagem, atualiza; se não, mantém a existente
+      giftMessage: newItem.giftMessage ?? item.giftMessage,
+    };
+  });
 }

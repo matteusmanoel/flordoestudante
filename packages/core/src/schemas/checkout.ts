@@ -43,7 +43,10 @@ export const checkoutFormSchema = z
   .object({
     ...contactFields,
     fulfillment_type: z.enum([FULFILLMENT_TYPE.DELIVERY, FULFILLMENT_TYPE.PICKUP]),
-    address: addressSchema.optional(),
+    // Endereço só deve ser validado quando for entrega.
+    // Se o usuário alternar "Entrega" → "Retirada", o RHF pode manter um objeto `address`
+    // com campos vazios no estado, o que não deve bloquear a finalização do pedido.
+    address: addressSchema.partial().optional(),
     customer_note: z.string().max(1000).optional(),
     gift_message: z.string().max(500).optional(),
     payment_method: z.enum([
@@ -60,15 +63,28 @@ export const checkoutFormSchema = z
     message: 'Informe telefone ou e-mail',
     path: ['phone'],
   })
-  .refine(
-    (data) => {
-      if (data.fulfillment_type === 'delivery') {
-        return data.address != null && data.shipping_rule_id != null;
+  .superRefine((data, ctx) => {
+    if (data.fulfillment_type !== FULFILLMENT_TYPE.DELIVERY) return;
+
+    if (data.shipping_rule_id == null) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Selecione uma taxa de entrega',
+        path: ['shipping_rule_id'],
+      });
+    }
+
+    const result = addressSchema.safeParse(data.address);
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        ctx.addIssue({
+          ...issue,
+          path: ['address', ...issue.path],
+        });
       }
-      return true;
-    },
-    { message: 'Endereço e taxa de entrega são obrigatórios para entrega', path: ['address'] }
-  )
+      return;
+    }
+  })
   .refine(
     (data) => {
       if (data.fulfillment_type === FULFILLMENT_TYPE.PICKUP) {

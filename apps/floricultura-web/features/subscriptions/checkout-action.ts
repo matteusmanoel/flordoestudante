@@ -5,6 +5,7 @@ import { createSubscriptionCheckout } from '@/lib/stripe/create-checkout';
 import { getStripeSecretKey } from '@/lib/stripe/config';
 import { SUBSCRIPTION_STATUS } from '@flordoestudante/core';
 import type { SubscriptionFrequency } from '@flordoestudante/core';
+import { subscriptionCheckoutSchema } from './checkout-schema';
 
 export interface SubscriptionCheckoutInput {
   planId: string;
@@ -24,6 +25,7 @@ export interface SubscriptionCheckoutInput {
     postal_code: string;
   };
   customerNote?: string;
+  giftMessage?: string;
 }
 
 export async function processSubscriptionCheckout(input: SubscriptionCheckoutInput) {
@@ -31,12 +33,22 @@ export async function processSubscriptionCheckout(input: SubscriptionCheckoutInp
     return { success: false as const, message: 'Stripe não configurado. Contate a loja.' };
   }
 
+  const parsed = subscriptionCheckoutSchema.safeParse(input);
+  if (!parsed.success) {
+    const firstIssue = parsed.error.issues[0];
+    return {
+      success: false as const,
+      message: firstIssue?.message ?? 'Confira os dados e tente novamente.',
+    };
+  }
+  const data = parsed.data;
+
   const supabase = createServerSupabaseClient();
 
   const { data: plan } = await supabase
     .from('subscription_plans')
     .select('id, name, slug, price, frequency')
-    .eq('id', input.planId)
+    .eq('id', data.planId)
     .eq('is_active', true)
     .single();
 
@@ -45,11 +57,11 @@ export async function processSubscriptionCheckout(input: SubscriptionCheckoutInp
   }
 
   let addons: { id: string; name: string; price: number }[] = [];
-  if (input.addonIds.length > 0) {
+  if (data.addonIds.length > 0) {
     const { data: addonRows } = await supabase
       .from('addons')
       .select('id, name, price')
-      .in('id', input.addonIds)
+      .in('id', data.addonIds)
       .eq('is_active', true);
     addons = (addonRows ?? []).map((a) => ({
       id: (a as { id: string }).id,
@@ -59,8 +71,8 @@ export async function processSubscriptionCheckout(input: SubscriptionCheckoutInp
   }
 
   let customerId: string;
-  const phone = input.phone?.trim() || null;
-  const email = input.email?.trim() || null;
+  const phone = data.phone?.trim() || null;
+  const email = data.email?.trim() || null;
 
   const existingByEmail = email
     ? await supabase.from('customers').select('id').eq('email', email).maybeSingle()
@@ -74,12 +86,12 @@ export async function processSubscriptionCheckout(input: SubscriptionCheckoutInp
     customerId = existing.id;
     await supabase
       .from('customers')
-      .update({ full_name: input.fullName.trim(), phone, email })
+      .update({ full_name: data.fullName.trim(), phone, email })
       .eq('id', customerId);
   } else {
     const { data: newCustomer, error: errCustomer } = await supabase
       .from('customers')
-      .insert({ full_name: input.fullName.trim(), phone, email })
+      .insert({ full_name: data.fullName.trim(), phone, email })
       .select('id')
       .single();
     if (errCustomer || !newCustomer) {
@@ -88,14 +100,19 @@ export async function processSubscriptionCheckout(input: SubscriptionCheckoutInp
     customerId = (newCustomer as { id: string }).id;
   }
 
+  const customerNoteParts = [data.customerNote?.trim(), data.giftMessage?.trim()]
+    .filter(Boolean)
+    .map((v, idx) => (idx === 1 ? `Mensagem no cartão: ${v}` : v));
+  const customerNoteCombined = customerNoteParts.join(' | ') || null;
+
   const { data: sub, error: subErr } = await supabase
     .from('subscriptions')
     .insert({
       plan_id: plan.id,
       customer_id: customerId,
       status: SUBSCRIPTION_STATUS.PENDING_PAYMENT,
-      address_snapshot_json: input.address,
-      customer_note: input.customerNote?.trim() || null,
+      address_snapshot_json: data.address,
+      customer_note: customerNoteCombined,
     })
     .select('id')
     .single();
@@ -113,13 +130,14 @@ export async function processSubscriptionCheckout(input: SubscriptionCheckoutInp
       frequency: plan.frequency as SubscriptionFrequency,
       addons: addons.map((a) => ({ name: a.name, price: a.price })),
       customerEmail: email ?? undefined,
-      customerName: input.fullName,
-      customerPhone: input.phone,
+      customerName: data.fullName,
+      customerPhone: data.phone,
+      planSlug: plan.slug,
       metadata: {
         subscription_id: subscriptionId,
         plan_id: plan.id,
         customer_id: customerId,
-        addon_ids: input.addonIds.join(','),
+        addon_ids: data.addonIds.join(','),
       },
     });
 

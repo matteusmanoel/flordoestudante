@@ -60,6 +60,13 @@ export async function POST(req: NextRequest) {
           : status === 'paused' ? SUBSCRIPTION_STATUS.PAUSED
           : null;
 
+        if (status === 'past_due') {
+          console.warn(
+            '[stripe webhook] Subscription past_due — mantendo status ACTIVE (enum não possui past_due):',
+            stripeSubId
+          );
+        }
+
         if (mappedStatus) {
           const subRecord = sub as unknown as Record<string, number>;
           const periodStart = subRecord.current_period_start;
@@ -73,6 +80,42 @@ export async function POST(req: NextRequest) {
               ...(mappedStatus === SUBSCRIPTION_STATUS.CANCELLED ? { cancelled_at: new Date().toISOString() } : {}),
               ...(mappedStatus === SUBSCRIPTION_STATUS.PAUSED ? { paused_at: new Date().toISOString() } : {}),
             })
+            .eq('stripe_subscription_id', stripeSubId);
+        }
+        break;
+      }
+
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object as Stripe.Invoice;
+        const stripeSubId = (invoice.subscription as string | null) ?? null;
+
+        const firstLine = invoice.lines?.data?.[0];
+        const periodStart = firstLine?.period?.start ?? null;
+        const periodEnd = firstLine?.period?.end ?? null;
+
+        if (stripeSubId) {
+          await supabase
+            .from('subscriptions')
+            .update({
+              status: SUBSCRIPTION_STATUS.ACTIVE,
+              ...(periodStart ? { current_period_start: new Date(periodStart * 1000).toISOString() } : {}),
+              ...(periodEnd ? { current_period_end: new Date(periodEnd * 1000).toISOString() } : {}),
+            })
+            .eq('stripe_subscription_id', stripeSubId);
+          console.log('[stripe webhook] invoice.payment_succeeded:', stripeSubId);
+        }
+        break;
+      }
+
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object as Stripe.Invoice;
+        const stripeSubId = (invoice.subscription as string | null) ?? null;
+        if (stripeSubId) {
+          // O enum interno não possui "past_due". Mantemos ACTIVE e registramos aviso para acompanhamento.
+          console.warn('[stripe webhook] invoice.payment_failed (sem status past_due no enum):', stripeSubId);
+          await supabase
+            .from('subscriptions')
+            .update({ status: SUBSCRIPTION_STATUS.ACTIVE })
             .eq('stripe_subscription_id', stripeSubId);
         }
         break;

@@ -10,6 +10,7 @@ export interface StripeCheckoutParams {
   customerEmail?: string;
   customerName: string;
   customerPhone: string;
+  planSlug: string;
   metadata: Record<string, string>;
 }
 
@@ -50,7 +51,8 @@ export async function createSubscriptionCheckout(params: StripeCheckoutParams) {
 
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
-    payment_method_types: ['card'],
+    // Brasil: além de cartão, Stripe Checkout pode oferecer PIX (quando habilitado na conta).
+    payment_method_types: ['card', 'pix'],
     line_items: lineItems,
     customer_email: params.customerEmail || undefined,
     metadata: params.metadata,
@@ -58,7 +60,7 @@ export async function createSubscriptionCheckout(params: StripeCheckoutParams) {
       metadata: params.metadata,
     },
     success_url: `${siteUrl}/assinaturas/sucesso?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${siteUrl}/assinaturas`,
+    cancel_url: `${siteUrl}/assinaturas/${encodeURIComponent(params.planSlug)}`,
   });
 
   return { sessionId: session.id, url: session.url };

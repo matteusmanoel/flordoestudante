@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { useForm, type FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -83,11 +83,51 @@ export function CheckoutForm({
       : 0;
   const total = cartPayload.subtotal + shippingAmount;
 
+  const [contactSectionHeight, setContactSectionHeight] = useState(0);
+  const [viewportSummaryCapPx, setViewportSummaryCapPx] = useState(480);
+
+  useLayoutEffect(() => {
+    const el = document.getElementById('checkout-contact-section');
+    if (!el) return;
+
+    const measure = () => {
+      setContactSectionHeight(el.getBoundingClientRect().height);
+    };
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    const updateViewportCap = () => {
+      // top-24 (6rem) + espaço para CTA + gaps (~5rem)
+      setViewportSummaryCapPx(Math.max(200, window.innerHeight - 6 * 16 - 5 * 16));
+    };
+    updateViewportCap();
+    window.addEventListener('resize', updateViewportCap);
+    return () => window.removeEventListener('resize', updateViewportCap);
+  }, []);
+
+  const checkoutSummaryScrollMaxPx =
+    contactSectionHeight > 0
+      ? Math.min(viewportSummaryCapPx, contactSectionHeight)
+      : viewportSummaryCapPx;
+
   useEffect(() => {
     if (fulfillmentType === FULFILLMENT_TYPE.DELIVERY && activeShippingRule != null) {
       form.setValue('shipping_rule_id', activeShippingRule.id);
     } else {
       form.setValue('shipping_rule_id', null);
+    }
+
+    if (fulfillmentType === FULFILLMENT_TYPE.PICKUP) {
+      // Evita que um `address` parcial (de quando estava em "Entrega") continue bloqueando validação.
+      form.setValue('address', undefined, { shouldDirty: false, shouldTouch: false });
+      form.clearErrors('address');
     }
   }, [fulfillmentType, activeShippingRule, form]);
 
@@ -162,12 +202,12 @@ export function CheckoutForm({
           </div>
         )}
 
-        {/* Desktop: grid-cols-[1fr_380px]; Mobile: coluna única */}
-        <div className="gap-8 lg:grid lg:grid-cols-[1fr_380px] lg:items-start">
-          {/* Coluna esquerda — formulário */}
-          <div className="space-y-5">
+        {/* Desktop/tablet: grid com aside em row-span-2 para o sticky cobrir formulário + upsell full-width na coluna esquerda */}
+        <div className="gap-8 md:grid md:grid-cols-[1fr_380px] md:items-start">
+          {/* Coluna esquerda — formulário (linha 1) */}
+          <div className="space-y-5 md:col-start-1 md:row-start-1">
             {/* Resumo (mobile only, aparece acima do form) */}
-            <section className="rounded-xl border border-border bg-card p-4 shadow-sm lg:hidden">
+            <section className="rounded-xl border border-border bg-card p-4 shadow-sm md:hidden">
               <h2 className="mb-3 font-display text-base font-medium text-foreground">
                 Resumo do pedido
               </h2>
@@ -182,8 +222,11 @@ export function CheckoutForm({
               />
             </section>
 
-            {/* Contato */}
-            <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
+            {/* Contato — referência visual para altura máxima do resumo (sticky) */}
+            <section
+              id="checkout-contact-section"
+              className="rounded-xl border border-border bg-card p-4 shadow-sm"
+            >
               <CheckoutContactSection register={form.register} errors={form.formState.errors} />
             </section>
 
@@ -230,38 +273,46 @@ export function CheckoutForm({
             </section>
 
             {/* CTA mobile */}
-            <div className="pt-2 lg:hidden">
+            <div className="pt-2 md:hidden">
               <CheckoutSubmitButton isSubmitting={form.formState.isSubmitting} />
             </div>
           </div>
 
-          {/* Coluna direita — resumo sticky (desktop) */}
-          <aside className="hidden lg:block">
-            <div className="sticky top-24 space-y-4 flex flex-col items-center justify-center w-full">
-              <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
-                <h2 className="mb-3 font-display text-base font-medium text-foreground">
-                  Resumo do pedido
-                </h2>
-                <CheckoutSummary
-                  hideTitle
-                  editable
-                  items={items}
-                  subtotal={cartPayload.subtotal}
-                  shippingAmount={shippingAmount}
-                  total={total}
-                  fulfillmentType={fulfillmentType}
-                />
-              </section>
-              <CheckoutSubmitButton isSubmitting={form.formState.isSubmitting} />
+          {/* Coluna direita — resumo sticky (tablet/desktop); row-span-2 acompanha até upsell na linha 2 */}
+          <aside className="hidden min-h-0 md:col-start-2 md:row-span-2 md:row-start-1 md:block md:self-start">
+            <div className="sticky top-24 flex w-full max-h-[calc(100vh-6rem)] flex-col justify-end gap-4">
+              <div className="flex min-h-0 w-full flex-col justify-end gap-4 overflow-hidden">
+                <section className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-border bg-card p-4 shadow-sm">
+                  <h2 className="mb-3 shrink-0 font-display text-base font-medium text-foreground">
+                    Resumo do pedido
+                  </h2>
+                  <div
+                    id="checkout-summary-scroll"
+                    className="min-h-0 flex-1 overflow-auto overscroll-contain pr-1"
+                    style={{ maxHeight: checkoutSummaryScrollMaxPx }}
+                  >
+                    <CheckoutSummary
+                      hideTitle
+                      editable
+                      items={items}
+                      subtotal={cartPayload.subtotal}
+                      shippingAmount={shippingAmount}
+                      total={total}
+                      fulfillmentType={fulfillmentType}
+                    />
+                  </div>
+                </section>
+                <CheckoutSubmitButton isSubmitting={form.formState.isSubmitting} />
+              </div>
             </div>
           </aside>
+
+          {/* Upsell: mesma largura da coluna principal (1fr), não “comprimido”; w-full explícito */}
+          <div className="mt-8 w-full min-w-0 md:col-start-1 md:row-start-2">
+            <CheckoutRecommendedSection variant="quickAdd" />
+          </div>
         </div>
       </form>
-
-      {/* Produtos recomendados — abaixo do form */}
-      <div className="mt-8">
-        <CheckoutRecommendedSection variant="quickAdd" />
-      </div>
     </>
   );
 }

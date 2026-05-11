@@ -1,5 +1,13 @@
 # Progress
 
+## Dashboard na home do admin — floricultura-web (mai/2026)
+
+- **`features/admin/dashboard/`**: `types.ts` (DTO serializável), `load-dashboard-data.ts` — `Promise.all` com contagens em `orders` (aprovação, pagamento pendente, em andamento, pipeline aberto = mesmos status que `AdminOrdersTableClient`), fila de atenção (10 pedidos), agregados financeiros 7/30 dias (MP pago vs compromisso na entrega/retirada vs concluídos), contagens de `products` ativo/inativo, última linha de `imports_log`.
+- **UI**: `DashboardKpiRow`, `DashboardAttentionQueue`, `DashboardFinanceSnapshot`, `DashboardCatalogAndImports`; `app/admin/page.tsx` chama `requireAdminSession` + loader, mensagem de erro se falhar; seção **Acesso rápido** mantém o grid de atalhos original.
+- **Decisão de métricas**: “Mercado Pago” soma `total_amount` de pedidos `payment_method = mercado_pago` e `payment_status = paid` criados na janela; “Compromisso” soma pedidos `pay_on_*` criados na janela com status fora de `draft`/`cancelled`/`expired`; concluídos deduplicados por `id` quando há `completed_at` na janela ou `completed_at` nulo com `updated_at` na janela. Comentários no loader apontam RPC futura se o volume crescer.
+
+---
+
 ## Agente WhatsApp — Checkout + Entrega + PIX (mai/2026)
 
 Implementação dos milestones M1–M3 do PRD `docs/agent-checkout-and-delivery-evolution.md`:

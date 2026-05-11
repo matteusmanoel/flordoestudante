@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useForm, type FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -61,14 +61,65 @@ function firstNestedErrorMessage(errors: FieldErrors<SubscriptionCheckoutFormVal
   return walk(errors);
 }
 
+function SubscriptionSummaryLines({
+  planPrice,
+  freqLabel,
+  addons,
+}: {
+  planPrice: number;
+  freqLabel: string;
+  addons: { id: string; name: string; price: number }[];
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between text-sm">
+        <span className="text-muted-foreground">Plano ({freqLabel.toLowerCase()})</span>
+        <span>{formatCurrency(planPrice)}</span>
+      </div>
+      {addons.map((a) => (
+        <div key={a.id} className="flex justify-between text-sm">
+          <span className="text-muted-foreground">{a.name}</span>
+          <span>+ {formatCurrency(a.price)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function SubscriptionCheckoutClient({ plan, addons }: Props) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [loadingCep, setLoadingCep] = useState(false);
   const [expandedAddress, setExpandedAddress] = useState(false);
+  const [contactSectionHeight, setContactSectionHeight] = useState(0);
+  const [viewportSummaryCapPx, setViewportSummaryCapPx] = useState(480);
 
   const addonsTotal = useMemo(() => addons.reduce((sum, a) => sum + a.price, 0), [addons]);
   const total = useMemo(() => plan.price + addonsTotal, [plan.price, addonsTotal]);
   const freqLabel = SUBSCRIPTION_FREQUENCY_LABELS[plan.frequency];
+
+  const subscriptionSummaryScrollMaxPx =
+    contactSectionHeight > 0
+      ? Math.min(viewportSummaryCapPx, contactSectionHeight)
+      : viewportSummaryCapPx;
+
+  useLayoutEffect(() => {
+    const el = document.getElementById('subscription-checkout-contact-section');
+    if (!el) return;
+    const measure = () => setContactSectionHeight(el.getBoundingClientRect().height);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const updateViewportCap = () => {
+      setViewportSummaryCapPx(Math.max(200, window.innerHeight - 6 * 16 - 5 * 16));
+    };
+    updateViewportCap();
+    window.addEventListener('resize', updateViewportCap);
+    return () => window.removeEventListener('resize', updateViewportCap);
+  }, []);
 
   const form = useForm<SubscriptionCheckoutFormValues>({
     resolver: zodResolver(subscriptionCheckoutFormSchema),
@@ -174,24 +225,15 @@ export function SubscriptionCheckoutClient({ plan, addons }: Props) {
           </div>
         )}
 
-        <div className="gap-8 lg:grid lg:grid-cols-[1fr_380px] lg:items-start">
-          <div className="space-y-5">
-            {/* Resumo (mobile) */}
-            <section className="rounded-xl border border-border bg-card p-4 shadow-sm lg:hidden">
+        <div className="gap-8 md:grid md:grid-cols-[1fr_380px] md:items-stretch">
+          <div className="space-y-5 md:col-start-1 md:row-start-1">
+            {/* Resumo (mobile): sticky abaixo do header — mesmo padrão do /checkout */}
+            <section className="sticky top-14 z-20 rounded-xl border border-border bg-card p-4 shadow-sm md:static md:z-auto md:hidden">
               <h2 className="mb-3 font-display text-base font-medium text-foreground">
                 Resumo da assinatura
               </h2>
               <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Plano ({freqLabel.toLowerCase()})</span>
-                  <span>{formatCurrency(plan.price)}</span>
-                </div>
-                {addons.map((a) => (
-                  <div key={a.id} className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{a.name}</span>
-                    <span>+ {formatCurrency(a.price)}</span>
-                  </div>
-                ))}
+                <SubscriptionSummaryLines planPrice={plan.price} freqLabel={freqLabel} addons={addons} />
                 <div className="flex justify-between border-t border-border/60 pt-2 font-medium">
                   <span>Total por ciclo</span>
                   <span className="text-lg">{formatCurrency(total)}</span>
@@ -199,8 +241,11 @@ export function SubscriptionCheckoutClient({ plan, addons }: Props) {
               </div>
             </section>
 
-            {/* Contato */}
-            <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
+            {/* Contato — referência de altura para o resumo rolável no desktop (igual /checkout) */}
+            <section
+              id="subscription-checkout-contact-section"
+              className="rounded-xl border border-border bg-card p-4 shadow-sm"
+            >
               <div className="space-y-4">
                 <h3 className="font-serif text-lg font-medium text-foreground">Contato</h3>
                 <div className="grid gap-4 sm:grid-cols-1">
@@ -452,7 +497,7 @@ export function SubscriptionCheckoutClient({ plan, addons }: Props) {
             </section>
 
             {/* CTA mobile */}
-            <div className="pt-2 lg:hidden">
+            <div className="pt-2 md:hidden">
               <Button
                 type="submit"
                 size="lg"
@@ -469,44 +514,47 @@ export function SubscriptionCheckoutClient({ plan, addons }: Props) {
             </div>
           </div>
 
-          {/* Coluna direita — resumo sticky (desktop) */}
-          <aside className="hidden lg:block">
-            <div className="sticky top-24 space-y-4 flex flex-col items-center justify-center w-full">
-              <section className="rounded-xl border border-border bg-card p-4 shadow-sm w-full">
-                <h2 className="mb-3 font-display text-base font-medium text-foreground">
-                  Resumo da assinatura
-                </h2>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Plano ({freqLabel.toLowerCase()})</span>
-                    <span>{formatCurrency(plan.price)}</span>
-                  </div>
-                  {addons.map((a) => (
-                    <div key={a.id} className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{a.name}</span>
-                      <span>+ {formatCurrency(a.price)}</span>
+          {/* Coluna direita — resumo sticky + CTA (tablet/desktop), espelhando /checkout */}
+          <aside className="hidden min-h-0 md:col-start-2 md:row-start-1 md:block md:self-stretch">
+            <div className="sticky top-24 z-30 flex w-full max-h-[min(100dvh,calc(100vh-6rem))] flex-col gap-4">
+              <div className="flex min-h-0 w-full flex-col gap-4 overflow-hidden">
+                <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card p-4 shadow-sm">
+                  <h2 className="mb-3 shrink-0 font-display text-base font-medium text-foreground">
+                    Resumo da assinatura
+                  </h2>
+                  <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-md bg-muted/20">
+                    <div
+                      id="subscription-checkout-summary-scroll"
+                      className="min-h-0 flex-1 overflow-y-auto overscroll-contain py-3 pr-1"
+                      style={{ maxHeight: subscriptionSummaryScrollMaxPx }}
+                    >
+                      <SubscriptionSummaryLines planPrice={plan.price} freqLabel={freqLabel} addons={addons} />
                     </div>
-                  ))}
-                  <div className="flex justify-between border-t border-border/60 pt-2 font-medium">
-                    <span>Total por ciclo</span>
-                    <span className="text-lg">{formatCurrency(total)}</span>
+                    <div className="shrink-0 -mx-4 sm:-mx-4">
+                      <div className="space-y-1 border-t border-border bg-muted/40 px-4 py-3 sm:px-5">
+                        <div className="flex justify-between font-medium text-foreground">
+                          <span>Total por ciclo</span>
+                          <span className="text-lg">{formatCurrency(total)}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </section>
+                </section>
 
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full sm:min-w-[240px]"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting
-                  ? 'Redirecionando...'
-                  : `Pagar ${formatCurrency(total)} no Stripe`}
-              </Button>
-              <p className="text-center text-xs text-muted-foreground max-w-[320px]">
-                Você será redirecionado para o Stripe para concluir o pagamento de forma segura.
-              </p>
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="w-full shrink-0"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting
+                    ? 'Redirecionando...'
+                    : `Pagar ${formatCurrency(total)} no Stripe`}
+                </Button>
+                <p className="shrink-0 text-center text-xs text-muted-foreground">
+                  Você será redirecionado para o Stripe para concluir o pagamento de forma segura.
+                </p>
+              </div>
             </div>
           </aside>
         </div>

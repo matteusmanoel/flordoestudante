@@ -1,8 +1,29 @@
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Button } from '@flordoestudante/ui';
 import { Card, CardDescription, CardHeader, CardTitle } from '@flordoestudante/ui';
-import { getOptionalAdminSession } from '@/features/admin/session';
+import { getOptionalAdminSession, requireAdminSession } from '@/features/admin/session';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { loadDashboardData } from '@/features/admin/dashboard/load-dashboard-data';
+import { DashboardKpiRow } from '@/features/admin/dashboard/DashboardKpiRow';
+import { DashboardAttentionQueue } from '@/features/admin/dashboard/DashboardAttentionQueue';
+import { DashboardFinanceSnapshot } from '@/features/admin/dashboard/DashboardFinanceSnapshot';
+import { DashboardCatalogAndImports } from '@/features/admin/dashboard/DashboardCatalogAndImports';
+const DashboardCharts = dynamic(
+  () =>
+    import('@/features/admin/dashboard/DashboardCharts').then((m) => ({
+      default: m.DashboardCharts,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <p className="rounded-lg border border-dashed border-border bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
+        Carregando gráficos…
+      </p>
+    ),
+  }
+);
 import {
   ShoppingBag,
   Package,
@@ -33,6 +54,10 @@ export default async function AdminHomePage() {
       </div>
     );
   }
+
+  await requireAdminSession();
+  const sb = createServerSupabaseClient();
+  const dashboard = await loadDashboardData(sb);
 
   const adminCards = [
     {
@@ -80,36 +105,73 @@ export default async function AdminHomePage() {
   ];
 
   return (
-    <div className="space-y-8 p-6">
+    <div className="space-y-10 p-6">
       <div>
-        <h1 className="font-serif text-3xl font-medium text-foreground">
-          Olá, {admin.full_name}
-        </h1>
+        <h1 className="font-serif text-3xl font-medium text-foreground">Olá, {admin.full_name}</h1>
         <p className="mt-2 text-muted-foreground">
-          Bem-vindo ao painel de administração. Gerencie seu negócio com facilidade.
+          Visão geral da operação e atalhos para o que você usa com mais frequência.
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {adminCards.map((card) => {
-          const Icon = card.icon;
-          return (
-            <Link key={card.href} href={card.href}>
-              <Card className="transition-all hover:border-primary hover:shadow-md">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="mb-2 text-lg">{card.title}</CardTitle>
-                      <CardDescription className="text-sm">{card.description}</CardDescription>
+      {!dashboard.ok ? (
+        <p className="text-destructive">Erro ao carregar o painel: {dashboard.error}</p>
+      ) : (
+        <>
+          <section className="space-y-4" aria-label="Indicadores">
+            <h2 className="font-display text-lg font-medium text-foreground">Hoje em números</h2>
+            <DashboardKpiRow kpis={dashboard.data.kpis} />
+          </section>
+
+          <DashboardCharts
+            kpis={dashboard.data.kpis}
+            finance={dashboard.data.finance}
+            catalog={dashboard.data.catalog}
+            attentionQueue={dashboard.data.attentionQueue}
+          />
+
+          <section aria-label="Fila de pedidos">
+            <DashboardAttentionQueue orders={dashboard.data.attentionQueue} />
+          </section>
+
+          <section aria-label="Resumo financeiro">
+            <DashboardFinanceSnapshot
+              last7Days={dashboard.data.finance.last7Days}
+              last30Days={dashboard.data.finance.last30Days}
+            />
+          </section>
+
+          <section aria-label="Catálogo">
+            <DashboardCatalogAndImports
+              catalog={dashboard.data.catalog}
+              lastImport={dashboard.data.lastImport}
+            />
+          </section>
+        </>
+      )}
+
+      <section className="space-y-4" aria-label="Acesso rápido">
+        <h2 className="font-display text-lg font-medium text-foreground">Acesso rápido</h2>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {adminCards.map((card) => {
+            const Icon = card.icon;
+            return (
+              <Link key={card.href} href={card.href}>
+                <Card className="transition-all hover:border-primary hover:shadow-md">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="mb-2 text-lg">{card.title}</CardTitle>
+                        <CardDescription className="text-sm">{card.description}</CardDescription>
+                      </div>
+                      <Icon className={`h-8 w-8 flex-shrink-0 ${card.color}`} />
                     </div>
-                    <Icon className={`h-8 w-8 flex-shrink-0 ${card.color}`} />
-                  </div>
-                </CardHeader>
-              </Card>
-            </Link>
-          );
-        })}
-      </div>
+                  </CardHeader>
+                </Card>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
 
       <div className="flex items-center gap-3 border-t border-border pt-6">
         <Button asChild variant="outline" size="sm">

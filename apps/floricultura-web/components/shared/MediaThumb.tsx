@@ -18,6 +18,8 @@ export type MediaThumbProps = {
   imageClassName?: string;
   priority?: boolean;
   placeholderIconClassName?: string;
+  /** Enquanto a imagem carrega, mostra bloco pulsante (evita “pulo” de layout). */
+  showLoadingSkeleton?: boolean;
 };
 
 function PlaceholderBlock({
@@ -76,10 +78,13 @@ export function MediaThumb({
   imageClassName,
   priority,
   placeholderIconClassName,
+  showLoadingSkeleton = false,
 }: MediaThumbProps) {
   const [loadFailed, setLoadFailed] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   useEffect(() => {
     setLoadFailed(false);
+    setImageLoaded(false);
   }, [src]);
   const url = resolvePublicImageUrl(src);
   const showPlaceholder = loadFailed || isPlaceholderMediaUrl(url);
@@ -100,17 +105,32 @@ export function MediaThumb({
   const isExternal = url.startsWith('http');
 
   if (fill) {
+    const showSkeletonOverlay =
+      showLoadingSkeleton && !showPlaceholder && !imageLoaded && !loadFailed;
     return (
-      <Image
-        src={url}
-        alt={alt}
-        fill
-        className={cn('object-cover', imageClassName)}
-        sizes={sizes}
-        priority={priority}
-        unoptimized={isExternal}
-        onError={() => setLoadFailed(true)}
-      />
+      <span className={cn('relative block h-full w-full', className)}>
+        {showSkeletonOverlay ? (
+          <span className="absolute inset-0 z-[1] animate-pulse bg-muted" aria-hidden />
+        ) : null}
+        <Image
+          src={url}
+          alt={alt}
+          fill
+          className={cn(
+            'object-cover transition-opacity duration-200',
+            showLoadingSkeleton && !imageLoaded && 'opacity-0',
+            imageClassName
+          )}
+          sizes={sizes}
+          priority={priority}
+          unoptimized={isExternal}
+          onLoad={() => setImageLoaded(true)}
+          onError={() => {
+            setLoadFailed(true);
+            setImageLoaded(true);
+          }}
+        />
+      </span>
     );
   }
 

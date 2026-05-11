@@ -6,10 +6,12 @@
 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import {
+  addressSchema,
   FULFILLMENT_TYPE,
   ORDER_STATUS,
   PAYMENT_METHOD,
   PAYMENT_STATUS,
+  type AddressFormValues,
 } from '@flordoestudante/core';
 
 import { getMercadoPagoAccessToken } from '@/lib/mercado-pago/config';
@@ -29,9 +31,7 @@ function generatePublicCode(): string {
   return `FD-${year}-${suffix}`;
 }
 
-function toAddressSnapshot(
-  formAddress: NonNullable<CreateOrderInput['form']['address']>
-): AddressSnapshotPayload {
+function toAddressSnapshot(formAddress: AddressFormValues): AddressSnapshotPayload {
   return {
     recipient_name: formAddress.recipient_name,
     phone: formAddress.phone,
@@ -72,6 +72,7 @@ export async function finalizeCheckout(input: CreateOrderInput): Promise<Finaliz
     return { success: false, code: 'EMPTY_CART', message: 'Carrinho vazio ou inválido.' };
   }
 
+  let deliveryAddress: AddressFormValues | null = null;
   if (form.fulfillment_type === FULFILLMENT_TYPE.DELIVERY) {
     if (!form.address) {
       return { success: false, code: 'VALIDATION', message: 'Endereço é obrigatório para entrega.' };
@@ -83,6 +84,12 @@ export async function finalizeCheckout(input: CreateOrderInput): Promise<Finaliz
         message: 'Taxa de entrega não disponível. Tente retirada.',
       };
     }
+    const addrParsed = addressSchema.safeParse(form.address);
+    if (!addrParsed.success) {
+      const msg = addrParsed.error.issues[0]?.message ?? 'Endereço inválido.';
+      return { success: false, code: 'VALIDATION', message: msg };
+    }
+    deliveryAddress = addrParsed.data;
   }
 
   const phone = form.phone?.trim() || null;
@@ -149,20 +156,20 @@ export async function finalizeCheckout(input: CreateOrderInput): Promise<Finaliz
     }
 
     let addressSnapshotJson: AddressSnapshotPayload | null = null;
-    if (form.fulfillment_type === FULFILLMENT_TYPE.DELIVERY && form.address) {
-      addressSnapshotJson = toAddressSnapshot(form.address);
+    if (form.fulfillment_type === FULFILLMENT_TYPE.DELIVERY && deliveryAddress) {
+      addressSnapshotJson = toAddressSnapshot(deliveryAddress);
       await supabase.from('addresses').insert({
         customer_id: customerId,
-        recipient_name: form.address.recipient_name,
-        phone: form.address.phone,
-        street: form.address.street,
-        number: form.address.number,
-        complement: form.address.complement || null,
-        neighborhood: form.address.neighborhood,
-        city: form.address.city,
-        state: form.address.state,
-        postal_code: form.address.postal_code,
-        reference: form.address.reference || null,
+        recipient_name: deliveryAddress.recipient_name,
+        phone: deliveryAddress.phone,
+        street: deliveryAddress.street,
+        number: deliveryAddress.number,
+        complement: deliveryAddress.complement || null,
+        neighborhood: deliveryAddress.neighborhood,
+        city: deliveryAddress.city,
+        state: deliveryAddress.state,
+        postal_code: deliveryAddress.postal_code,
+        reference: deliveryAddress.reference || null,
       });
     }
 

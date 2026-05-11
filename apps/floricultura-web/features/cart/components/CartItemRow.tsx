@@ -45,7 +45,7 @@ export function CartItemRow({
             <span className="line-clamp-2 italic">&ldquo;{item.giftMessage}&rdquo;</span>
           </p>
         )}
-        <div className="mt-2 flex items-center gap-2">
+        <div className="mt-2 flex flex-col items-start gap-2">
           <div className="flex items-center rounded-md border border-border">
             <button
               type="button"

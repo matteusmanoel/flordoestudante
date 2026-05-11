@@ -4,6 +4,13 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { SUBSCRIPTION_STATUS } from '@flordoestudante/core';
 import type Stripe from 'stripe';
 
+/** Stripe Invoice v20+ — subscription id lives under parent.subscription_details. */
+function subscriptionIdFromInvoice(invoice: Stripe.Invoice): string | null {
+  const ref = invoice.parent?.subscription_details?.subscription;
+  if (!ref) return null;
+  return typeof ref === 'string' ? ref : ref.id;
+}
+
 export async function POST(req: NextRequest) {
   const webhookSecret = getStripeWebhookSecret();
   const body = await req.text();
@@ -87,7 +94,7 @@ export async function POST(req: NextRequest) {
 
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object as Stripe.Invoice;
-        const stripeSubId = (invoice.subscription as string | null) ?? null;
+        const stripeSubId = subscriptionIdFromInvoice(invoice);
 
         const firstLine = invoice.lines?.data?.[0];
         const periodStart = firstLine?.period?.start ?? null;
@@ -109,7 +116,7 @@ export async function POST(req: NextRequest) {
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice;
-        const stripeSubId = (invoice.subscription as string | null) ?? null;
+        const stripeSubId = subscriptionIdFromInvoice(invoice);
         if (stripeSubId) {
           // O enum interno não possui "past_due". Mantemos ACTIVE e registramos aviso para acompanhamento.
           console.warn('[stripe webhook] invoice.payment_failed (sem status past_due no enum):', stripeSubId);

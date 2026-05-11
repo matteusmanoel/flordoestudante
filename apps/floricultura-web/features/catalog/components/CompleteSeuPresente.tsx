@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { Button, Price } from '@flordoestudante/ui';
+import { cn } from '@flordoestudante/utils';
 import type { ProductCardModel } from '../types';
 import { MediaThumb } from '@/components/shared/MediaThumb';
 import { useCart } from '@/features/cart';
@@ -12,11 +13,19 @@ type CompleteSeuPresenteProps = {
   products: ProductCardModel[];
   title?: string;
   className?: string;
-  /** `navigate`: abre a página do produto. `quickAdd`: adiciona 1 unidade ao carrinho no checkout. */
+  /**
+   * `quickAdd` (checkout): adiciona sem abrir o sheet do carrinho.
+   * `navigate` (PDP, etc.): mesmo card com overlay “Adicionar” do catálogo; clique fora do botão vai ao produto.
+   */
   variant?: 'navigate' | 'quickAdd';
 };
 
 const MAX_VISIBLE_ITEMS = 4;
+
+/** Altura mínima estável da grade (evita pulo ao recarregar sugestões / adicionar item). */
+const QUICK_ADD_GRID_MIN_H =
+  'min-h-[18.5rem] sm:min-h-[19.5rem] md:min-h-[20.5rem]' as const;
+const QUICK_ADD_CARD_MIN_H = 'min-h-[16.75rem] sm:min-h-[17.25rem]' as const;
 
 function pickRandomProducts(products: ProductCardModel[], count: number): ProductCardModel[] {
   if (products.length <= count) return products;
@@ -52,41 +61,26 @@ export function CompleteSeuPresente({
 
   const canRandomize = products.length > MAX_VISIBLE_ITEMS;
 
-  function scrollToCheckoutTop() {
-    const anchor = document.getElementById('checkout-page-top');
-    const run = () => {
-      if (anchor) {
-        anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        return;
-      }
-      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-      document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    };
-    // Mobile Safari / layout após setState: dois frames ajuda o scroll a aplicar.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(run);
-    });
-  }
-
-  function handleQuickAdd(product: ProductCardModel) {
+  function handleQuickAdd(e: React.MouseEvent, product: ProductCardModel) {
+    e.preventDefault();
+    e.stopPropagation();
     setAddingId(product.id);
-    addItem(
-      {
-        id: product.id,
-        slug: product.slug,
-        name: product.name,
-        categoryName: product.categoryName,
-        coverImageUrl: product.coverImageUrl,
-        price: product.price,
-      },
-      1,
-      undefined,
-      { openCartSheet: false }
-    );
-    scrollToCheckoutTop();
-    setAddingId(null);
+    queueMicrotask(() => {
+      addItem(
+        {
+          id: product.id,
+          slug: product.slug,
+          name: product.name,
+          categoryName: product.categoryName,
+          coverImageUrl: product.coverImageUrl,
+          price: product.price,
+        },
+        1,
+        undefined,
+        variant === 'quickAdd' ? { openCartSheet: false } : undefined
+      );
+      setAddingId(null);
+    });
   }
 
   return (
@@ -104,80 +98,65 @@ export function CompleteSeuPresente({
           </Button>
         ) : null}
       </div>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+      <div
+        className={
+          variant === 'quickAdd'
+            ? `grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 ${QUICK_ADD_GRID_MIN_H}`
+            : 'grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4'
+        }
+      >
         {visibleProducts.map((product) => {
           const rawUrl = product.coverImageUrl?.trim() || '';
           const busy = addingId === product.id;
-
-          if (variant === 'quickAdd') {
-            return (
-              <div
-                key={product.id}
-                className="flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm"
-              >
-                <Link
-                  href={`/produto/${product.slug}`}
-                  className="group relative block aspect-square overflow-hidden bg-muted/50"
-                >
-                  <MediaThumb
-                    src={rawUrl}
-                    alt={product.name}
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                    imageClassName="transition-transform duration-300 group-hover:scale-[1.02]"
-                  />
-                </Link>
-                <div className="flex flex-1 flex-col p-3">
-                  <Link
-                    href={`/produto/${product.slug}`}
-                    className="min-h-[2.5rem] line-clamp-2 text-sm font-medium text-foreground hover:text-primary"
-                  >
-                    {product.name}
-                  </Link>
-                  <Price
-                    value={product.price}
-                    compareAt={product.compareAtPrice}
-                    size="sm"
-                    className="mt-auto pt-1"
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    className="mt-3 inline-flex w-full items-center justify-center gap-2"
-                    disabled={busy}
-                    onClick={() => handleQuickAdd(product)}
-                  >
-                    {busy ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
-                        Adicionando…
-                      </>
-                    ) : (
-                      'Adicionar ao pedido'
-                    )}
-                  </Button>
-                </div>
-              </div>
-            );
-          }
 
           return (
             <Link
               key={product.id}
               href={`/produto/${product.slug}`}
-              className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card transition-shadow hover:shadow-md"
+              className={cn(
+                'group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/8',
+                variant === 'quickAdd' && QUICK_ADD_CARD_MIN_H
+              )}
             >
-              <div className="relative aspect-square overflow-hidden bg-muted/50">
+              <div className="relative aspect-square shrink-0 overflow-hidden bg-muted/40">
                 <MediaThumb
                   src={rawUrl}
                   alt={product.name}
                   fill
                   sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                  imageClassName="transition-transform duration-300 group-hover:scale-[1.02]"
+                  imageClassName="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                  showLoadingSkeleton={variant === 'quickAdd'}
                 />
+                <div className="absolute inset-x-0 bottom-0 flex translate-y-full items-center justify-between bg-gradient-to-t from-black/60 to-transparent px-3 pb-3 pt-8 transition-transform duration-300 group-hover:translate-y-0">
+                  <span className="text-xs font-medium text-white/90 drop-shadow">Adicionar</span>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={(e) => handleQuickAdd(e, product)}
+                    aria-label={`Adicionar ${product.name} ao carrinho`}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-foreground shadow-md transition-transform active:scale-90 hover:bg-primary hover:text-primary-foreground disabled:opacity-70"
+                  >
+                    {busy ? (
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                    ) : (
+                      <svg
+                        className="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2.5}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden
+                      >
+                        <path d="M12 5v14M5 12h14" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
-              <div className="flex flex-1 flex-col p-3">
-                <h3 className="min-h-[2.5rem] line-clamp-2 text-sm font-medium text-foreground group-hover:text-primary">
+              <div className="flex min-h-0 flex-1 flex-col p-3">
+                <h3 className="min-h-[2.5rem] line-clamp-2 text-sm font-medium text-foreground transition-colors group-hover:text-primary">
                   {product.name}
                 </h3>
                 <Price

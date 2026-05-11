@@ -85,29 +85,25 @@ export function updateItemQuantity(
 
 /**
  * Adiciona ou atualiza item no carrinho (merge por productId).
- */
-/**
- * Adiciona ou atualiza item no carrinho (merge por productId).
+ * Itens recém-adicionados ou atualizados ficam no topo da lista.
  * Se o novo item tem gift message, prevalece sobre o existente.
  */
 export function mergeItemIntoCart(items: CartItem[], newItem: CartItem): CartItem[] {
   const existing = findItemByProductId(items, newItem.productId);
   if (!existing) {
-    return [...items, newItem];
+    return [newItem, ...items];
   }
   const mergedQty = sanitizeQuantity(existing.quantity + newItem.quantity);
   const mergedLineTotal = calculateLineTotal(existing.unitPrice, mergedQty);
-  return items.map((item) => {
-    if (item.productId !== newItem.productId) return item;
-    const imageUrl =
-      newItem.imageUrl.trim().length > 0 ? newItem.imageUrl : item.imageUrl;
-    return {
-      ...item,
-      quantity: mergedQty,
-      lineTotal: mergedLineTotal,
-      imageUrl,
-      // se nova mensagem, atualiza; se não, mantém a existente
-      giftMessage: newItem.giftMessage ?? item.giftMessage,
-    };
-  });
+  const imageUrl =
+    newItem.imageUrl.trim().length > 0 ? newItem.imageUrl : existing.imageUrl;
+  const merged: CartItem = {
+    ...existing,
+    quantity: mergedQty,
+    lineTotal: mergedLineTotal,
+    imageUrl,
+    giftMessage: newItem.giftMessage ?? existing.giftMessage,
+  };
+  const rest = items.filter((item) => item.productId !== newItem.productId);
+  return [merged, ...rest];
 }

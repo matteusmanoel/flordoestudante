@@ -63,6 +63,14 @@ function getBrowserSupabase() {
   return createBrowserClient(url, anonKey);
 }
 
+function hasRecoveryTokensInHash(hash: string): boolean {
+  return (
+    hash.includes('access_token=') ||
+    hash.includes('refresh_token=') ||
+    hash.includes('type=recovery')
+  );
+}
+
 export function ResetPasswordPageClient({
   initialAuth,
 }: {
@@ -75,8 +83,16 @@ export function ResetPasswordPageClient({
   const errorCode = initialAuth.errorCode ?? searchParams.get('error_code');
   const errorDescription =
     initialAuth.errorDescription ?? searchParams.get('error_description');
+  const [hasRecoveryHash, setHasRecoveryHash] = useState(false);
+  const [hashChecked, setHashChecked] = useState(false);
 
   const copy = useMemo(() => targetCopy(target), [target]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    setHasRecoveryHash(hasRecoveryTokensInHash(window.location.hash));
+    setHashChecked(true);
+  }, []);
 
   if (errorCode || errorDescription) {
     return (
@@ -92,7 +108,19 @@ export function ResetPasswordPageClient({
     );
   }
 
-  if (code) {
+  if (!hashChecked && !code) {
+    return (
+      <Card className="mx-auto w-full max-w-md">
+        <ResetHeader copy={copy} />
+        <CardContent className="flex items-center justify-center py-6 text-sm text-muted-foreground">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
+          Validando link…
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (code || hasRecoveryHash) {
     return <NewPasswordStep code={code} copy={copy} router={router} />;
   }
 
@@ -230,7 +258,7 @@ function NewPasswordStep({
   copy,
   router,
 }: {
-  code: string;
+  code: string | null;
   copy: Copy;
   router: ReturnType<typeof useRouter>;
 }) {
@@ -250,6 +278,13 @@ function NewPasswordStep({
         const { data: afterInit, error: initErr } = await supabase.auth.getSession();
         if (cancelled) return;
         if (afterInit.session?.user && !initErr) {
+          return;
+        }
+        if (!code) {
+          setExchangeError(
+            initErr?.message ||
+              'Link inválido ou expirado. Solicite um novo e tente novamente.'
+          );
           return;
         }
         const { error } = await supabase.auth.exchangeCodeForSession(code);

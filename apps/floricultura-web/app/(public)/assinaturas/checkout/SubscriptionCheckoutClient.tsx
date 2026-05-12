@@ -506,10 +506,11 @@ export function SubscriptionCheckoutClient({ plan, addons }: Props) {
               >
                 {form.formState.isSubmitting
                   ? 'Redirecionando para pagamento...'
-                  : `Pagar ${formatCurrency(total)} no Stripe`}
+                  : `Pagar ${formatCurrency(total)} com cartão`}
               </Button>
               <p className="mt-3 text-center text-xs text-muted-foreground">
-                Você será redirecionado para concluir o pagamento de forma segura (cartão ou PIX, se disponível).
+                Você será redirecionado ao Stripe para pagar com cartão de crédito (cobrança recorrente da
+                assinatura).
               </p>
             </div>
           </div>
@@ -549,10 +550,10 @@ export function SubscriptionCheckoutClient({ plan, addons }: Props) {
                 >
                   {form.formState.isSubmitting
                     ? 'Redirecionando...'
-                    : `Pagar ${formatCurrency(total)} no Stripe`}
+                    : `Pagar ${formatCurrency(total)} com cartão`}
                 </Button>
                 <p className="shrink-0 text-center text-xs text-muted-foreground">
-                  Você será redirecionado para o Stripe para concluir o pagamento de forma segura.
+                  Pagamento com cartão de crédito no Stripe (recorrência automática da assinatura).
                 </p>
               </div>
             </div>

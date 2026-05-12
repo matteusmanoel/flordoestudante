@@ -20,6 +20,13 @@ import { BRAND_LOGO_SRC, STORE_NAME } from '@/lib/constants';
 
 type Target = 'admin' | 'customer';
 
+export type ResetInitialAuth = {
+  code: string | null;
+  errorCode: string | null;
+  errorDescription: string | null;
+  target: string | null;
+};
+
 function isAdminTarget(value: string | null): Target {
   return value === 'admin' ? 'admin' : 'customer';
 }
@@ -56,13 +63,18 @@ function getBrowserSupabase() {
   return createBrowserClient(url, anonKey);
 }
 
-export function ResetPasswordPageClient() {
+export function ResetPasswordPageClient({
+  initialAuth,
+}: {
+  initialAuth: ResetInitialAuth;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const target = isAdminTarget(searchParams.get('target'));
-  const code = searchParams.get('code');
-  const errorCode = searchParams.get('error_code');
-  const errorDescription = searchParams.get('error_description');
+  const target = isAdminTarget(initialAuth.target ?? searchParams.get('target'));
+  const code = initialAuth.code ?? searchParams.get('code');
+  const errorCode = initialAuth.errorCode ?? searchParams.get('error_code');
+  const errorDescription =
+    initialAuth.errorDescription ?? searchParams.get('error_description');
 
   const copy = useMemo(() => targetCopy(target), [target]);
 
@@ -235,6 +247,11 @@ function NewPasswordStep({
     (async () => {
       try {
         const supabase = getBrowserSupabase();
+        const { data: afterInit, error: initErr } = await supabase.auth.getSession();
+        if (cancelled) return;
+        if (afterInit.session?.user && !initErr) {
+          return;
+        }
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (cancelled) return;
         if (error) {

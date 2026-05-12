@@ -51,8 +51,8 @@ export async function createSubscriptionCheckout(params: StripeCheckoutParams) {
 
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
-    // Brasil: além de cartão, Stripe Checkout pode oferecer PIX (quando habilitado na conta).
-    payment_method_types: ['card', 'pix'],
+    // Assinaturas: cobrança recorrente automática — apenas cartão (PIX não é válido para todas as contas/modos).
+    payment_method_types: ['card'],
     line_items: lineItems,
     customer_email: params.customerEmail || undefined,
     metadata: params.metadata,
